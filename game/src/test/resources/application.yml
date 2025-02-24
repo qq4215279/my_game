@@ -1,0 +1,45 @@
+logging:
+  config: file:config/log4j2.xml
+server:
+  port: 6002
+spring:
+  application:
+    name: game-gateway-001
+  redis:
+    host: 115.28.208.195
+    port: 6379
+    password: xxx123456
+  cloud:
+    consul:
+      host: localhost
+      port: 7777
+      discovery:
+        prefer-ip-address: true
+        ip-address: 127.0.0.1
+        register: true   #将游戏网关做为服务节点，注册到Consul上面。
+        service-name: game-gateway  #注册到Consul上面的服务名称，用于区分此服务是否为游戏网关
+        health-check-critical-timeout: 30s
+        tags:
+        - gamePort=${game.gateway.server.config.port}  # 自定义数据，游戏网关的长连接端口
+        - weight=3  # 游戏网关权重
+    bus:
+      enabled: true
+    stream:
+      kafka:
+        binder:
+          brokers:
+          - localhost:9092  #配置Kafka地址
+  kafka:
+    producer:
+      key-serializer:
+        org.apache.kafka.common.serialization.StringSerializer  # 指定生产者的Key的序列化方式
+game:
+  gateway:
+    server:
+      config:
+        port: 6003  # 游戏网关的长连接端口，这里的数据是自定义配置。
+        boss-thread-count: 1
+        work-thread-count: 4
+        server-id: 1001
+        business-game-message-topic: business-game-message-topic # 向游戏服务发送消息 的Topic前缀
+        gateway-game-message-topic: gateway-game-message-topic-${game.gateway.server.config.server-id} #接收游戏服务响应消息的Topic

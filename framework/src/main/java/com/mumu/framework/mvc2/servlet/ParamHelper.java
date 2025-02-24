@@ -3,7 +3,7 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.mvc.servlet;
+package com.mumu.framework.mvc2.servlet;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;

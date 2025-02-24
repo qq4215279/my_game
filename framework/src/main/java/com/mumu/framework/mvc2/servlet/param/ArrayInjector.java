@@ -3,9 +3,9 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.mvc.servlet.param;
+package com.mumu.framework.mvc2.servlet.param;
 
-import com.mumu.framework.mvc.MessageContext;
+import com.mumu.framework.mvc2.MessageContext;
 
 /**
  * ArrayInjector

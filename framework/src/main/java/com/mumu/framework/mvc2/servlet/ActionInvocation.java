@@ -3,11 +3,11 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.mvc.servlet;
+package com.mumu.framework.mvc2.servlet;
 
 import java.lang.reflect.Method;
 
-import com.mumu.framework.mvc.servlet.parse.ParamParse;
+import com.mumu.framework.mvc2.servlet.parse.ParamParse;
 
 /**
  * ActionInvocation

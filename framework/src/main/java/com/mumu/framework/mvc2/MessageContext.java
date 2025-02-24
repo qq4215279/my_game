@@ -3,7 +3,7 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.mvc;
+package com.mumu.framework.mvc2;
 
 /**
  * MessageContext

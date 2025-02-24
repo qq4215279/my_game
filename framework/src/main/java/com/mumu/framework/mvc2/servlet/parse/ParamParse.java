@@ -3,13 +3,13 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.mvc.servlet.parse;
+package com.mumu.framework.mvc2.servlet.parse;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import com.mumu.framework.mvc.MessageContext;
-import com.mumu.framework.mvc.servlet.param.ParamInjector;
+import com.mumu.framework.mvc2.MessageContext;
+import com.mumu.framework.mvc2.servlet.param.ParamInjector;
 
 /**
  * ParamParse
