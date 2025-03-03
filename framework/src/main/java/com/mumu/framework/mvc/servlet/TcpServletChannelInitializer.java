@@ -2,29 +2,25 @@ package com.mumu.framework.mvc.servlet;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.mumu.framework.mvc.GatewayServerConfig;
-import com.mumu.framework.mvc.servlet.handler.ConfirmHandler;
-import com.mumu.framework.mvc.servlet.handler.HeartbeatHandler;
-import com.mumu.framework.mvc.servlet.handler.RequestRateLimiterHandler;
 import com.mumu.framework.mvc.servlet.handler.codec.DecodeHandler;
 import com.mumu.framework.mvc.servlet.handler.codec.EncodeHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.timeout.IdleStateHandler;
 
 /**
- * TckServletChannelInitializer
+ * TcpServletChannelInitializer
  *
  * @author liuzhen
  * @version 1.0.0 2025/2/24 23:13
  */
-public class TckServletChannelInitializer extends ChannelInitializer<Channel> {
+public class TcpServletChannelInitializer extends ChannelInitializer<Channel> {
 
     private GatewayServerConfig serverConfig;
     private RateLimiter globalRateLimiter;
 
-    public TckServletChannelInitializer(GatewayServerConfig serverConfig, RateLimiter globalRateLimiter) {
+    public TcpServletChannelInitializer(GatewayServerConfig serverConfig, RateLimiter globalRateLimiter) {
         this.serverConfig = serverConfig;
         this.globalRateLimiter = globalRateLimiter;
     }

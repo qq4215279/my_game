@@ -1,13 +1,12 @@
 package com.mumu.framework.mvc;
 
 import com.google.common.util.concurrent.RateLimiter;
-import com.mumu.framework.mvc.servlet.TckServletChannelInitializer;
+import com.mumu.framework.mvc.servlet.TcpServletChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -52,7 +51,7 @@ public class ServletBootstrap {
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childOption(ChannelOption.TCP_NODELAY, true)
-                    .childHandler(new TckServletChannelInitializer(serverConfig, globalRateLimiter));
+                    .childHandler(new TcpServletChannelInitializer(serverConfig, globalRateLimiter));
 
 //            logger.info("开始启动服务，端口:{}", serverConfig.getPort());
 

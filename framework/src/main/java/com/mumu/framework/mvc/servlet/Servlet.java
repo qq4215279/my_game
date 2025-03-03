@@ -16,7 +16,7 @@ public interface Servlet {
     /**
      * 处理请求
      */
-    void service();
+    void service(Request request, Response response);
 
     /**
      *
