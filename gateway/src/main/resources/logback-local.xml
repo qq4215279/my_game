@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ /*
+  ~  * Copyright 2020-2025, mumu without 996.
+  ~  * All Right Reserved.
+  ~  */
+  -->
+
+<configuration scan="true">
+    <property name="SERVER_NAME" value="GateServer"/>
+    <property name="LOG_PATH" value="logs"/>
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level][%thread][%logger{36}] %msg%n"/>
+    <property name="LOG_PATTERN_CONSOLE"
+              value="%d{HH:mm:ss.SSS} [%-5level][%thread][%logger{36}] %msg%n"/>
+
+    <!-- 默认控制台日志 -->
+    <appender name="DefaultAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN_CONSOLE}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======================= 通用日志 ======================== -->
+    <appender name="AsyncActionAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="ActionAppender"/>
+    </appender>
+    <appender name="ActionAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${SERVER_NAME}/action/${SERVER_NAME}Action.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${SERVER_NAME}/action/${SERVER_NAME}Action.log.%d{yyyyMMdd}.%i
+            </fileNamePattern>
+            <!-- 日志保存15天 -->
+            <maxHistory>15</maxHistory>
+            <!-- 单个日志文件超过x, 则新建日志文件存储 -->
+            <maxFileSize>512MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======================= 网络通信相关日志 ======================== -->
+    <appender name="AsyncNetAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="NetAppender"/>
+    </appender>
+
+    <appender name="NetAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${SERVER_NAME}/net/${SERVER_NAME}Net.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${SERVER_NAME}/net/${SERVER_NAME}Net.log.%d{yyyyMMdd}.%i
+            </fileNamePattern>
+            <!-- 日志保存15天 -->
+            <maxHistory>15</maxHistory>
+            <!-- 单个日志文件超过x, 则新建日志文件存储 -->
+            <maxFileSize>512MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======================= 异常日志 ======================== -->
+    <appender name="ErrorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${SERVER_NAME}/error/${SERVER_NAME}Error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${SERVER_NAME}/error/${SERVER_NAME}Error.log.%d{yyyyMMdd}.%i
+            </fileNamePattern>
+            <!-- 日志保存15天 -->
+            <maxHistory>15</maxHistory>
+            <!-- 单个日志文件超过x, 则新建日志文件存储 -->
+            <maxFileSize>512MB</maxFileSize>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======================= 数据模型层相关日志 ======================== -->
+    <appender name="AsyncModelAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="ModelAppender"/>
+    </appender>
+
+    <appender name="ModelAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${SERVER_NAME}/model/${SERVER_NAME}Model.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${SERVER_NAME}/model/${SERVER_NAME}Model.log.%d{yyyyMMdd}.%i
+            </fileNamePattern>
+            <!-- 日志保存15天 -->
+            <maxHistory>15</maxHistory>
+            <!-- 单个日志文件超过x, 则新建日志文件存储 -->
+            <maxFileSize>512MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ============================ 日志定义  ============================ -->
+    <!-- 通用日志 -->
+    <logger name="ACTION" additivity="false" level="INFO">
+        <appender-ref ref="DefaultAppender"/>
+        <appender-ref ref="AsyncActionAppender"/>
+        <appender-ref ref="ErrorAppender"/>
+    </logger>
+
+    <!-- 网络层相关 -->
+    <logger name="NET" additivity="false" level="DEBUG">
+        <appender-ref ref="DefaultAppender"/>
+        <appender-ref ref="AsyncNetAppender"/>
+        <appender-ref ref="ErrorAppender"/>
+    </logger>
+
+    <!-- 数据模型层相关日志 -->
+    <logger name="MODEL" additivity="false" level="INFO">
+        <appender-ref ref="DefaultAppender"/>
+        <appender-ref ref="AsyncModelAppender"/>
+        <appender-ref ref="ErrorAppender"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="DefaultAppender"/>
+        <appender-ref ref="ErrorAppender"/>
+    </root>
+</configuration>
