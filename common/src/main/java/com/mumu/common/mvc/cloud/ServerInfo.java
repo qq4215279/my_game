@@ -18,4 +18,5 @@ public class ServerInfo {
     private String host;
     /** 服务器端口 */
     private int port;
+
 }
