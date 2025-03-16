@@ -1,17 +1,24 @@
-package com.mumu.common.mvc.cloud;
+/*
+ *
+ *  * Copyright 2020-2025, mumu without 996.
+ *  * All Right Reserved.
+ *  */
+package com.mumu.framework.core.cloud;
 
-import io.netty.util.concurrent.DefaultEventExecutor;
-import io.netty.util.concurrent.EventExecutor;
-import io.netty.util.concurrent.Promise;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Resource;
+
+import org.springframework.context.ApplicationListener;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
+
+import io.netty.util.concurrent.DefaultEventExecutor;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.Promise;
 
 /**
  * PlayerServiceManager

@@ -1,4 +1,4 @@
-package com.mumu.common.mvc.cloud;
+package com.mumu.framework.core.cloud;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.client.ServiceInstance;
