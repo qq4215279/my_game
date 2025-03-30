@@ -8,7 +8,7 @@ package com.mumu.framework.core.mvc.servlet.initializer;
 import com.google.common.util.concurrent.RateLimiter;
 import com.mumu.framework.core.mvc.GatewayServerConfig;
 import com.mumu.framework.core.mvc.servlet.handler.ConfirmHandler;
-import com.mumu.framework.core.mvc.servlet.handler.DispatchServletHandler;
+import com.mumu.framework.core.mvc.servlet.handler.GateDispatchServletHandler;
 import com.mumu.framework.core.mvc.servlet.handler.HeartbeatHandler;
 import com.mumu.framework.core.mvc.servlet.handler.RequestRateLimiterHandler;
 import com.mumu.framework.core.mvc.servlet.handler.codec.JProtobufDecoder;
@@ -60,6 +60,6 @@ public class GatewayServletChannelInitializer extends ChannelInitializer<Channel
         p.addLast(new IdleStateHandler(readerIdleTimeSeconds, writerIdleTimeSeconds, allIdleTimeSeconds));
 
         p.addLast("HeartbeatHandler", new HeartbeatHandler());
-        p.addLast(new DispatchServletHandler());
+        p.addLast(new GateDispatchServletHandler());
     }
 }
