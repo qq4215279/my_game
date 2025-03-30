@@ -1,8 +1,13 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.business.player.domain;
 
-import com.google.common.collect.Maps;
 import com.mumu.framework.business.language.enums.LanguageEnum;
-import java.util.Map;
+import com.mumu.framework.core.cloud.ServiceType;
+
 import lombok.Data;
 
 /**
@@ -14,19 +19,16 @@ import lombok.Data;
 @Data
 public class Player {
   /** 玩家id */
-  private long id;
+  private long playerId;
 
   /** 当前所在服务组 */
-  // private ServerGroup currServerGroup;
+  private ServiceType currServerType;
 
   /** 当前所在服务Id */
   private int currServerId;
 
   /** 所在服务组 */
   // private Map<ServerGroup, Integer> serverGroups = Maps.newHashMap();
-
-  /** 玩家游戏位置信息 */
-  // private volatile PlayerSeatBean gameSeat = new PlayerSeatBean();
 
   /** 上次心跳时间（GATE服使用） */
   private long lastHeartbeatTime;
@@ -48,4 +50,11 @@ public class Player {
 
   /** 登陆渠道 */
   private String loginChannel;
+
+  /** 添加玩家所在服务器组 */
+  public synchronized void addServerGroup(ServiceType serviceType, int serverId) {
+    // 同步更新当前服务位置
+    currServerType = serviceType;
+    currServerId = serverId;
+  }
 }

@@ -85,7 +85,13 @@ game:
     rpc-response-game-message-topic: rpc-response-game-message-topic
     # 消费者组id
     topic-group-id: ${game.server.config.server-id}
-
+  # 客户端连接
+  client:
+    enable: true
+    protocol: socket
+    clientThreadNum: 16
+    soKeepalive: true
+    tcpNoDelay: false
 
 # 指定logback配置文件
 logging:

@@ -1,8 +1,14 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.mvc.servlet;
 
-import com.mumu.framework.core.mvc.message.GameMessagePackage;
+import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.Getter;
 
 import java.net.InetSocketAddress;
 
@@ -12,6 +18,7 @@ import java.net.InetSocketAddress;
  * @author liuzhen
  * @version 1.0.0 2025/3/3 23:05
  */
+@Getter
 public class Request<RequestMessage> {
     /** 请求参数 */
     private Object[] args;

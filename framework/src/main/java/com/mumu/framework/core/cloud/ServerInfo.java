@@ -1,3 +1,8 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.cloud;
 
 import lombok.Data;
@@ -10,8 +15,8 @@ import lombok.Data;
  */
 @Data
 public class ServerInfo {
-    /** 服务id，与GameMessageMetadata中的一致 */
-    private int serviceId;
+    /** 服务id(serviceId)，与GameMessageMetadata中的一致 */
+    private ServiceType serviceType;
     /** 服务器id */
     private int serverId;
     /** 服务器host */

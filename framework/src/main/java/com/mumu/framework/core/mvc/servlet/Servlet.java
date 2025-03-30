@@ -1,4 +1,11 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.mvc.servlet;
+
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * Servlet
@@ -16,7 +23,7 @@ public interface Servlet {
     /**
      * 处理请求
      */
-    void service(Request request, Response response);
+    void doCommand(ChannelHandlerContext ctx, Object msg);
 
     /**
      *

@@ -1,8 +1,7 @@
 /*
- *
- *  * Copyright 2020-2025, mumu without 996.
- *  * All Right Reserved.
- *  */
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
 package com.mumu.framework.core.cloud;
 
 import java.util.Collections;
@@ -16,6 +15,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import com.mumu.framework.util.SpringContextUtils;
+
 import io.netty.util.concurrent.DefaultEventExecutor;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
@@ -28,6 +29,10 @@ import io.netty.util.concurrent.Promise;
  */
 @Component
 public class PlayerServiceManager implements ApplicationListener<GameChannelCloseEvent> {
+    public static PlayerServiceManager self() {
+        return SpringContextUtils.getBean(PlayerServiceManager.class);
+    }
+
     @Resource
     private BusinessServerManager businessServerManager;
     @Resource
@@ -51,7 +56,7 @@ public class PlayerServiceManager implements ApplicationListener<GameChannelClos
      * @return java.util.Set<java.lang.Integer>
      * @date 2024/7/10 16:38
      */
-    public Set<Integer> getAllServiceId() {
+    public Set<ServiceType> getAllServiceId() {
         return businessServerManager.getAllServiceId();
     }
 
@@ -106,7 +111,7 @@ public class PlayerServiceManager implements ApplicationListener<GameChannelClos
 
                     // 如果Redis中没有缓存，或实例已失效，重新获取一个新的服务实例Id
                     if (value == null || !flag) {
-                        Integer serverId2 = this.selectServerIdAndSaveRedis(playerId, serviceId);
+                        int serverId2 = this.selectServerIdAndSaveRedis(playerId, serviceId);
                         this.addLocalCache(playerId, serviceId, serverId2);
                         promise.setSuccess(serverId2);
                     }
@@ -128,8 +133,8 @@ public class PlayerServiceManager implements ApplicationListener<GameChannelClos
         return "service_instance_" + playerId;
     }
 
-    private Integer selectServerIdAndSaveRedis(Long playerId, Integer serviceId) {
-        Integer serverId = businessServerManager.selectServerInfo(serviceId, playerId).getServerId();
+    private int selectServerIdAndSaveRedis(long playerId, int serviceId) {
+        int serverId = businessServerManager.selectServerInfo(playerId, serviceId).getServerId();
         this.eventExecutor.execute(() -> {
             try {
                 String key = this.getRedisKey(playerId);

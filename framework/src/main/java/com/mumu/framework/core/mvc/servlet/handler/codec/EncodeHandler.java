@@ -1,15 +1,24 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.mvc.servlet.handler.codec;
 
+import com.mumu.common.utils.AESUtils;
 import com.mumu.framework.core.mvc.GatewayServerConfig;
-import com.mumu.framework.core.mvc.message.GameMessagePackage;
+import com.mumu.common.proto.message.system.message.GameMessageHeader;
+import com.mumu.common.proto.message.system.message.GameMessagePackage;
+import com.mumu.framework.util.CompressUtil;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.Setter;
 
 /**
- * EncodeHandler
- * 消息编码handler
+ * EncodeHandler 消息编码handler
+ * 
  * @author liuzhen
  * @version 1.0.0 2025/2/24 23:29
  */
@@ -17,7 +26,6 @@ public class EncodeHandler extends MessageToByteEncoder<GameMessagePackage> {
     private static final int GAME_MESSAGE_HEADER_LEN = 29;
 
     private GatewayServerConfig serverConfig;
-
 
     /** 对称加密密钥 */
     @Setter
@@ -28,38 +36,37 @@ public class EncodeHandler extends MessageToByteEncoder<GameMessagePackage> {
         this.serverConfig = serverConfig;
     }
 
-
     @Override
     protected void encode(ChannelHandlerContext ctx, GameMessagePackage msg, ByteBuf out) throws Exception {
-//        int messageSize = GAME_MESSAGE_HEADER_LEN;
-//        byte[] body = msg.getBody();
-//        int compress = 0;
-//
-//        if (body != null) {
-//            // 达到压缩条件，进行压缩
-//            if (body.length >= serverConfig.getCompressMessageSize()) {
-//                body = CompressUtil.compress(body);
-//                compress = 1;
-//            }
-//
-//            if (this.aesSecret != null && msg.getHeader().getMessageId() != 1) {
-//                body = AESUtils.encode(aesSecret, body);
-//            }
-//            messageSize += body.length;
-//        }
-//
-//        out.writeInt(messageSize);
-//
-//        GameMessageHeader header = msg.getHeader();
-//        out.writeInt(header.getClientSeqId());
-//        out.writeInt(header.getMessageId());
-//        out.writeLong(header.getServerSendTime());
-//        out.writeInt(header.getVersion());
-//        out.writeByte(compress);
-//        out.writeInt(header.getErrorCode());
-//
-//        if (body != null) {
-//            out.writeBytes(body);
-//        }
+        int messageSize = GAME_MESSAGE_HEADER_LEN;
+        byte[] body = msg.getBody();
+        int compress = 0;
+
+        if (body != null) {
+            // 达到压缩条件，进行压缩
+            if (body.length >= serverConfig.getCompressMessageSize()) {
+                body = CompressUtil.compress(body);
+                compress = 1;
+            }
+
+            // TODO
+            if (this.aesSecret != null && msg.getHeader().getMessageId() != 1) {
+                body = AESUtils.encode(aesSecret, body);
+            }
+            messageSize += body.length;
+        }
+
+        out.writeInt(messageSize);
+
+        GameMessageHeader header = msg.getHeader();
+        out.writeInt(header.getClientSeqId());
+        out.writeInt(header.getMessageId());
+        out.writeLong(header.getServerSendTime());
+        out.writeInt(header.getVersion());
+        out.writeByte(compress);
+
+        if (body != null) {
+            out.writeBytes(body);
+        }
     }
 }

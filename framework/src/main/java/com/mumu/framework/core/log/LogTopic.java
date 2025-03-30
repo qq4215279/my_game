@@ -1,11 +1,17 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.log;
 
-import cn.hutool.core.util.ArrayUtil;
-import com.mumu.common.constants.SymbolConstants;
-import com.mumu.framework.business.player.domain.Player;
-import com.mumu.framework.core.log2.LogSwitch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mumu.common.constants.SymbolConstants;
+import com.mumu.framework.business.player.domain.Player;
+
+import cn.hutool.core.util.ArrayUtil;
 
 /**
  * LogTopic
@@ -61,7 +67,7 @@ public enum LogTopic {
     log.warn(
         getStatisticsKey(PATTERN_PLAYER, args),
         action,
-        player.getId()
+        player.getPlayerId()
         // player.getGameId(),
         // player.getRoomId(),
         // player.getTableId(),
@@ -97,7 +103,7 @@ public enum LogTopic {
     log.info(
         getStatisticsKey(PATTERN_PLAYER, args),
         action,
-        player.getId()
+        player.getPlayerId()
         // player.getGameId(),
         // player.getRoomId(),
         // player.getTableId(),
@@ -125,7 +131,7 @@ public enum LogTopic {
 
   /** 普通日志（玩家开关控制） */
   public void debug(Player player, String action, Object... args) {
-    debug(player.getId(), action, args);
+    debug(player.getPlayerId(), action, args);
   }
 
   /** 普通日志（模块开关 || 玩家开关） */

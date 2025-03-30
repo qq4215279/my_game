@@ -1,29 +1,21 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.redis;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.mumu.common.util2.JsonUtil;
-import com.mumu.framework.core.log.LogTopic;
-import com.mumu.framework.core.redis.constants.RedisLuaScript;
-import com.mumu.framework.core.redis.constants.ScoreInfo;
-import com.mumu.framework.core.redis.manager.RedisExpireManager;
-import com.mumu.framework.util2.CovertUtil;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -33,8 +25,17 @@ import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Component;
+
+import com.mumu.common.util2.JsonUtil;
+import com.mumu.framework.core.log.LogTopic;
+import com.mumu.framework.core.redis.constants.RedisLuaScript;
+import com.mumu.framework.core.redis.constants.ScoreInfo;
+import com.mumu.framework.core.redis.manager.RedisExpireManager;
+import com.mumu.framework.util2.CovertUtil;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * RedisUtil
@@ -63,7 +64,7 @@ public class RedisUtil {
 
   /** 执行redis操作 */
   public static <T> T doCmd(
-      String handler, T defValue, Function<StringRedisTemplate, T> func, Object... params) {
+          String handler, T defValue, Function<StringRedisTemplate, T> func, Object... params) {
     try {
       T res = func.apply(stringRedisTemplate);
       return res == null ? defValue : res;

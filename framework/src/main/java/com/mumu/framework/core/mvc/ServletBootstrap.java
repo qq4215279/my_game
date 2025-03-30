@@ -1,7 +1,12 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.mvc;
 
 import com.google.common.util.concurrent.RateLimiter;
-import com.mumu.framework.core.mvc.servlet.TcpServletChannelInitializer;
+import com.mumu.framework.core.mvc.servlet.initializer.GatewayServletChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -31,7 +36,6 @@ public class ServletBootstrap {
      * 启动
      */
     public void start() {
-
         startTcpAndHttp();
     }
 
@@ -51,7 +55,7 @@ public class ServletBootstrap {
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childOption(ChannelOption.TCP_NODELAY, true)
-                    .childHandler(new TcpServletChannelInitializer(serverConfig, globalRateLimiter));
+                    .childHandler(new GatewayServletChannelInitializer(serverConfig, globalRateLimiter));
 
 //            logger.info("开始启动服务，端口:{}", serverConfig.getPort());
 
@@ -64,13 +68,6 @@ public class ServletBootstrap {
             bossGroup.shutdownGracefully();
         }
 
-
     }
 
-    /**
-     * 初始化Servlet
-     */
-    protected void initServlet() throws Exception {
-
-    }
 }
