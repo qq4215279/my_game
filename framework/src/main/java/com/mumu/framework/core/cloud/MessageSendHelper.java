@@ -8,7 +8,7 @@ package com.mumu.framework.core.cloud;
 import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.framework.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.framework.core.log.LogTopic;
-import com.mumu.framework.core.mvc.servlet.session.PlayerSessionManager;
+import com.mumu.framework.core.mvc.servlet.session.SessionManager;
 import com.mumu.framework.util.JProtoBufUtil;
 
 /**
@@ -23,7 +23,7 @@ public class MessageSendHelper {
     public void sendMessage(GameMessagePackage gameMessagePackage, GameChannelPromise promise) {
         long playerId = gameMessagePackage.getHeader().getPlayerId();
         int gateServerId = gameMessagePackage.getHeader().getToServerId();
-        IoSession gateSession = PlayerSessionManager.self().getGateChannel(gateServerId);
+        IoSession gateSession = SessionManager.self().getServerSession(ServiceType.GATE, gateServerId);
         if (gateSession == null) {
             LogTopic.NET.error("MessageSendHelper.sendMessage", "error", "gateSession is null", "gateServerId",
                     gateServerId, "playerId", playerId);

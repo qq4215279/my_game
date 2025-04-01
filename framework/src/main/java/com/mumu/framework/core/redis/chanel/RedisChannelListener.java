@@ -1,7 +1,12 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.redis.chanel;
 
 import com.mumu.framework.core.redis.constants.RedisChannel;
-import com.mumu.framework.util2.ModifierUtil;
+import com.mumu.framework.core.util2.ModifierUtil;
 
 /**
  * RedisChannelListener

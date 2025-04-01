@@ -1,7 +1,12 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.thread;
 
 import com.mumu.common.constants.ThreadConstants;
-import com.mumu.framework.util2.ThreadPoolUtil;
+import com.mumu.framework.core.util2.ThreadPoolUtil;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**

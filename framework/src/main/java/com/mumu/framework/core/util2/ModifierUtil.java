@@ -1,4 +1,9 @@
-package com.mumu.framework.util2;
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
+package com.mumu.framework.core.util2;
 
 import autovalue.shaded.com.google.common.common.collect.Maps;
 import cn.hutool.core.lang.Assert;

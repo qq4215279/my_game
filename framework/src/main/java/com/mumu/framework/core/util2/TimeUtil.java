@@ -1,4 +1,9 @@
-package com.mumu.framework.util2;
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
+package com.mumu.framework.core.util2;
 
 /** 日期工具类 @Date: 2024/9/2 下午7:44 @Author: xu.hai */
 public class TimeUtil {

@@ -1,6 +1,11 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.redis.constants;
 
-import com.mumu.common.util2.JsonUtil;
+import com.mumu.framework.core.util2.JsonUtil;
 import java.nio.charset.StandardCharsets;
 
 /**

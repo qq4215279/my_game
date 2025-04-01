@@ -1,11 +1,19 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.redis.chanel;
 
-import cn.hutool.core.util.StrUtil;
-import com.mumu.framework.core.log.LogTopic;
-import com.mumu.framework.core.redis.constants.RedisChannel;
 import java.util.List;
+
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
+
+import com.mumu.framework.core.log.LogTopic;
+import com.mumu.framework.core.redis.constants.RedisChannel;
+
+import cn.hutool.core.util.StrUtil;
 
 /**
  * RedisChannelAdapter
@@ -23,7 +31,7 @@ public class RedisChannelAdapter implements MessageListener {
 
   @Override
   public void onMessage(Message message, byte[] pattern) {
-    RedisChannelListener listener = listeners.get(0);
+    RedisChannelListener listener = listeners.getFirst();
     RedisChannel channel = listener.subscribeChannel();
     Class targetClazz = listener.getTargetClazz();
     try {

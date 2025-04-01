@@ -6,6 +6,8 @@
 package com.mumu.framework.core.mvc;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.mumu.framework.core.mvc.message.GatewayHandlerListener;
+import com.mumu.framework.core.mvc.message.MessageHandlerListener;
 import com.mumu.framework.core.mvc.servlet.initializer.GatewayServletChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -42,12 +44,16 @@ public class ServletBootstrap {
     private void startTcpAndHttp() {
         globalRateLimiter = RateLimiter.create(serverConfig.getGlobalRequestPerSecond());
 
+        // boss逻辑线程组
         bossGroup = new NioEventLoopGroup(serverConfig.getBossThreadCount());
         // 业务逻辑线程组
         workerGroup = new NioEventLoopGroup(serverConfig.getWorkThreadCount());
 
         int port = this.serverConfig.getPort();
         try {
+            // TODO 动态获取
+            MessageHandlerListener messageHandlerListener = new GatewayHandlerListener();
+
             ServerBootstrap b = new ServerBootstrap();
             // 这里遇到一个小问题，如果把childHandler的加入放在option的前面，option将会不生效。我用java socket连接，一直没有消息返回。
             b.group(bossGroup, workerGroup)
@@ -55,7 +61,8 @@ public class ServletBootstrap {
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childOption(ChannelOption.TCP_NODELAY, true)
-                    .childHandler(new GatewayServletChannelInitializer(serverConfig, globalRateLimiter));
+                    .childHandler(new GatewayServletChannelInitializer(messageHandlerListener, serverConfig,
+                            globalRateLimiter));
 
 //            logger.info("开始启动服务，端口:{}", serverConfig.getPort());
 

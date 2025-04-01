@@ -248,9 +248,9 @@ public class ClientServer {
             successed = true;
             // 设置基本属性
             IoSession ioSession = IoSession.of(connect.channel());
-            ioSession.setAttr(NetConstants.SESSION_SERVER_ID, serverId);
             ioSession.setAttr(NetConstants.SESSION_CLIENT, true);
             ioSession.setAttr(NetConstants.SESSION_SERVICE_TYPE, serviceType);
+            ioSession.setAttr(NetConstants.SESSION_SERVER_ID, serverId);
             ioSession.setAttr(NetConstants.SESSION_SERVER_INFO, serverInfo);
 
             LogTopic.NET.info("ConnectServer success", "serviceType", serviceType, "connectIp", ip, "connectPort", port);

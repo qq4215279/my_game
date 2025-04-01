@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023, 木木996.
+ * Copyright 2020-2025, mumu without 996.
  * All Right Reserved.
  */
 
@@ -217,8 +217,7 @@ public class CDUtil {
     /**
      * 计算CD剩余时间
      * @param endTime 结束时间
-     * @param nowDate 当前时间
-     * @return
+     * @param currentTime 当前时间
      */
     public static long getCD(Long endTime, long currentTime) {
         long cd = 0;
@@ -236,8 +235,8 @@ public class CDUtil {
 
     /**
      * 获得cd - for 名将跨服国战
-     * @param oldCD
-     * @param secend
+     * @param oldCD oldCD
+     * @param secend secend
      * @return
      * $Date: 2012-7-24 下午02:43:44
      */
@@ -251,8 +250,7 @@ public class CDUtil {
 
     /**
      * 获取CD字符串
-     * @param cd
-     * @return
+     * @param cd cd
      */
     public static String getCDStr(final long cd) {
         StringBuilder builder = new StringBuilder(16);

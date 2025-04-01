@@ -1,9 +1,14 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.template.func.enums;
 
 import com.mumu.framework.business.player.domain.Player;
 import com.mumu.framework.business.task.enums.OperationEnum;
-import com.mumu.framework.util2.DateUtil;
-import com.mumu.framework.util2.WeekUtil;
+import com.mumu.framework.core.util2.DateUtil;
+import com.mumu.framework.core.util2.WeekUtil;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

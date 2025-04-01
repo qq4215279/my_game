@@ -1,14 +1,10 @@
-package com.mumu.framework.util2;
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
 
-import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.lang.Assert;
-import cn.hutool.core.lang.Pair;
-import cn.hutool.core.map.MapUtil;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.mumu.framework.core.log.LogTopic;
+package com.mumu.framework.core.util2;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,7 +17,19 @@ import java.util.StringTokenizer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
 import org.apache.commons.lang.StringUtils;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.mumu.framework.core.log.LogTopic;
+
+import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.lang.Pair;
+import cn.hutool.core.map.MapUtil;
 
 /** 转换工具类 @Date: 2024/8/5 下午2:11 @Author: xu.hai */
 @SuppressWarnings("unchecked")

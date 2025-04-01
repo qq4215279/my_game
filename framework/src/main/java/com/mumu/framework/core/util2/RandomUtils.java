@@ -1,4 +1,9 @@
-package com.mumu.framework.util2;
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
+package com.mumu.framework.core.util2;
 
 /** 随机工具类 @Date: 2025/2/13 下午3:14 @Author: xu.hai */
 public class RandomUtils extends cn.hutool.core.util.RandomUtil {

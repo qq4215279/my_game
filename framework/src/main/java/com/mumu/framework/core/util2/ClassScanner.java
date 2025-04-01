@@ -1,6 +1,10 @@
-package com.mumu.framework.util2;
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
 
-import com.mumu.framework.core.log.LogTopic;
+package com.mumu.framework.core.util2;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
@@ -17,7 +21,10 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
 import org.jctools.maps.NonBlockingHashSet;
+
+import com.mumu.framework.core.log.LogTopic;
 
 /** class 扫描 @Date: 2024/7/22 上午11:33 @Author: xu.hai */
 public class ClassScanner {

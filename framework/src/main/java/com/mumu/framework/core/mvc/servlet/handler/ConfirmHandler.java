@@ -25,7 +25,7 @@ import com.mumu.framework.core.log.LogTopic;
 import com.mumu.framework.core.mvc.GatewayServerConfig;
 import com.mumu.framework.core.mvc.servlet.handler.codec.JProtobufDecoder;
 import com.mumu.framework.core.mvc.servlet.handler.codec.JProtobufEncoder;
-import com.mumu.framework.core.mvc.servlet.session.PlayerSessionManager;
+import com.mumu.framework.core.mvc.servlet.session.SessionManager;
 import com.mumu.framework.util.JProtoBufUtil;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -49,7 +49,7 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
     /** 注入业务服务管理类，从这里获取负载均衡的服务器信息 */
     private PlayerServiceManager businessServerService;
     /** session管理器 */
-    private PlayerSessionManager sessionManager;
+    private SessionManager sessionManager;
 
     /** 标记连接是否认证成功 */
     private boolean confirmSuccess = false;
@@ -62,7 +62,7 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
 
     public ConfirmHandler(GatewayServerConfig serverConfig) {
         this.serverConfig = serverConfig;
-        this.sessionManager = PlayerSessionManager.self();
+        this.sessionManager = SessionManager.self();
         this.businessServerService = PlayerServiceManager.self();
     }
 
@@ -100,7 +100,7 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
         if (tokenBody != null) {
             long playerId = tokenBody.getPlayerId();
             // 调用移除，否则出现内存泄漏的问题。
-            this.sessionManager.removeChannel(playerId, ctx.channel());
+            this.sessionManager.removePlayerSession(playerId, ctx.channel());
         }
 
         // 接着告诉下面的Handler
@@ -139,7 +139,7 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
 
                     IoSession ioSession = IoSession.of(ctx.channel());
                     // 加入连接管理
-                    sessionManager.addChannel(tokenBody.getPlayerId(), ioSession);
+                    sessionManager.addPlayerSession(tokenBody.getPlayerId(), ioSession);
 
                     // 生成此连接的AES密钥
                     String aesSecretKey = AESUtils.createSecret(tokenBody.getUserId(), tokenBody.getServerId());
@@ -195,7 +195,7 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
 
     private void repeatedConnect() {
         if (tokenBody != null) {
-            IoSession existIoSession = this.sessionManager.getChannel(tokenBody.getPlayerId());
+            IoSession existIoSession = this.sessionManager.getPlayerSession(tokenBody.getPlayerId());
             if (existIoSession != null) {
                 // 如果检测到同一个账号创建了多个连接，则把旧连接关闭，保留新连接。
 

@@ -13,7 +13,6 @@ import com.mumu.framework.core.game_netty.channel.GameServerConfig;
 import com.mumu.framework.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
 import com.mumu.framework.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.framework.core.game_netty.channel.handler.GameChannelInboundHandler;
-import com.mumu.framework.core.game_netty.context.GameMessageContextImpl;
 import com.mumu.framework.core.log.LogTopic;
 import com.mumu.framework.util.SpringContextUtils;
 
@@ -63,9 +62,6 @@ public abstract class AbstractMessageDispatchGameHandler<T> implements GameChann
 
     @Override
     public void channelRead(AbstractGameChannelHandlerContext gameChannelHandlerContext, Object msg) throws Exception {
-        GameMessagePackage gameMessage = (GameMessagePackage)msg;
-        GameMessageContextImpl messageContext = new GameMessageContextImpl(gameMessage, gameChannelHandlerContext);
-        cmdDispatch.callMethod(messageContext);
     }
 
     @Override

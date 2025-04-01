@@ -21,7 +21,7 @@ import com.mumu.framework.core.cmd.enums.CmdManager;
 import com.mumu.framework.core.game_netty.context.GameMessageContextImpl;
 import com.mumu.framework.core.log.LogTopic;
 import com.mumu.framework.util.SpringContextUtils;
-import com.mumu.framework.util2.ModifierUtil;
+import com.mumu.framework.core.util2.ModifierUtil;
 
 import cn.hutool.core.lang.Assert;
 import lombok.extern.slf4j.Slf4j;

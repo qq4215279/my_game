@@ -1,10 +1,15 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.framework.core.thread.config;
 
 import com.mumu.common.constants.ThreadConstants;
 import com.mumu.framework.core.log.LogTopic;
 import com.mumu.framework.core.thread.ThreadPoolGroupExecutor;
 import com.mumu.framework.core.thread.ThreadPoolRouter;
-import com.mumu.framework.util2.ThreadPoolUtil;
+import com.mumu.framework.core.util2.ThreadPoolUtil;
 import jakarta.annotation.PreDestroy;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;

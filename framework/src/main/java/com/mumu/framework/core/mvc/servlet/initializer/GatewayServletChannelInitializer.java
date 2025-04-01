@@ -7,8 +7,9 @@ package com.mumu.framework.core.mvc.servlet.initializer;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.mumu.framework.core.mvc.GatewayServerConfig;
+import com.mumu.framework.core.mvc.message.MessageHandlerListener;
 import com.mumu.framework.core.mvc.servlet.handler.ConfirmHandler;
-import com.mumu.framework.core.mvc.servlet.handler.GateDispatchServletHandler;
+import com.mumu.framework.core.mvc.servlet.handler.DispatchServletHandler;
 import com.mumu.framework.core.mvc.servlet.handler.HeartbeatHandler;
 import com.mumu.framework.core.mvc.servlet.handler.RequestRateLimiterHandler;
 import com.mumu.framework.core.mvc.servlet.handler.codec.JProtobufDecoder;
@@ -27,12 +28,16 @@ import io.netty.handler.timeout.IdleStateHandler;
  * @version 1.0.0 2025/2/24 23:13
  */
 public class GatewayServletChannelInitializer extends ChannelInitializer<Channel> {
+    /** TODO 统一的消息处理器 */
+    private final MessageHandlerListener messageHandlerListener;
     /** */
     private GatewayServerConfig serverConfig;
     /**  */
     private RateLimiter globalRateLimiter;
 
-    public GatewayServletChannelInitializer(GatewayServerConfig serverConfig, RateLimiter globalRateLimiter) {
+    public GatewayServletChannelInitializer(MessageHandlerListener messageHandlerListener, GatewayServerConfig serverConfig,
+                                            RateLimiter globalRateLimiter) {
+        this.messageHandlerListener = messageHandlerListener;
         this.serverConfig = serverConfig;
         this.globalRateLimiter = globalRateLimiter;
     }
@@ -60,6 +65,6 @@ public class GatewayServletChannelInitializer extends ChannelInitializer<Channel
         p.addLast(new IdleStateHandler(readerIdleTimeSeconds, writerIdleTimeSeconds, allIdleTimeSeconds));
 
         p.addLast("HeartbeatHandler", new HeartbeatHandler());
-        p.addLast(new GateDispatchServletHandler());
+        p.addLast(new DispatchServletHandler(messageHandlerListener));
     }
 }
