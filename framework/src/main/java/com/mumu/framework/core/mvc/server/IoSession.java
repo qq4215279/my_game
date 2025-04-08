@@ -3,11 +3,11 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.core.cloud;
+package com.mumu.framework.core.mvc.server;
 
 import java.net.InetSocketAddress;
 
-import com.mumu.framework.core.mvc.servlet.constants.NetConstants;
+import com.mumu.framework.core.mvc.constants.NetConstants;
 
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;

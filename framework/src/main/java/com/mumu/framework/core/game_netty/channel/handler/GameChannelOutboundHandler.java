@@ -5,10 +5,10 @@
 
 package com.mumu.framework.core.game_netty.channel.handler;
 
-import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.framework.core.cmd.response.ResponseResult;
 import com.mumu.framework.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
 import com.mumu.framework.core.game_netty.channel.future.GameChannelPromise;
+import com.mumu.framework.core.mvc.server.MessageContext;
 
 import io.netty.util.concurrent.Promise;
 
@@ -38,7 +38,7 @@ public interface GameChannelOutboundHandler extends GameChannelHandler {
      * @return void
      * @date 2024/6/19 19:13
      */
-    void writeRPCMessage(AbstractGameChannelHandlerContext ctx, GameMessagePackage gameMessage, Promise<GameMessagePackage> callback);
+    void writeRPCMessage(AbstractGameChannelHandlerContext ctx, MessageContext gameMessage, Promise<MessageContext> callback);
 
     /**
      *

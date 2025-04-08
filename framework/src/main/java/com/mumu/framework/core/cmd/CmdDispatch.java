@@ -20,8 +20,8 @@ import com.mumu.framework.core.cmd.anno.CmdMapping;
 import com.mumu.framework.core.cmd.enums.CmdManager;
 import com.mumu.framework.core.game_netty.context.GameMessageContextImpl;
 import com.mumu.framework.core.log.LogTopic;
-import com.mumu.framework.util.SpringContextUtils;
 import com.mumu.framework.core.util2.ModifierUtil;
+import com.mumu.framework.util.SpringContextUtils;
 
 import cn.hutool.core.lang.Assert;
 import lombok.extern.slf4j.Slf4j;
@@ -79,17 +79,17 @@ public class CmdDispatch implements AutoInitEvent {
         }
     }
 
-    public void callMethod(GameMessageContextImpl messageContext) {
+    public void callMethod(GameMessageContextImpl gameMessageContext) {
         // TODO
-        long playerId = messageContext.getPlayerId();
-        GameMessageHeader header = messageContext.getReqGameMessagePackage().getHeader();
+        long playerId = gameMessageContext.getPlayerId();
+        GameMessageHeader header = gameMessageContext.getReqGameMessagePackage().getHeader();
         Integer messageId = header.getMessageId();
         ActionInvocation actionInvocation = messageIdActionMap.getOrDefault(messageId, null);
         if (actionInvocation == null) {
             LogTopic.NET.error("callMethod fail", "actionInvocation is null", "playerId", playerId);
             return;
         }
-        actionInvocation.callMethod(messageContext);
+        actionInvocation.invokeMethod(gameMessageContext);
     }
 
     private void assertMethod(Method method) {

@@ -7,11 +7,11 @@ package com.mumu.framework.core.game_netty.handler;
 
 import java.util.concurrent.TimeUnit;
 
-import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.framework.business.player.domain.Player;
 import com.mumu.framework.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
 import com.mumu.framework.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.framework.core.game_netty.context.GameMessageContextImpl;
+import com.mumu.framework.core.mvc.server.MessageContext;
 
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Promise;
@@ -141,8 +141,8 @@ public class MessageDispatchChannelGameHandler extends AbstractMessageDispatchGa
 
     @Override
     public void channelRead(AbstractGameChannelHandlerContext gameChannelHandlerContext, Object msg) throws Exception {
-        GameMessagePackage gameMessage = (GameMessagePackage)msg;
-        GameMessageContextImpl messageContext = new GameMessageContextImpl(gameMessage, gameChannelHandlerContext);
+        MessageContext context = (MessageContext)msg;
+        GameMessageContextImpl messageContext = new GameMessageContextImpl(context, gameChannelHandlerContext);
         cmdDispatch.callMethod(messageContext);
     }
 

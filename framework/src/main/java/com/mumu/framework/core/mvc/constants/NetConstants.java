@@ -3,10 +3,9 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.core.mvc.servlet.constants;
+package com.mumu.framework.core.mvc.constants;
 
-import com.mumu.framework.core.cloud.ServerInfo;
-import com.mumu.framework.core.cloud.ServiceType;
+import com.mumu.framework.core.mvc.cloud.ServerInfo;
 
 import io.netty.util.AttributeKey;
 

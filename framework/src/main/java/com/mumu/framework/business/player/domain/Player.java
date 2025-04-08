@@ -6,7 +6,7 @@
 package com.mumu.framework.business.player.domain;
 
 import com.mumu.framework.business.language.enums.LanguageEnum;
-import com.mumu.framework.core.cloud.ServiceType;
+import com.mumu.framework.core.mvc.constants.ServiceType;
 
 import lombok.Data;
 

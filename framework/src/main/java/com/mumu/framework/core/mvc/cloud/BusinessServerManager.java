@@ -3,8 +3,9 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.core.cloud;
+package com.mumu.framework.core.mvc.cloud;
 
+import com.mumu.framework.core.mvc.constants.ServiceType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;

@@ -1,15 +1,15 @@
 /*
- * Copyright 2020-2024, 木木996.
+ * Copyright 2020-2025, mumu without 996.
  * All Right Reserved.
  */
 
-package com.mumu.framework.core.mvc2.servlet.parse;
+package com.mumu.framework.core.cmd.param.parse;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import com.mumu.framework.core.mvc2.MessageContext;
-import com.mumu.framework.core.mvc2.servlet.param.ParamInjector;
+import com.mumu.framework.core.cmd.param.injector.ParamInjector;
+import com.mumu.framework.core.mvc.server.MessageContext;
 
 /**
  * ParamParse

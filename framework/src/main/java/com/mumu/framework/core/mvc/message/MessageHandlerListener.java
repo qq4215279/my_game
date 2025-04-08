@@ -5,8 +5,8 @@
 
 package com.mumu.framework.core.mvc.message;
 
-import com.mumu.common.proto.message.system.message.GameMessagePackage;
-import com.mumu.framework.core.cloud.IoSession;
+import com.mumu.framework.core.mvc.server.IoSession;
+import com.mumu.framework.core.mvc.server.MessageContext;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -24,7 +24,7 @@ public interface MessageHandlerListener {
     default void handleActive(IoSession session) {}
 
     /** 获取消息 */
-    default void handleRead(IoSession session, GameMessagePackage gameMessagePackage) {}
+    default void handleRead(MessageContext context) {}
 
     /** 事件传播处理（注：当无需处理时，调用super.userEventTriggered进行传播即可） */
     default void userEventTriggered(ChannelHandlerContext ctx, Object evt) {

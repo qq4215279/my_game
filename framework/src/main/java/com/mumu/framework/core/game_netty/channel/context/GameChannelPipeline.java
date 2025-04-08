@@ -20,6 +20,7 @@ import com.mumu.framework.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.framework.core.game_netty.channel.handler.GameChannelHandler;
 import com.mumu.framework.core.game_netty.channel.handler.GameChannelInboundHandler;
 import com.mumu.framework.core.game_netty.channel.handler.GameChannelOutboundHandler;
+import com.mumu.framework.core.mvc.server.MessageContext;
 import com.mumu.framework.util.JProtoBufUtil;
 
 import io.netty.channel.DefaultChannelPipeline;
@@ -307,7 +308,7 @@ public class GameChannelPipeline {
         return this;
     }
 
-    public final GameChannelPipeline fireChannelReadRPCRequest(GameMessagePackage gameMessage) {
+    public final GameChannelPipeline fireChannelReadRPCRequest(MessageContext gameMessage) {
         AbstractGameChannelHandlerContext.invokeChannelReadRPCRequest(head, gameMessage);
         return this;
     }
@@ -321,7 +322,7 @@ public class GameChannelPipeline {
         return tail.writeAndFlush(msg, promise);
     }
 
-    public final void writeRpcRequest(GameMessagePackage gameMessage, Promise<GameMessagePackage> promise) {
+    public final void writeRpcRequest(MessageContext gameMessage, Promise<MessageContext> promise) {
         tail.writeRPCMessage(gameMessage, promise);
     }
 
@@ -396,7 +397,7 @@ public class GameChannelPipeline {
         }
 
         @Override
-        public void channelReadRpcRequest(AbstractGameChannelHandlerContext ctx, GameMessagePackage msg)
+        public void channelReadRpcRequest(AbstractGameChannelHandlerContext ctx, MessageContext msg)
             throws Exception {
             onUnhandledInboundMessage(msg);
         }
@@ -446,7 +447,7 @@ public class GameChannelPipeline {
         }
 
         @Override
-        public void channelReadRpcRequest(AbstractGameChannelHandlerContext ctx, GameMessagePackage msg)
+        public void channelReadRpcRequest(AbstractGameChannelHandlerContext ctx, MessageContext msg)
                 throws Exception {
             ctx.fireChannelReadRPCRequest(msg);
         }
@@ -473,8 +474,8 @@ public class GameChannelPipeline {
         }
 
         @Override
-        public void writeRPCMessage(AbstractGameChannelHandlerContext ctx, GameMessagePackage gameMessage,
-            Promise<GameMessagePackage> callback) {
+        public void writeRPCMessage(AbstractGameChannelHandlerContext ctx, MessageContext gameMessage,
+            Promise<MessageContext> callback) {
             channel.unsafeSendRpcMessage(gameMessage, callback);
         }
 

@@ -10,9 +10,9 @@ import java.lang.reflect.Method;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.framework.core.cmd.enums.CmdManager;
+import com.mumu.framework.core.cmd.param.parse.ParamParse;
 import com.mumu.framework.core.cmd.response.ResponseResult;
 import com.mumu.framework.core.game_netty.context.GameMessageContextImpl;
-import com.mumu.framework.core.mvc2.servlet.parse.ParamParse;
 import com.mumu.framework.util.JProtoBufUtil;
 
 import lombok.Data;
@@ -52,18 +52,18 @@ public class ActionInvocation {
     }
 
     /** TODO 执行目标事件 */
-    public void callMethod(GameMessageContextImpl messageContext) {
+    public void invokeMethod(GameMessageContextImpl gameMessageContext) {
         // TODO
-        GameMessagePackage reqGameMessagePackage = messageContext.getReqGameMessagePackage();
+        GameMessagePackage reqGameMessagePackage = gameMessageContext.getReqGameMessagePackage();
         Class<?> reqMsgClass = CmdManager.getCmd(reqGameMessagePackage.getHeader().getMessageId()).getReqMsgClass();
 
         Object reqMsg = JProtoBufUtil.decode(reqGameMessagePackage.getBody(), reqMsgClass);
-        Object res = methodAccess.invoke(action, method.getName(), messageContext.getPlayerId(), reqMsg);
+        Object res = methodAccess.invoke(action, method.getName(), gameMessageContext.getPlayerId(), reqMsg);
         if (res instanceof ResponseResult responseResult) {
             // TODO GameChannelPromise promise
             responseResult.setCmd(CmdManager.getCmd(messageId));
             responseResult.setHeader(reqGameMessagePackage.getHeader());
-            messageContext.getGameContext().writeAndFlush(responseResult);
+            gameMessageContext.getGameContext().writeAndFlush(responseResult);
         }
     }
 }

@@ -5,9 +5,9 @@
 
 package com.mumu.framework.core.game_netty.channel.handler;
 
-import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.framework.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
 import com.mumu.framework.core.game_netty.channel.future.GameChannelPromise;
+import com.mumu.framework.core.mvc.server.MessageContext;
 
 import io.netty.util.concurrent.Promise;
 
@@ -63,6 +63,6 @@ public interface GameChannelInboundHandler  extends GameChannelHandler {
      * @return void
      * @date 2024/6/19 19:42
      */
-    void channelReadRpcRequest(AbstractGameChannelHandlerContext ctx, GameMessagePackage msg) throws Exception;
+    void channelReadRpcRequest(AbstractGameChannelHandlerContext ctx, MessageContext msg) throws Exception;
 
 }

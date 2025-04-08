@@ -22,6 +22,7 @@ import lombok.Setter;
  * @author liuzhen
  * @version 1.0.0 2025/2/24 23:32
  */
+@Deprecated
 @Setter
 public class DecodeHandler extends ChannelInboundHandlerAdapter {
     /** 对称加密密钥 */
@@ -31,13 +32,13 @@ public class DecodeHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf byteBuf = (ByteBuf) msg;
         try {
-            int messageSize = byteBuf.readInt();
             int clientSeqId = byteBuf.readInt();
             int messageId = byteBuf.readInt();
             int serviceId = byteBuf.readShort();
             long clientSendTime = byteBuf.readLong();
             int version = byteBuf.readInt();
             int compress = byteBuf.readByte();
+
             byte[] body = null;
             if (byteBuf.readableBytes() > 0) {
                 body = new byte[byteBuf.readableBytes()];
@@ -56,8 +57,7 @@ public class DecodeHandler extends ChannelInboundHandlerAdapter {
             header.setClientSendTime(clientSendTime);
             header.setClientSeqId(clientSeqId);
             header.setMessageId(messageId);
-            header.setServiceId(serviceId);
-            header.setMessageSize(messageSize);
+            // header.setServiceId(serviceId);
             header.setVersion(version);
             GameMessagePackage gameMessagePackage = new GameMessagePackage();
             gameMessagePackage.setHeader(header);

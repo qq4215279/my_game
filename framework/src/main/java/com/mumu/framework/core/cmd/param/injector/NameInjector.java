@@ -1,12 +1,12 @@
 /*
- * Copyright 2020-2024, 木木996.
+ * Copyright 2020-2025, mumu without 996.
  * All Right Reserved.
  */
 
-package com.mumu.framework.core.mvc2.servlet.param;
+package com.mumu.framework.core.cmd.param.injector;
 
-import com.mumu.framework.core.mvc2.MessageContext;
-import com.mumu.framework.core.mvc2.servlet.ParamHelper;
+import com.mumu.framework.core.mvc.server.MessageContext;
+import com.mumu.framework.core.cmd.param.ParamHelper;
 
 /**
  * NameInjector

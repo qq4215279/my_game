@@ -1,4 +1,9 @@
-package com.mumu.framework.core.cloud;
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
+package com.mumu.framework.core.mvc.cloud;
 
 import org.springframework.context.ApplicationEvent;
 

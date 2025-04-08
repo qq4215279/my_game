@@ -10,14 +10,14 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.common.thread.GameEventExecutorGroup;
-import com.mumu.framework.core.cloud.PlayerServiceManager;
 import com.mumu.framework.core.cmd.CmdDispatch;
 import com.mumu.framework.core.game_netty.channel.GameChannelInitializer;
 import com.mumu.framework.core.game_netty.channel.GameMessageDispatchServlet;
 import com.mumu.framework.core.game_netty.channel.GameServerConfig;
 import com.mumu.framework.core.log.LogTopic;
+import com.mumu.framework.core.mvc.cloud.PlayerServiceManager;
+import com.mumu.framework.core.mvc.server.MessageContext;
 
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
@@ -52,6 +52,7 @@ public class GameMessageConsumerManager {
      * @date 2024/6/26 14:52
      */
     public void start(GameChannelInitializer gameChannelInitializer, int localServerId) {
+        // TODO
         // 业务处理的线程池
         GameEventExecutorGroup workerGroup = new GameEventExecutorGroup(serverConfig.getWorkerThreads());
         EventExecutorGroup rpcWorkerGroup = new DefaultEventExecutorGroup(2);
@@ -61,13 +62,12 @@ public class GameMessageConsumerManager {
 
     /**
      *
-     * @param gameMessagePackage gameMessagePackage
-     * @return void
+     * @param context context
      * @author liuzhen
      * @date 2025/3/30 18:52
      */
-    public void fireReadGameMessage(GameMessagePackage gameMessagePackage) {
-        gameMessageDispatchServlet.fireReadGameMessage(gameMessagePackage.getHeader().getPlayerId(), gameMessagePackage);
+    public void fireReadGameMessage(MessageContext context) {
+        gameMessageDispatchServlet.fireReadGameMessage(context.getProxy().getHeader().getPlayerId(), context);
     }
 
 }

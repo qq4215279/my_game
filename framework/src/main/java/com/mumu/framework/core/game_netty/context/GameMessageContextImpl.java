@@ -10,6 +10,7 @@ import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.framework.core.cmd.response.ResponseResult;
 import com.mumu.framework.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
 
+import com.mumu.framework.core.mvc.server.MessageContext;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
@@ -24,6 +25,7 @@ import lombok.Getter;
 @Getter
 public class GameMessageContextImpl implements GameMessageContext {
     private long playerId;
+    private MessageContext context;
     private GameMessagePackage reqGameMessagePackage;
     
     private AbstractGameChannelHandlerContext gameContext;
@@ -31,10 +33,12 @@ public class GameMessageContextImpl implements GameMessageContext {
 
     /**
      * 构造方法
-     * @param gameMessagePackage requestMessage
+     * @param context context
      * @param gameChannelHandlerContext ctx
      */
-    public GameMessageContextImpl(GameMessagePackage gameMessagePackage, AbstractGameChannelHandlerContext gameChannelHandlerContext) {
+    public GameMessageContextImpl(MessageContext context, AbstractGameChannelHandlerContext gameChannelHandlerContext) {
+        GameMessagePackage gameMessagePackage = context.getProxy();
+        this.context = context;
         this.playerId = gameMessagePackage.getHeader().getPlayerId();
 
         this.reqGameMessagePackage = gameMessagePackage;

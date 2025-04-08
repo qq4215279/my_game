@@ -14,6 +14,7 @@ import com.mumu.framework.core.game_netty.channel.context.GameChannelPipeline;
 import com.mumu.framework.core.game_netty.channel.future.DefaultGameChannelPromise;
 import com.mumu.framework.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.framework.core.log.LogTopic;
+import com.mumu.framework.core.mvc.server.MessageContext;
 import com.mumu.framework.util.SpringContextUtils;
 
 import io.netty.util.concurrent.EventExecutor;
@@ -100,19 +101,20 @@ public class GameChannel {
 
     /**
      *
-     * @param gameMessage gameMessage
+     * @param context context
      * @return void
      * @date 2024/6/26 14:42
      */
-    public void fireReadGameMessage(GameMessagePackage gameMessage) {
+    public void fireReadGameMessage(MessageContext context) {
         this.safeExecute(() -> {
             // channel已关闭，不再接收消息
             if (isClose) {
                 return;
             }
 
+            GameMessagePackage gameMessage = context.getProxy();
             this.gatewayServerId = gameMessage.getHeader().getFromServerId();
-            this.channelPipeline.fireChannelRead(gameMessage);
+            this.channelPipeline.fireChannelRead(context);
         });
     }
 
@@ -135,7 +137,7 @@ public class GameChannel {
      * @return void
      * @date 2024/6/26 14:42
      */
-    public void fireChannelReadRPCRequest(GameMessagePackage gameMessage) {
+    public void fireChannelReadRPCRequest(MessageContext gameMessage) {
         this.safeExecute(() -> {
             this.channelPipeline.fireChannelReadRPCRequest(gameMessage);
         });
@@ -205,7 +207,7 @@ public class GameChannel {
      * @return void
      * @date 2024/6/26 14:43
      */
-    public void unsafeSendRpcMessage(GameMessagePackage gameMessage, Promise<GameMessagePackage> callback) {
+    public void unsafeSendRpcMessage(MessageContext gameMessage, Promise<MessageContext> callback) {
         // TODO
         /* if (gameMessage.getHeader().getMessageType() == EnumMesasageType.RPC_REQUEST) {
             this.gameRpcService.sendRPCRequest(gameMessage, callback);

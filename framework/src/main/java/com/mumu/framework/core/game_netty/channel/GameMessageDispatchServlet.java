@@ -8,11 +8,11 @@ package com.mumu.framework.core.game_netty.channel;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.common.thread.GameEventExecutorGroup;
-import com.mumu.framework.core.cloud.GameChannelCloseEvent;
 import com.mumu.framework.core.cmd.response.ResponseResult;
 import com.mumu.framework.core.log.LogTopic;
+import com.mumu.framework.core.mvc.cloud.GameChannelCloseEvent;
+import com.mumu.framework.core.mvc.server.MessageContext;
 import com.mumu.framework.util.SpringContextUtils;
 
 import io.netty.util.concurrent.EventExecutor;
@@ -88,14 +88,14 @@ public class GameMessageDispatchServlet {
     /**
      * 发送接收到的消息事件
      * @param playerId playerId
-     * @param message message
+     * @param context context
      * @return void
      * @date 2024/6/19 19:21
      */
-    public void fireReadGameMessage(long playerId, GameMessagePackage message) {
+    public void fireReadGameMessage(long playerId, MessageContext context) {
         this.safeExecute(() -> {
             GameChannel gameChannel = this.getGameChannel(playerId);
-            gameChannel.fireReadGameMessage(message);
+            gameChannel.fireReadGameMessage(context);
         });
     }
 

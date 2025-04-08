@@ -8,12 +8,12 @@ package com.mumu.framework.core.game_netty.handler;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.framework.core.cmd.response.ResponseResult;
 import com.mumu.framework.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
 import com.mumu.framework.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.framework.core.game_netty.channel.handler.GameChannelInboundHandler;
 import com.mumu.framework.core.game_netty.channel.handler.GameChannelOutboundHandler;
+import com.mumu.framework.core.mvc.server.MessageContext;
 
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -198,13 +198,13 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
     }
 
     @Override
-    public void channelReadRpcRequest(AbstractGameChannelHandlerContext ctx, GameMessagePackage msg) throws Exception {
+    public void channelReadRpcRequest(AbstractGameChannelHandlerContext ctx, MessageContext msg) throws Exception {
         ctx.fireChannelReadRPCRequest(msg);
     }
 
     @Override
-    public void writeRPCMessage(AbstractGameChannelHandlerContext ctx, GameMessagePackage gameMessage,
-                                Promise<GameMessagePackage> callback) {
+    public void writeRPCMessage(AbstractGameChannelHandlerContext ctx, MessageContext gameMessage,
+                                Promise<MessageContext> callback) {
         ctx.writeRPCMessage(gameMessage, callback);
     }
 

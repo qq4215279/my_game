@@ -3,9 +3,9 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.core.mvc.servlet.test;
+package com.mumu.framework.core.mvc.config;
 
-import com.mumu.framework.core.cloud.ServiceType;
+import com.mumu.framework.core.mvc.constants.ServiceType;
 import com.mumu.framework.util.SpringContextUtils;
 import lombok.Data;
 import lombok.Getter;

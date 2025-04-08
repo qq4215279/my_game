@@ -5,7 +5,6 @@
 
 package com.mumu.framework.core.game_netty.channel.context;
 
-import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.framework.core.cmd.response.ResponseResult;
 import com.mumu.framework.core.game_netty.channel.GameChannel;
 import com.mumu.framework.core.game_netty.channel.future.DefaultGameChannelPromise;
@@ -14,6 +13,7 @@ import com.mumu.framework.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.framework.core.game_netty.channel.handler.GameChannelHandler;
 import com.mumu.framework.core.game_netty.channel.handler.GameChannelInboundHandler;
 import com.mumu.framework.core.game_netty.channel.handler.GameChannelOutboundHandler;
+import com.mumu.framework.core.mvc.server.MessageContext;
 
 import io.netty.channel.DefaultChannelPipeline;
 import io.netty.util.ReferenceCountUtil;
@@ -271,13 +271,13 @@ public abstract class AbstractGameChannelHandlerContext {
      * @return com.mygame.gateway.message.channel.context.AbstractGameChannelHandlerContext
      * @date 2024/6/26 14:09
      */
-    public AbstractGameChannelHandlerContext fireChannelReadRPCRequest(final GameMessagePackage msg) {
+    public AbstractGameChannelHandlerContext fireChannelReadRPCRequest(final MessageContext msg) {
         invokeChannelReadRPCRequest(findContextInbound(), msg);
         return this;
     }
 
     static void invokeChannelReadRPCRequest(final AbstractGameChannelHandlerContext next,
-        final GameMessagePackage msg) {
+        final MessageContext msg) {
         ObjectUtil.checkNotNull(msg, "msg");
         EventExecutor executor = next.executor();
         if (executor.inEventLoop()) {
@@ -292,7 +292,7 @@ public abstract class AbstractGameChannelHandlerContext {
         }
     }
 
-    private void invokeChannelReadRPCRequest(GameMessagePackage msg) {
+    private void invokeChannelReadRPCRequest(MessageContext msg) {
         try {
             ((GameChannelInboundHandler)handler()).channelReadRpcRequest(this, msg);
         } catch (Throwable t) {
@@ -390,7 +390,7 @@ public abstract class AbstractGameChannelHandlerContext {
      * @return void
      * @date 2024/6/26 14:12
      */
-    public void writeRPCMessage(GameMessagePackage msg, Promise<GameMessagePackage> promise) {
+    public void writeRPCMessage(MessageContext msg, Promise<MessageContext> promise) {
         AbstractGameChannelHandlerContext next = findContextOutbound();
         EventExecutor executor = next.executor();
         if (executor.inEventLoop()) {
@@ -413,7 +413,7 @@ public abstract class AbstractGameChannelHandlerContext {
         return ctx;
     }
 
-    private void invokeWriteRPCMessage(GameMessagePackage msg, Promise<GameMessagePackage> callback) {
+    private void invokeWriteRPCMessage(MessageContext msg, Promise<MessageContext> callback) {
         try {
             ((GameChannelOutboundHandler)handler()).writeRPCMessage(this, msg, callback);
         } catch (Throwable t) {

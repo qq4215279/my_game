@@ -5,7 +5,7 @@
 
 package com.mumu.framework.core.auto;
 
-import com.mumu.framework.core.cloud.ServiceType;
+import com.mumu.framework.core.mvc.constants.ServiceType;
 
 import java.util.Collection;
 

@@ -22,6 +22,7 @@ import lombok.Setter;
  * @author liuzhen
  * @version 1.0.0 2025/2/24 23:29
  */
+@Deprecated
 public class EncodeHandler extends MessageToByteEncoder<GameMessagePackage> {
     private static final int GAME_MESSAGE_HEADER_LEN = 29;
 

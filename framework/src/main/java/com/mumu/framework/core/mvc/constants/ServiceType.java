@@ -3,12 +3,12 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.core.cloud;
+package com.mumu.framework.core.mvc.constants;
 
 import java.util.List;
 
 import com.mumu.framework.core.log.LogTopic;
-import com.mumu.framework.core.mvc.servlet.test.CoreConfig;
+import com.mumu.framework.core.mvc.config.CoreConfig;
 
 import lombok.Getter;
 
@@ -20,6 +20,8 @@ import lombok.Getter;
  */
 @Getter
 public enum ServiceType {
+    /** 全部服 */
+    ALL(-1),
     /** 网关服 */
     GATE(0),
     /** 大厅服 */

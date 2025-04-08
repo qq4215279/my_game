@@ -3,7 +3,7 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.core.cloud;
+package com.mumu.framework.core.mvc.cloud;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,8 +17,14 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
+import com.mumu.common.proto.message.server.ReconnectServerMsgEA;
+import com.mumu.common.proto.message.system.message.GameMessagePackage;
+import com.mumu.framework.core.cmd.enums.Cmd;
 import com.mumu.framework.core.log.LogTopic;
-import com.mumu.framework.core.mvc.servlet.constants.NetConstants;
+import com.mumu.framework.core.mvc.constants.NetConstants;
+import com.mumu.framework.core.mvc.constants.ServiceType;
+import com.mumu.framework.core.mvc.server.IoSession;
+import com.mumu.framework.core.mvc.server.MessageSender;
 import com.mumu.framework.core.thread.ScheduledExecutorUtil;
 
 import cn.hutool.core.util.RandomUtil;
@@ -247,23 +253,25 @@ public class ClientServer {
         private void success(ChannelFuture connect) {
             successed = true;
             // 设置基本属性
-            IoSession ioSession = IoSession.of(connect.channel());
-            ioSession.setAttr(NetConstants.SESSION_CLIENT, true);
-            ioSession.setAttr(NetConstants.SESSION_SERVICE_TYPE, serviceType);
-            ioSession.setAttr(NetConstants.SESSION_SERVER_ID, serverId);
-            ioSession.setAttr(NetConstants.SESSION_SERVER_INFO, serverInfo);
+            IoSession session = IoSession.of(connect.channel());
+            session.setAttr(NetConstants.SESSION_CLIENT, true);
+            session.setAttr(NetConstants.SESSION_SERVICE_TYPE, serviceType);
+            session.setAttr(NetConstants.SESSION_SERVER_ID, serverId);
+            session.setAttr(NetConstants.SESSION_SERVER_INFO, serverInfo);
 
             LogTopic.NET.info("ConnectServer success", "serviceType", serviceType, "connectIp", ip, "connectPort", port);
 
             // TODO 发送本服信息进行握手
-            // MessageSender.send(IoSession.of(channel), Cmd.ReqServerInfoHandshake, serverInfo.build());
-            // connectingMap.remove(this);
+            ReconnectServerMsgEA reqMsg = new ReconnectServerMsgEA();
+            reqMsg.setClientServerBean(serverInfo.build());
+            GameMessagePackage gameMessagePackage = MessageSender.reqProxy(Cmd.ReconnectServerMsg, serviceType, serverId, 0L, null, reqMsg);
+            MessageSender.sendMessage(gameMessagePackage, null);
 
             // 记录channel
             Map<Integer, IoSession> serverIdChannelMap = serviceIdServerIdSessionMap.computeIfAbsent(serviceType, k -> new HashMap<>());
-            serverIdChannelMap.put(serverId, ioSession);
+            serverIdChannelMap.put(serverId, session);
 
-            sessionKeepAliveMap.put(ioSession, System.currentTimeMillis());
+            sessionKeepAliveMap.put(session, System.currentTimeMillis());
         }
 
         /** 失败重试 */

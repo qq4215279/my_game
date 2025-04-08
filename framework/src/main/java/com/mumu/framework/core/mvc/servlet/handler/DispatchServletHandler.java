@@ -6,13 +6,14 @@
 package com.mumu.framework.core.mvc.servlet.handler;
 
 import com.mumu.common.proto.message.system.message.GameMessagePackage;
-import com.mumu.framework.core.cloud.IoSession;
-import com.mumu.framework.core.cloud.PlayerServiceManager;
+import com.mumu.framework.core.mvc.server.IoSession;
+import com.mumu.framework.core.mvc.server.MessageContext;
+import com.mumu.framework.core.mvc.cloud.PlayerServiceManager;
 import com.mumu.framework.core.game_netty.context.GameMessageConsumerManager;
 import com.mumu.framework.core.log.LogTopic;
 import com.mumu.framework.core.mvc.GatewayServerConfig;
 import com.mumu.framework.core.mvc.message.MessageHandlerListener;
-import com.mumu.framework.core.mvc.servlet.session.SessionManager;
+import com.mumu.framework.core.mvc.session.SessionManager;
 import com.mumu.framework.util.SpringContextUtils;
 
 import io.netty.channel.Channel;
@@ -71,7 +72,13 @@ public class DispatchServletHandler extends ChannelInboundHandlerAdapter {
             return;
         }
         try {
-            listener.handleRead(session, (GameMessagePackage) msg);
+            if (msg instanceof GameMessagePackage proxy) {
+                MessageContext context = MessageContext.of(proxy, session);
+                listener.handleRead(context);
+            } else {
+                LogTopic.NET.warn("AbsProxyHandlerListener", "session", session.channel().toString(), "msg", msg);
+            }
+
         } catch (Exception e) {
             LogTopic.NET.error(e, "channelRead", "channel", channel, "msg", msg);
         }

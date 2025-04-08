@@ -9,9 +9,11 @@ import com.mumu.common.proto.message.gate.core.ConnectConfirmMsgCE;
 import com.mumu.common.proto.message.gate.core.ConnectConfirmMsgEC;
 import com.mumu.common.proto.message.gate.core.HeartbeatMsgCE;
 import com.mumu.common.proto.message.gate.core.HeartbeatMsgEC;
+import com.mumu.common.proto.message.server.ReconnectServerMsgAE;
+import com.mumu.common.proto.message.server.ReconnectServerMsgEA;
 import com.mumu.common.proto.message.system.message.GameMessageHeader;
 import com.mumu.common.proto.message.system.message.MessageTypeEnum;
-import com.mumu.framework.core.cloud.ServiceType;
+import com.mumu.framework.core.mvc.constants.ServiceType;
 
 import lombok.Getter;
 
@@ -24,7 +26,6 @@ import lombok.Getter;
  * A - Any 任意服
  * W - World 大厅服
  * G - Game 游戏服
- * R - Register 注册服
  * I - Chat 好友聊天服
  * @author liuzhen
  * @version 1.0.0 2025/3/30 12:49
@@ -33,7 +34,10 @@ public enum Cmd {
     /** 心跳消息 */
     HeartbeatMsg(ServiceType.GATE, HeartbeatMsgCE.class, HeartbeatMsgEC.class),
     /** 连接验证消息 */
-    ConnectConfirmMsg(ServiceType.GATE, ConnectConfirmMsgCE.class, ConnectConfirmMsgEC.class)
+    ConnectConfirmMsg(ServiceType.GATE, ConnectConfirmMsgCE.class, ConnectConfirmMsgEC.class),
+    /** 连接服务器 */
+    ReconnectServerMsg(ServiceType.ALL, ReconnectServerMsgEA.class, ReconnectServerMsgAE.class)
+
     ;
 
     /** 消息所属服务id组 */
@@ -73,7 +77,6 @@ public enum Cmd {
 
         header.setMessageId(req ? CmdManager.getReqMessageId(this) : CmdManager.getResMessageId(this));
         header.setMessageType(req ? MessageTypeEnum.REQUEST : MessageTypeEnum.RESPONSE);
-        header.setServiceId(serviceType.getServiceId());
         return header;
     }
 }

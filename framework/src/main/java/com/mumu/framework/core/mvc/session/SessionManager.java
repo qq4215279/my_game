@@ -3,7 +3,7 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.core.mvc.servlet.session;
+package com.mumu.framework.core.mvc.session;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,11 +14,11 @@ import org.jctools.maps.NonBlockingHashMap;
 import org.springframework.stereotype.Component;
 
 import com.mumu.common.collection.ConcurrentMultiKeyMap;
-import com.mumu.framework.core.cloud.IoSession;
-import com.mumu.framework.core.cloud.ServerInfo;
-import com.mumu.framework.core.cloud.ServiceType;
 import com.mumu.framework.core.log.LogTopic;
-import com.mumu.framework.core.mvc.servlet.constants.NetConstants;
+import com.mumu.framework.core.mvc.cloud.ServerInfo;
+import com.mumu.framework.core.mvc.constants.NetConstants;
+import com.mumu.framework.core.mvc.constants.ServiceType;
+import com.mumu.framework.core.mvc.server.IoSession;
 import com.mumu.framework.util.SpringContextUtils;
 
 import io.netty.channel.Channel;

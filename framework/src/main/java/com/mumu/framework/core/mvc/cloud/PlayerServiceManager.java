@@ -2,7 +2,7 @@
  * Copyright 2020-2025, mumu without 996.
  * All Right Reserved.
  */
-package com.mumu.framework.core.cloud;
+package com.mumu.framework.core.mvc.cloud;
 
 import java.util.Collections;
 import java.util.Map;
@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
+import com.mumu.framework.core.mvc.constants.ServiceType;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;

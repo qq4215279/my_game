@@ -3,8 +3,11 @@
  * All Right Reserved.
  */
 
-package com.mumu.framework.core.cloud;
+package com.mumu.framework.core.mvc.cloud;
 
+import com.mumu.common.proto.message.server.ClientServerBean;
+
+import com.mumu.framework.core.mvc.constants.ServiceType;
 import lombok.Data;
 
 /**
@@ -24,4 +27,13 @@ public class ServerInfo {
     /** 服务器端口 */
     private int port;
 
+    /** 构造DTO数据 */
+    public ClientServerBean build() {
+        ClientServerBean info = new ClientServerBean();
+        info.setServiceId(serviceType.getServiceId());
+        info.setServerId(serverId);
+        info.setIp(host);
+        info.setPort(port);
+        return info;
+    }
 }
