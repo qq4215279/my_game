@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class CmdManager {
     @Getter
-    private static Map<Integer, Cmd> messageIdCmdMap = new HashMap<Integer, Cmd>();
+    private static Map<Integer, Cmd> messageIdCmdMap = new HashMap<>();
 
     @Getter
     private static Map<Cmd, Integer> cmdReqMessageIdMap = new HashMap<>();

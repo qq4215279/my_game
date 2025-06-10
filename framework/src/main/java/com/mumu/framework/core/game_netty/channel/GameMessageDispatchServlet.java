@@ -38,8 +38,7 @@ public class GameMessageDispatchServlet {
     private GameChannelInitializer channelInitializer;
 
 
-    public GameMessageDispatchServlet(GameEventExecutorGroup workerGroup,
-                                      GameChannelInitializer channelInitializer) {
+    public GameMessageDispatchServlet(GameEventExecutorGroup workerGroup, GameChannelInitializer channelInitializer) {
         this.executor = workerGroup.next();
         this.workerGroup = workerGroup;
         this.channelInitializer = channelInitializer;
