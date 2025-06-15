@@ -6,7 +6,6 @@
 package com.mumu.framework.template.func.enums;
 
 import com.mumu.framework.business.player.domain.Player;
-import com.mumu.framework.business.task.enums.OperationEnum;
 import com.mumu.framework.core.util2.DateUtil;
 import com.mumu.framework.core.util2.WeekUtil;
 import java.util.Map;
@@ -27,35 +26,22 @@ public enum ResetEnum {
   /** 每天 */
   DAILY(1) {
     @Override
-    public boolean neetReset(long lastResetTime) {
+    public boolean needReset(long lastResetTime) {
       return !DateUtil.isSameDay(lastResetTime);
-    }
-
-    @Override
-    public void triggerTaskAction(Player player) {
-      OperationEnum.FINISH_DAILY_TASK.trigger(player);
     }
   },
   /** 每周 */
   WEEKLY(2) {
     @Override
-    public boolean neetReset(long lastResetTime) {
+    public boolean needReset(long lastResetTime) {
       return !WeekUtil.isSameWeek(lastResetTime);
-    }
-    @Override
-    public void triggerTaskAction(Player player) {
-      OperationEnum.FINISH_WEEKLY_TASK.trigger(player);
     }
   },
   /** 每月 */
   MONTH(3){
     @Override
-    public boolean neetReset(long lastResetTime) {
+    public boolean needReset(long lastResetTime) {
       return !DateUtil.isSameMonth(lastResetTime);
-    }
-    @Override
-    public void triggerTaskAction(Player player) {
-      OperationEnum.FINISH_MONTH_TASK.trigger(player);
     }
   },
   /** 赛季 */
@@ -78,7 +64,7 @@ public enum ResetEnum {
   }
 
   /** 需要重置 */
-  public boolean neetReset(long lastResetTime) {
+  public boolean needReset(long lastResetTime) {
     return false;
   }
 

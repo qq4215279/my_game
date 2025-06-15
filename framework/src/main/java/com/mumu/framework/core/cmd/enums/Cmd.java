@@ -27,6 +27,7 @@ import lombok.Getter;
  * W - World 大厅服
  * G - Game 游戏服
  * I - Chat 好友聊天服
+ * Z - Center 中心服
  * @author liuzhen
  * @version 1.0.0 2025/3/30 12:49
  */
