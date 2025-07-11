@@ -43,13 +43,13 @@ public enum Cmd {
 
     /** 消息所属服务id组 */
     @Getter
-    private ServiceType serviceType;
+    private final ServiceType serviceType;
     /** 请求协议消息结构体类型 */
     @Getter
-    private Class<?> reqMsgClass;
+    private final Class<?> reqMsgClass;
     /** 响应协议消息结构体类型 */
     @Getter
-    private Class<?> resMsgClass;
+    private final Class<?> resMsgClass;
 
     Cmd(ServiceType serviceType, Class<?> reqMsgClass, Class<?> resMsgClass) {
         this.serviceType = serviceType;
