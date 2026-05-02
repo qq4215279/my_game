@@ -1,16 +1,19 @@
 /*
  *
- *  * Copyright 2020-2025, mumu without 996.
+ *  * Copyright 2020-2026, mumu without 996.
  *  * All Right Reserved.
  *
  */
 
 package com.mumu.framework.core.mvc.config;
 
-import com.mumu.framework.core.mvc.constants.ServiceType;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.mumu.framework.core.mvc.constants.ServerProtocol;
+import com.mumu.framework.core.mvc.constants.ServiceType;
+
+import lombok.Data;
 
 /**
  * ClientInfo

@@ -1,17 +1,17 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
 package com.mumu.framework.core.cmd.anno;
-
-import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.springframework.stereotype.Component;
 
 /**
  * CmdAction

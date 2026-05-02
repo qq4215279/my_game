@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
@@ -46,7 +46,7 @@ subprojects {
     apply plugin: 'idea'   // TODO ？
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
-    //    apply plugin: 'maven-publish'
+//    apply plugin: 'maven-publish'
 //    apply plugin: 'com.baidu.jprotobuf'
 
 
@@ -78,9 +78,8 @@ subprojects {
         implementation 'org.springframework.boot:spring-boot-starter-data-redis'
         // mongodb
         implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-        //exclude(group: 'io.lettuce', module: 'lettuce-core')
-//        implementation 'redis.clients:jedis'
-//        implementation 'org.apache.commons:commons-pool2'
+
+        implementation 'com.baidu:jprotobuf:2.4.12'
 
         // groovy
         implementation group: 'org.codehaus.groovy', name: 'groovy', version: '3.0.23'

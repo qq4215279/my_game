@@ -1,0 +1,14 @@
+/*
+ * Copyright 2020-2026, mumu without 996.
+ * All Right Reserved.
+ */
+
+dependencies {
+    implementation project(":framework")
+
+}
+
+
+springBoot {
+    mainClass = 'com.mumu.game.WorldApplication'
+}

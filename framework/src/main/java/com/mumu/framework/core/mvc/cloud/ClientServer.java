@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
@@ -171,7 +171,7 @@ public class ClientServer {
 
 
     public boolean isServiceUnavailable(ServiceType type) {
-        if (type == ServiceType.GATE) {
+        if (type == ServiceType.GATEWAY) {
             return false;
         }
 

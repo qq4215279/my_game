@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
@@ -11,3 +11,5 @@ include 'common'
 include 'framework'
 include 'gateway'
 include 'game'
+include 'world'
+

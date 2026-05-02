@@ -1,18 +1,17 @@
-package com.mumu.gateway;
+package com.mumu.game;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * GatewayApplication
+ * WorldApplication
+ * 
  * @author liuzhen
- * @version 1.0.0 2025/2/22 15:13
+ * @version 1.0.0 2026/5/2 18:31
  */
 @SpringBootApplication
-public class GatewayApplication {
-
+public class WorldApplication {
     public static void main(String[] args) {
-        SpringApplication.run(GatewayApplication.class, args);
+        SpringApplication.run(WorldApplication.class, args);
     }
-
 }

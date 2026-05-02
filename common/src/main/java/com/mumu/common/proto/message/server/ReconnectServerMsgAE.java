@@ -1,11 +1,12 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
 package com.mumu.common.proto.message.server;
 
 import com.baidu.bjf.remoting.protobuf.annotation.ProtobufClass;
+
 import lombok.Data;
 
 /**

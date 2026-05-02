@@ -1,14 +1,14 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
 package com.mumu.framework.core.mvc.servlet.handler.codec;
 
-import com.mumu.common.utils.AESUtils;
 import com.mumu.common.proto.message.system.message.GameMessageHeader;
 import com.mumu.common.proto.message.system.message.GameMessagePackage;
-import com.mumu.framework.util.CompressUtil;
+import com.mumu.common.utils.AESUtils;
+import com.mumu.framework.core.util2.CompressUtil;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

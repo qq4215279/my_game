@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
@@ -33,9 +33,9 @@ import lombok.Getter;
  */
 public enum Cmd {
     /** 心跳消息 */
-    HeartbeatMsg(ServiceType.GATE, HeartbeatMsgCE.class, HeartbeatMsgEC.class),
+    HeartbeatMsg(ServiceType.GATEWAY, HeartbeatMsgCE.class, HeartbeatMsgEC.class),
     /** 连接验证消息 */
-    ConnectConfirmMsg(ServiceType.GATE, ConnectConfirmMsgCE.class, ConnectConfirmMsgEC.class),
+    ConnectConfirmMsg(ServiceType.GATEWAY, ConnectConfirmMsgCE.class, ConnectConfirmMsgEC.class),
     /** 连接服务器 */
     ReconnectServerMsg(ServiceType.ALL, ReconnectServerMsgEA.class, ReconnectServerMsgAE.class)
 

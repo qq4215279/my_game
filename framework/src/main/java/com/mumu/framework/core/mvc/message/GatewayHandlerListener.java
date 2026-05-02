@@ -1,21 +1,21 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
 package com.mumu.framework.core.mvc.message;
 
-import com.mumu.framework.core.game_netty.context.GameMessageConsumerManager;
-import com.mumu.framework.core.mvc.server.MessageSender;
 import org.springframework.stereotype.Component;
 
 import com.mumu.common.proto.message.system.message.GameMessageHeader;
 import com.mumu.common.proto.message.system.message.MessageTypeEnum;
-import com.mumu.framework.core.mvc.server.MessageContext;
-import com.mumu.framework.core.mvc.constants.ServiceType;
 import com.mumu.framework.core.cmd.enums.Cmd;
 import com.mumu.framework.core.cmd.enums.CmdManager;
+import com.mumu.framework.core.game_netty.context.GameMessageConsumerManager;
 import com.mumu.framework.core.mvc.constants.NetConstants;
+import com.mumu.framework.core.mvc.constants.ServiceType;
+import com.mumu.framework.core.mvc.server.MessageContext;
+import com.mumu.framework.core.mvc.server.MessageSender;
 import com.mumu.framework.core.mvc.session.SessionManager;
 
 import jakarta.annotation.Resource;
@@ -68,7 +68,7 @@ public class GatewayHandlerListener extends AbstractHandlerListener {
 
         // 1. Gateway本服处理
         Cmd cmd = CmdManager.getCmd(header.getMessageId());
-        if (cmd.getServiceType() == ServiceType.GATE) {
+        if (cmd.getServiceType() == ServiceType.GATEWAY) {
             gameMessageConsumerManager.fireReadGameMessage(context);
 
             // 2. 转发给其他游戏服

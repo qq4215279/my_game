@@ -1,4 +1,4 @@
-package com.mumu.framework.util;
+package com.mumu.framework.core.util2;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

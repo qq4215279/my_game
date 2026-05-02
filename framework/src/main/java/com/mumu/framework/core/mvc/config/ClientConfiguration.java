@@ -1,21 +1,23 @@
 package com.mumu.framework.core.mvc.config;
 
-import cn.hutool.core.thread.NamedThreadFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import com.mumu.framework.core.log.LogTopic;
 import com.mumu.framework.core.mvc.cloud.ServerInfo;
 import com.mumu.framework.core.mvc.constants.NetConstants;
 import com.mumu.framework.core.mvc.message.MessageHandlerListener;
+
+import cn.hutool.core.thread.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import jakarta.annotation.PreDestroy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * 注册客户端组件

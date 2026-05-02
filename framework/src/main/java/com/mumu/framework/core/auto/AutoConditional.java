@@ -1,13 +1,13 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
 package com.mumu.framework.core.auto;
 
-import com.mumu.framework.core.mvc.constants.ServiceType;
-
 import java.util.Collection;
+
+import com.mumu.framework.core.mvc.constants.ServiceType;
 
 /**
  * AutoConditional

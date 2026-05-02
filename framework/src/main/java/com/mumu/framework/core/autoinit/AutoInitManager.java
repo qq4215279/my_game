@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mumu.framework.core.autoinit.enums.AutoInitModule;
-import com.mumu.framework.core.mvc.constants.ServiceType;
 import com.mumu.framework.core.log.LogTopic;
+import com.mumu.framework.core.mvc.constants.ServiceType;
 import com.mumu.framework.util.SpringContextUtils;
 
 import cn.hutool.core.util.StrUtil;

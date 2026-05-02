@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025, mumu without 996.
+ * Copyright 2020-2026, mumu without 996.
  * All Right Reserved.
  */
 
@@ -23,7 +23,7 @@ public enum ServiceType {
     /** 全部服 */
     ALL(-1),
     /** 网关服 */
-    GATE(0),
+    GATEWAY(0),
     /** 大厅服 */
     WORLD(1),
     /** 游戏服 */
@@ -69,7 +69,7 @@ public enum ServiceType {
     }
 
     /** 玩家所在的服务组类型，优先级由高到低 */
-    public static final List<ServiceType> PLAYER_ON_GROUPS = List.of(GAME, WORLD, GATE, CHAT);
+    public static final List<ServiceType> PLAYER_ON_GROUPS = List.of(GAME, WORLD, GATEWAY, CHAT);
 
     /** 游戏相关业务服 */
     public static final List<ServiceType> GAME_SERVERS = List.of(GAME, WORLD, CHAT);

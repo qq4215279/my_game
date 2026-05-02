@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2020-2025, mumu without 996.
+ *  * Copyright 2020-2026, mumu without 996.
  *  * All Right Reserved.
  *
  */
@@ -9,6 +9,7 @@ package com.mumu.framework.core.mvc.constants;
 
 import com.mumu.framework.core.mvc.cloud.ServerInfo;
 import com.mumu.framework.core.mvc.message.MessageHandlerListener;
+
 import io.netty.channel.ChannelInitializer;
 
 /**
