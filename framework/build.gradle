@@ -1,0 +1,11 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
+// framework/build.gradle
+dependencies {
+    api project(":common")
+    api project(":auto_gen")
+    api 'io.netty:netty-all:4.1.111.Final'
+}

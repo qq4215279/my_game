@@ -7,16 +7,6 @@ package com.mumu.common.constants;
  * @version 1.0.0 2024/10/9 14:58
  */
 public interface ChargeConstants {
-  /** TODO world服地址 */
-  String WORLD_SERVER_URL = "http://127.0.0.1:8388";
-  /** TODO 写死 帐号服地址 account服地址确认发货url */
-  String CONFIRMPURCHASE_SERVER_URL = "http://localhost:8000/charge/callback/confirmPurchase";
-
-  /** TODO 写死 apple帐号服地址 account服地址确认发货url */
-  String APPLE_CONFIRMPURCHASE_SERVER_URL = "http://localhost:8000/appleCharge/callback/confirmPurchase";
-
-  /** TODO 写死 谷歌帐号服地址 account服地址确认发货url */
-  String GOOGLE_CONFIRMPURCHASE_SERVER_URL = "http://localhost:8000/googleCharge/callback/confirmPurchase";
 
 
   /** 订单状态 - 初始化 */

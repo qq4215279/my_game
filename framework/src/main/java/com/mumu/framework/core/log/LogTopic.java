@@ -8,7 +8,7 @@ package com.mumu.framework.core.log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mumu.common.constants.SymbolConstants;
+import com.mumu.common.constants.Symbol;
 import com.mumu.framework.business.player.domain.Player;
 
 import cn.hutool.core.util.ArrayUtil;
@@ -152,7 +152,7 @@ public enum LogTopic {
   public static String join(Object... extras) {
     StringBuilder sb = new StringBuilder();
     for (Object param : extras) {
-      sb.append(SymbolConstants.SPLIT_NUMBER)
+      sb.append(Symbol.SPLIT_NUMBER)
           .append(ArrayUtil.isArray(param) ? ArrayUtil.toString(param) : param);
     }
     return sb.toString();

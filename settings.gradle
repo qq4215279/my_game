@@ -1,0 +1,13 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
+// settings.gradle
+rootProject.name = 'my_game'
+
+include 'auto_gen'
+include 'common'
+include 'framework'
+include 'gateway'
+include 'game'

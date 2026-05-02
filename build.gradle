@@ -1,0 +1,129 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
+// build.gradle
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.2' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+}
+
+
+// 本项目无需打为可独立运行的jar
+if (project.plugins.hasPlugin('org.springframework.boot')) {
+    bootJar.enabled = false
+}
+
+
+allprojects {
+    group = 'com.mumu'
+    version = '0.0.1-SNAPSHOT'
+
+    //指定jdk版本
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    repositories {
+        maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+        maven {
+            // 发布前改成正式仓库
+            allowInsecureProtocol = true
+            url 'http://build.slwh-dfh.com:8081/repository/maven-releases/'
+        }
+        maven {
+            // 开发阶段用快照仓库
+            allowInsecureProtocol = true
+            url 'http://build.slwh-dfh.com:8081/repository/maven-snapshots/'
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'   // ?
+    apply plugin: 'java-library'    // TODO 区别？
+    apply plugin: 'idea'   // TODO ？
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    //    apply plugin: 'maven-publish'
+//    apply plugin: 'com.baidu.jprotobuf'
+
+
+    // 项目均能打成可依赖的jar包
+    jar.enabled = true
+
+    configurations.configureEach {
+        // 关闭全局传递依赖
+        // transitive = false
+        // check for updates every build
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+
+
+
+    dependencies {
+        // Spring Boot Starter
+        implementation 'org.springframework.boot:spring-boot-starter'
+        // 会影响JProtoBuf 生成的代理对象，xxx is in unnamed module of loader 'app'
+        // developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+        // spring datasource
+        implementation 'mysql:mysql-connector-java:8.0.28'
+        implementation 'com.alibaba:druid-spring-boot-3-starter:1.2.23'
+        implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+        implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.5'
+        implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.3.0'
+        // redis
+        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+        // mongodb
+        implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+        //exclude(group: 'io.lettuce', module: 'lettuce-core')
+//        implementation 'redis.clients:jedis'
+//        implementation 'org.apache.commons:commons-pool2'
+
+        // groovy
+        implementation group: 'org.codehaus.groovy', name: 'groovy', version: '3.0.23'
+
+        // 提高反射调用方法的效率
+        implementation 'com.esotericsoftware:reflectasm:1.11.9'
+
+        // 序列化工具
+        implementation 'com.alibaba:fastjson:2.0.35'
+        implementation 'com.google.code.gson:gson:2.8.6'
+        implementation 'org.slf4j:slf4j-api'
+
+        implementation 'commons-codec:commons-codec:1.17.1'
+
+        // JCTools 是一款对jdk并发数据结构进行增强的并发工具
+        implementation 'org.jctools:jctools-core:4.0.5'
+        // 工具包
+        implementation 'org.apache.commons:commons-lang3:3.12.0'
+        implementation group: 'com.google.guava', name: 'guava', version: '33.3.1-jre'
+        // hutool包由于鲁班jar包冲突，只能用 5.5.4，不能 5.8.30
+        implementation 'cn.hutool:hutool-all:5.5.4'
+        // http 访问工具
+        //implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+        // Lombok
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+
+
+        // TODO 新增 Test dependencies
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.testng:testng:6.9.10'
+        testImplementation 'org.powermock:powermock-module-testng:2.0.0-beta.5'
+        testImplementation 'junit:junit:4.12'
+        testImplementation 'org.mockito:mockito-core:5.14.2'
+        testImplementation 'org.powermock:powermock-core:2.0.0-beta.5'
+        testImplementation 'org.powermock:powermock-api-mockito2:2.0.0-beta.5'
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    test {
+        useTestNG()
+    }
+}

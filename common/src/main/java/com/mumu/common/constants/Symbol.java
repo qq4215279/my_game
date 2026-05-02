@@ -6,7 +6,7 @@ package com.mumu.common.constants;
  * @author liuzhen
  * @version 1.0.0 2023/9/1 15:16
  */
-public interface SymbolConstants {
+public interface Symbol {
 
   /** BLANK */
   String TAB = "\t";

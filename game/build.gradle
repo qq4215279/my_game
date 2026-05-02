@@ -1,0 +1,19 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+
+// game/build.gradle
+dependencies {
+    implementation project(":framework")
+
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'junit:junit:4.13.1'
+}
+
+
+springBoot {
+    mainClass = 'com.mumu.game.GameApplication'
+}

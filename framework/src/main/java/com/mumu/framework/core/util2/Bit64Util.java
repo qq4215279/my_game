@@ -11,7 +11,7 @@ import cn.hutool.core.lang.Pair;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mumu.common.constants.SymbolConstants;
+import com.mumu.common.constants.Symbol;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -135,17 +135,17 @@ public final class Bit64Util {
     for (int key : keys) {
       String state = Long.toUnsignedString(stateMap.get(key), 32);
       if (key != pre + 1) {
-        sb.append(SymbolConstants.SEMICOLON)
+        sb.append(Symbol.SEMICOLON)
             .append(key)
-            .append(SymbolConstants.COLON)
+            .append(Symbol.COLON)
             .append(state);
       } else {
-        sb.append(SymbolConstants.COMMA).append(state);
+        sb.append(Symbol.COMMA).append(state);
       }
       pre = key;
     }
     // 删除第一个分号
-    if (sb.indexOf(SymbolConstants.SEMICOLON) == 0) sb.delete(0, 1);
+    if (sb.indexOf(Symbol.SEMICOLON) == 0) sb.delete(0, 1);
     return sb.toString();
   }
 
@@ -153,11 +153,11 @@ public final class Bit64Util {
   public static Map<Integer, Long> strTogiMap(String giStateMapStr) {
     Map<Integer, Long> map = Maps.newTreeMap();
     if (StringUtils.isEmpty(giStateMapStr)) return map;
-    for (String groupStr : giStateMapStr.split(SymbolConstants.SEMICOLON)) {
-      String[] groupArr = groupStr.split(SymbolConstants.COLON);
+    for (String groupStr : giStateMapStr.split(Symbol.SEMICOLON)) {
+      String[] groupArr = groupStr.split(Symbol.COLON);
       if (groupArr.length != 2) continue;
       int group = Integer.parseInt(groupArr[0]);
-      for (String stateStr : groupArr[1].split(SymbolConstants.COMMA)) {
+      for (String stateStr : groupArr[1].split(Symbol.COMMA)) {
         if (StringUtils.isNotEmpty(stateStr))
           map.put(group++, Long.parseUnsignedLong(stateStr, 32));
       }

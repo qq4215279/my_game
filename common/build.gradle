@@ -1,0 +1,20 @@
+/*
+ * Copyright 2020-2025, mumu without 996.
+ * All Right Reserved.
+ */
+dependencies {
+    // ======== 序列化相关工具
+    implementation 'com.esotericsoftware:kryo:5.6.2'
+    implementation 'de.javakaffee:kryo-serializers:0.45' exclude(group: 'com.esotericsoftware', module: 'kryo')
+
+    // ======== 字节码操作相关工具
+    implementation 'org.javassist:javassist:3.30.2-GA'
+    // 由于使用了spring已经封装了cglib，所以不需要再引入
+    // implementation 'cglib:cglib:3.3.0'
+
+    // spring web
+    api 'org.springframework.boot:spring-boot-starter-web'
+    // 数数日志
+    api("cn.thinkingdata:thinkingdatasdk:3.0.2")
+}
+

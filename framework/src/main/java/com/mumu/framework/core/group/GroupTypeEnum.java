@@ -1,6 +1,6 @@
 package com.mumu.framework.core.group;
 
-import com.mumu.common.constants.SymbolConstants;
+import com.mumu.common.constants.Symbol;
 import java.util.List;
 import lombok.Getter;
 
@@ -43,7 +43,7 @@ public enum GroupTypeEnum {
   public String getGroupId(Object... params) {
     StringBuilder key = new StringBuilder(name());
     for (Object suffix : params) {
-      key.append(SymbolConstants.UNDERLINE).append(suffix);
+      key.append(Symbol.UNDERLINE).append(suffix);
     }
     return key.toString();
   }
