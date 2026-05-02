@@ -7,7 +7,7 @@ package com.mumu.common.expcetion;
 
 /**
  * NetworkTimeoutException
- *
+ * 网络超市异常
  * @author liuzhen
  * @version 1.0.0 2024/11/17 17:40
  */

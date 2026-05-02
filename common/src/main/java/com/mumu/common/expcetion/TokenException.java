@@ -14,24 +14,24 @@ import lombok.Data;
  * @version 1.0.0 2025/3/30 14:22
  */
 @Data
-public class TokenException  extends Exception {
-  private static final long serialVersionUID = 1L;
+public class TokenException extends Exception {
+    private static final long serialVersionUID = 1L;
 
-  private boolean expire;
+    private boolean expire;
 
-  public TokenException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public TokenException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public TokenException(String message) {
-    super(message);
-  }
+    public TokenException(String message) {
+        super(message);
+    }
 
-  public boolean isExpire() {
-    return expire;
-  }
+    public boolean isExpire() {
+        return expire;
+    }
 
-  public void setExpire(boolean expire) {
-    this.expire = expire;
-  }
+    public void setExpire(boolean expire) {
+        this.expire = expire;
+    }
 }
