@@ -5,17 +5,17 @@
 
 package com.mumu.common.utils;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DateUtil
@@ -55,7 +55,7 @@ public class DateUtil {
 
     /**
      * 获取YYYY-MM-DD格式
-     * @date 2023/7/7 11:12
+     * @since 2023/7/7 11:12
      * @param date
      * @return java.lang.String
      */
@@ -65,7 +65,7 @@ public class DateUtil {
 
     /**
      * 获取YYYYMMDD格式
-     * @date 2023/7/7 11:12
+     * @since 2023/7/7 11:12
      * @param
      * @return java.lang.String
      */
@@ -75,7 +75,7 @@ public class DateUtil {
 
     /**
      *获取YYYYMMDD格式
-     * @date 2023/7/7 11:12
+     * @since 2023/7/7 11:12
      * @param date
      * @return java.lang.String
      */

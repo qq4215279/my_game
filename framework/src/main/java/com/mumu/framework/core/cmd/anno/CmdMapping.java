@@ -14,7 +14,7 @@ import com.mumu.framework.core.cmd.enums.Cmd;
 
 /**
  * CmdMapping
- *
+ * 协议处理方法注解
  * @author liuzhen
  * @version 1.0.0 2025/3/30 18:36
  */

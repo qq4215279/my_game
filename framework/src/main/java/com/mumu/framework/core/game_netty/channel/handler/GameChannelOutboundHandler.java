@@ -26,7 +26,7 @@ public interface GameChannelOutboundHandler extends GameChannelHandler {
      * @param msg msg
      * @param promise promise
      * @return void
-     * @date 2024/6/19 19:12
+     * @since 2024/6/19 19:12
      */
     void writeAndFlush(AbstractGameChannelHandlerContext ctx, ResponseResult msg, GameChannelPromise promise) throws Exception;
 
@@ -36,7 +36,7 @@ public interface GameChannelOutboundHandler extends GameChannelHandler {
      * @param gameMessage gameMessage
      * @param callback callback
      * @return void
-     * @date 2024/6/19 19:13
+     * @since 2024/6/19 19:13
      */
     void writeRPCMessage(AbstractGameChannelHandlerContext ctx, MessageContext gameMessage, Promise<MessageContext> callback);
 
@@ -45,7 +45,7 @@ public interface GameChannelOutboundHandler extends GameChannelHandler {
      * @param ctx ctx
      * @param promise promise
      * @return void
-     * @date 2024/6/19 19:21
+     * @since 2024/6/19 19:21
      */
     void close(AbstractGameChannelHandlerContext ctx, GameChannelPromise promise);
 

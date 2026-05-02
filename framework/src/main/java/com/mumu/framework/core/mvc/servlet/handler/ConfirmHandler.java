@@ -18,11 +18,11 @@ import com.mumu.common.utils.AESUtils;
 import com.mumu.common.utils.Base64Utils;
 import com.mumu.common.utils.JWTUtil;
 import com.mumu.common.utils.RSAUtils;
-import com.mumu.framework.core.mvc.server.IoSession;
-import com.mumu.framework.core.mvc.cloud.PlayerServiceManager;
 import com.mumu.framework.core.cmd.enums.Cmd;
 import com.mumu.framework.core.log.LogTopic;
 import com.mumu.framework.core.mvc.GatewayServerConfig;
+import com.mumu.framework.core.mvc.cloud.PlayerServiceManager;
+import com.mumu.framework.core.mvc.server.IoSession;
 import com.mumu.framework.core.mvc.servlet.handler.codec.JProtobufDecoder;
 import com.mumu.framework.core.mvc.servlet.handler.codec.JProtobufEncoder;
 import com.mumu.framework.core.mvc.session.SessionManager;
@@ -70,7 +70,7 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
      * 此方法会在连接建立成功channel注册之后调用
      * @param ctx ctx
      * @return void
-     * @date 2024/6/19 17:37
+     * @since 2024/6/19 17:37
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -230,7 +230,7 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
     /**
      * 从token中获取客户端的公钥
      * @return byte[]
-     * @date 2024/6/25 16:57
+     * @since 2024/6/25 16:57
      */
     private byte[] getClientRsaPublicKey() {
         // 获取客户端的公钥字符串。

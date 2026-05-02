@@ -25,7 +25,7 @@ public class ParamParse {
      * 初始化
      * @param context context
      * @param method method
-     * @date 2024/12/5 22:52
+     * @since 2024/12/5 22:52
      */
     public void init(MessageContext context, Method method) {
         Class<?>[] argTypes = method.getParameterTypes();

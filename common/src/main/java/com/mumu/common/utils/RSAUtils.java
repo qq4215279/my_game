@@ -5,7 +5,6 @@
 
 package com.mumu.common.utils;
 
-import javax.crypto.Cipher;
 import java.io.ByteArrayOutputStream;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -20,6 +19,8 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.Cipher;
 
 /**
  * RSAUtils
@@ -44,7 +45,7 @@ public class RSAUtils {
     /**
      * 生成密钥对(公钥和私钥)
      * @return java.util.Map<java.lang.String,java.lang.Object>
-     * @date 2024/6/19 12:02
+     * @since 2024/6/19 12:02
      */
     public static Map<String, Object> genKeyPair() throws Exception {
         KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(KEY_ALGORITHM);
@@ -64,7 +65,7 @@ public class RSAUtils {
      * @param data 已加密数据
      * @param keyBytes privateKey 私钥
      * @return byte[]
-     * @date 2024/6/19 12:02
+     * @since 2024/6/19 12:02
      */
     public static byte[] sign(byte[] data, byte[] keyBytes) throws Exception {
         PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
@@ -81,7 +82,7 @@ public class RSAUtils {
      * @param encryptedData 已加密数据
      * @param keyBytes privateKey 私钥
      * @return byte[]
-     * @date 2024/6/19 12:03
+     * @since 2024/6/19 12:03
      */
     public static byte[] decryptByPrivateKey(byte[] encryptedData, byte[] keyBytes) throws Exception {
         PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
@@ -115,7 +116,7 @@ public class RSAUtils {
      * @param encryptedData 已加密数据
      * @param keyBytes publicKey 公钥
      * @return byte[]
-     * @date 2024/6/19 12:03
+     * @since 2024/6/19 12:03
      */
     public static byte[] decryptByPublicKey(byte[] encryptedData, byte[] keyBytes) throws Exception {
         X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
@@ -149,7 +150,7 @@ public class RSAUtils {
      * @param data 源数据
      * @param keyBytes publicKey 公钥
      * @return byte[]
-     * @date 2024/6/19 12:04
+     * @since 2024/6/19 12:04
      */
     public static byte[] encryptByPublicKey(byte[] data, byte[] keyBytes) throws Exception {
         X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
@@ -184,7 +185,7 @@ public class RSAUtils {
      * @param data 源数据
      * @param keyBytes privateKey 私钥
      * @return byte[]
-     * @date 2024/6/19 12:04
+     * @since 2024/6/19 12:04
      */
     public static byte[] encryptByPrivateKey(byte[] data, byte[] keyBytes) throws Exception {
         PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
@@ -217,7 +218,7 @@ public class RSAUtils {
      * 获取公钥
      * @param keyMap 密钥对
      * @return byte[]
-     * @date 2024/6/19 12:05
+     * @since 2024/6/19 12:05
      */
     public static byte[] getPublicKey(Map<String, Object> keyMap) throws Exception {
         Key key = (Key)keyMap.get(PUBLIC_KEY);
@@ -228,7 +229,7 @@ public class RSAUtils {
      * 获取私钥
      * @param keyMap 密钥对
      * @return byte[]
-     * @date 2024/6/19 12:04
+     * @since 2024/6/19 12:04
      */
     public static byte[] getPrivateKey(Map<String, Object> keyMap) throws Exception {
         Key key = (Key)keyMap.get(PRIVATE_KEY);

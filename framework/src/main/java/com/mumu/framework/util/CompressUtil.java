@@ -17,7 +17,7 @@ public class CompressUtil {
      * 压缩消息
      * @param msg msg
      * @return byte[]
-     * @date 2024/6/19 14:15
+     * @since 2024/6/19 14:15
      */
     public static byte[] compress(byte[] msg) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -38,7 +38,7 @@ public class CompressUtil {
      * 解压消息
      * @param msg msg
      * @return byte[]
-     * @date 2024/6/19 14:15
+     * @since 2024/6/19 14:15
      */
     public static byte[] decompress(byte[] msg) throws IOException {
         ByteArrayInputStream bis = new ByteArrayInputStream(msg);

@@ -1,13 +1,12 @@
 package com.mumu.framework.core.group.impl;
 
-import com.alibaba.druid.wall.violation.ErrorCode;
 import com.mumu.framework.core.group.Group;
 import com.mumu.framework.core.group.GroupTypeEnum;
+
 import lombok.Getter;
 
 /**
  * AbstractGroup 抽象组
- *
  * @author liuzhen
  * @version 1.0.0 2024/11/5 15:56
  */

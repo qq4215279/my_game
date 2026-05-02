@@ -18,8 +18,10 @@ import java.util.function.Supplier;
 import lombok.Setter;
 
 /**
- * 固定长度的Map，迭代推荐使用 map.forEach((key, map) -> method())的方式，map.values().forEach/for存在线程安全问题 @Date:
- * 2024/11/7 上午10:08 @Author: xu.hai
+ * LRULinkedHashMap
+ * 固定长度的Map，迭代推荐使用 map.forEach((key, map) -> method())的方式，map.values().forEach/for存在线程安全问题
+ * @author liuzhen
+ * @version 1.0.0 2025/4/1 22:12
  */
 public class LRULinkedHashMap<K, V> extends LinkedHashMap<K, V> {
 

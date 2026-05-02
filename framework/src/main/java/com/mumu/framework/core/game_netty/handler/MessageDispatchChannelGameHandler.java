@@ -63,7 +63,7 @@ public class MessageDispatchChannelGameHandler extends AbstractMessageDispatchGa
      *
      * @param ctx ctx
      * @return void
-     * @date 2024/6/24 19:16
+     * @since 2024/6/24 19:16
      */
     private void fixTimerFlushPlayer(AbstractGameChannelHandlerContext ctx) {
         // 获取定时器执行的延迟时间，单位是秒
@@ -118,7 +118,7 @@ public class MessageDispatchChannelGameHandler extends AbstractMessageDispatchGa
      * 9.2.3 数据定时异步持久化实现 p255
      * @param ctx ctx
      * @return void
-     * @date 2024/6/24 19:16
+     * @since 2024/6/24 19:16
      */
     @Override
     public void channelInactive(AbstractGameChannelHandlerContext ctx) throws Exception {

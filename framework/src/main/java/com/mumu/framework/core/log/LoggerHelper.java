@@ -5,14 +5,14 @@
 
 package com.mumu.framework.core.log;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * LoggerHelper
- *
+ * 日志帮助类
  * @author liuzhen
  * @version 1.0.0 2024/12/5 22:59
  */
@@ -44,7 +44,7 @@ public class LoggerHelper {
      * 
      * @param t t
      * @return java.lang.Throwable
-     * @date 2024/12/5 22:59
+     * @since 2024/12/5 22:59
      */
     public static Throwable getOriginThrowable(Throwable t) {
         if (t instanceof InvocationTargetException) {
@@ -72,7 +72,7 @@ public class LoggerHelper {
      * @param msg msg
      * @param arg1 arg1
      * @return java.lang.String
-     * @date 2024/12/5 23:00
+     * @since 2024/12/5 23:00
      */
     public static String getThrowableTrace(String msg, Throwable arg1) {
         int num = LINES;

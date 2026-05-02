@@ -90,7 +90,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
      * 初始化
      * @param ctx ctx
      * @return void
-     * @date 2024/6/27 14:05
+     * @since 2024/6/27 14:05
      */
     private void initialize(AbstractGameChannelHandlerContext ctx) {
         switch (state) {
@@ -124,7 +124,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
      * @param delay delay
      * @param unit unit
      * @return java.util.concurrent.ScheduledFuture<?>
-     * @date 2024/6/19 19:30
+     * @since 2024/6/19 19:30
      */
     ScheduledFuture<?> schedule(AbstractGameChannelHandlerContext ctx, Runnable task, long delay, TimeUnit unit) {
         return ctx.executor().schedule(task, delay, unit);
@@ -139,7 +139,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
     /**
      * 销毁定时事件任务
      * @return void
-     * @date 2024/6/19 19:30
+     * @since 2024/6/19 19:30
      */
     private void destroy() {
         state = 2;
@@ -172,7 +172,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
     /**
      * 获取当前时间的纳秒
      * @return long
-     * @date 2024/6/19 19:31
+     * @since 2024/6/19 19:31
      */
     long ticksInNanos() {
         return System.nanoTime();
@@ -217,7 +217,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
 
     /**
      * 公共抽象任务
-     * @date 2024/6/19 19:31
+     * @since 2024/6/19 19:31
      */
     private abstract static class AbstractIdleTask implements Runnable {
         /**  */
@@ -240,7 +240,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
          * 运行延时任务
          * @param ctx ctx
          * @return void
-         * @date 2024/6/27 14:07
+         * @since 2024/6/27 14:07
          */
         protected abstract void run(AbstractGameChannelHandlerContext ctx);
 
@@ -249,7 +249,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
     /**
      * 读取消息检测任务
      * 8.3.8 GameChannel 空闲超时处理 p230 p233
-     * @date 2024/6/19 19:31
+     * @since 2024/6/19 19:31
      */
     private final class ReaderIdleTimeoutTask extends AbstractIdleTask {
         ReaderIdleTimeoutTask(AbstractGameChannelHandlerContext ctx) {
@@ -278,7 +278,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
 
     /**
      * 写入消息检测任务
-     * @date 2024/6/19 19:31
+     * @since 2024/6/19 19:31
      */
     private final class WriterIdleTimeoutTask extends AbstractIdleTask {
 
@@ -338,7 +338,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
      * 8.3.8 GameChannel 空闲超时处理 p229
      * @param state state
      * @return io.netty.handler.timeout.IdleStateEvent
-     * @date 2024/6/19 19:31
+     * @since 2024/6/19 19:31
      */
     protected IdleStateEvent newIdleStateEvent(IdleState state) {
         switch (state) {
@@ -358,7 +358,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
      * @param ctx ctx
      * @param evt evt
      * @return void
-     * @date 2024/6/19 19:31
+     * @since 2024/6/19 19:31
      */
     protected void channelIdle(AbstractGameChannelHandlerContext ctx, IdleStateEvent evt) throws Exception {
         ctx.fireUserEventTriggered(evt, null);

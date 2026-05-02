@@ -26,8 +26,8 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 /**
- * AbstractGameChannelHandlerContext GameChannelHandler 的上下文类
- * 
+ * AbstractGameChannelHandlerContext
+ * GameChannelHandler 的上下文类
  * @author liuzhen
  * @version 1.0.0 2025/3/30 16:51
  */
@@ -63,14 +63,14 @@ public abstract class AbstractGameChannelHandlerContext {
      * 获取handler
      * 
      * @return com.mygame.gateway.message.channel.handler.GameChannelHandler
-     * @date 2024/6/26 14:16
+     * @since 2024/6/26 14:16
      */
     public abstract GameChannelHandler handler();
 
     /**
      *
      * @return com.mygame.gateway.message.channel.context.AbstractGameChannelHandlerContext
-     * @date 2024/6/26 14:07
+     * @since 2024/6/26 14:07
      */
     public AbstractGameChannelHandlerContext fireChannelInactive() {
         invokeChannelInactive(findContextInbound());
@@ -112,7 +112,7 @@ public abstract class AbstractGameChannelHandlerContext {
      *
      * @param cause cause
      * @return com.mygame.gateway.message.channel.context.AbstractGameChannelHandlerContext
-     * @date 2024/6/26 14:08
+     * @since 2024/6/26 14:08
      */
     public AbstractGameChannelHandlerContext fireExceptionCaught(final Throwable cause) {
         invokeExceptionCaught(next, cause);
@@ -164,7 +164,7 @@ public abstract class AbstractGameChannelHandlerContext {
      * @param playerId playerId
      * @param promise promise
      * @return com.mygame.gateway.message.channel.context.AbstractGameChannelHandlerContext
-     * @date 2024/6/26 14:08
+     * @since 2024/6/26 14:08
      */
     public AbstractGameChannelHandlerContext fireChannelRegistered(long playerId, GameChannelPromise promise) {
         invokeChannelRegistered(findContextInbound(), playerId, promise);
@@ -199,7 +199,7 @@ public abstract class AbstractGameChannelHandlerContext {
      * @param event event
      * @param promise promise
      * @return com.mygame.gateway.message.channel.context.AbstractGameChannelHandlerContext
-     * @date 2024/6/26 14:09
+     * @since 2024/6/26 14:09
      */
     public AbstractGameChannelHandlerContext fireUserEventTriggered(final Object event, Promise<Object> promise) {
         invokeUserEventTriggered(findContextInbound(), event, promise);
@@ -234,7 +234,7 @@ public abstract class AbstractGameChannelHandlerContext {
      *
      * @param msg msg
      * @return com.mygame.gateway.message.channel.context.AbstractGameChannelHandlerContext
-     * @date 2024/6/26 14:09
+     * @since 2024/6/26 14:09
      */
     public AbstractGameChannelHandlerContext fireChannelRead(final Object msg) {
         invokeChannelRead(findContextInbound(), msg);
@@ -269,7 +269,7 @@ public abstract class AbstractGameChannelHandlerContext {
      *
      * @param msg msg
      * @return com.mygame.gateway.message.channel.context.AbstractGameChannelHandlerContext
-     * @date 2024/6/26 14:09
+     * @since 2024/6/26 14:09
      */
     public AbstractGameChannelHandlerContext fireChannelReadRPCRequest(final MessageContext msg) {
         invokeChannelReadRPCRequest(findContextInbound(), msg);
@@ -337,7 +337,7 @@ public abstract class AbstractGameChannelHandlerContext {
      *
      * @param msg msg
      * @return com.mygame.gateway.message.channel.future.GameChannelFuture
-     * @date 2024/6/26 14:11
+     * @since 2024/6/26 14:11
      */
     public GameChannelFuture writeAndFlush(ResponseResult msg) {
         return writeAndFlush(msg, newPromise());
@@ -348,7 +348,7 @@ public abstract class AbstractGameChannelHandlerContext {
      * @param msg msg
      * @param promise promise
      * @return com.mygame.gateway.message.channel.future.GameChannelFuture
-     * @date 2024/6/26 14:11
+     * @since 2024/6/26 14:11
      */
     public GameChannelFuture writeAndFlush(ResponseResult msg, GameChannelPromise promise) {
         AbstractGameChannelHandlerContext next = findContextOutbound();
@@ -377,7 +377,7 @@ public abstract class AbstractGameChannelHandlerContext {
     /**
      *
      * @return com.mygame.gateway.message.channel.future.GameChannelPromise
-     * @date 2024/6/26 14:11
+     * @since 2024/6/26 14:11
      */
     public GameChannelPromise newPromise() {
         return new DefaultGameChannelPromise(gameChannel(), this.executor());
@@ -388,7 +388,7 @@ public abstract class AbstractGameChannelHandlerContext {
      * @param msg msg
      * @param promise promise
      * @return void
-     * @date 2024/6/26 14:12
+     * @since 2024/6/26 14:12
      */
     public void writeRPCMessage(MessageContext msg, Promise<MessageContext> promise) {
         AbstractGameChannelHandlerContext next = findContextOutbound();
@@ -428,7 +428,7 @@ public abstract class AbstractGameChannelHandlerContext {
     /**
      *
      * @return com.mygame.gateway.message.channel.future.GameChannelFuture
-     * @date 2024/6/26 14:12
+     * @since 2024/6/26 14:12
      */
     public GameChannelFuture close() {
         return this.close(new DefaultGameChannelPromise(this.gameChannel()));
@@ -438,7 +438,7 @@ public abstract class AbstractGameChannelHandlerContext {
      *
      * @param promise promise
      * @return com.mygame.gateway.message.channel.future.GameChannelFuture
-     * @date 2024/6/26 14:12
+     * @since 2024/6/26 14:12
      */
     public GameChannelFuture close(final GameChannelPromise promise) {
         final AbstractGameChannelHandlerContext next = findContextOutbound();

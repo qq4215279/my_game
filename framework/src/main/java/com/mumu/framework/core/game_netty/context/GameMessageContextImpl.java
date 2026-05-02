@@ -9,8 +9,8 @@ import com.mumu.common.proto.message.system.message.GameMessageHeader;
 import com.mumu.common.proto.message.system.message.GameMessagePackage;
 import com.mumu.framework.core.cmd.response.ResponseResult;
 import com.mumu.framework.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
-
 import com.mumu.framework.core.mvc.server.MessageContext;
+
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
@@ -68,7 +68,7 @@ public class GameMessageContextImpl implements GameMessageContext {
      * @param playerId playerId
      * @return io.netty.util.concurrent.Future<java.lang.Object>
      * @author liuzhen
-     * @date 2025/3/30 17:53
+     * @since 2025/3/30 17:53
      */
     public Future<Object> sendUserEvent(Object event, Promise<Object> promise, long playerId) {
         gameContext.gameChannel().getGameMessageDispatchServlet().fireUserEvent(playerId, event, promise);

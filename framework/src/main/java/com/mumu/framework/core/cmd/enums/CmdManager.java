@@ -5,10 +5,10 @@
 
 package com.mumu.framework.core.cmd.enums;
 
-import lombok.Getter;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.Getter;
 
 /**
  * CmdManager
@@ -29,7 +29,7 @@ public class CmdManager {
     /**
      * 请求获取Cmd
      * @param messageId messageId
-     * @date 2025/3/30 13:37
+     * @since 2025/3/30 13:37
      * @return com.mumu.framework.core.cmd.enums.Cmd
      */
     public static Cmd getCmd(int messageId) {
@@ -40,7 +40,7 @@ public class CmdManager {
      * 获取请求Cmd对应messageId
      * @param cmd cmd
      * @return int
-     * @date 2025/3/30 13:37
+     * @since 2025/3/30 13:37
      */
     public static int getReqMessageId(Cmd cmd) {
         return cmdReqMessageIdMap.get(cmd);
@@ -50,7 +50,7 @@ public class CmdManager {
      * 获取相应Cmd对应messageId
      * @param cmd cmd
      * @return int
-     * @date 2025/3/30 13:38
+     * @since 2025/3/30 13:38
      */
     public static int getResMessageId(Cmd cmd) {
         return cmdResMessageIdMap.get(cmd);

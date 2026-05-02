@@ -29,7 +29,7 @@ public enum MailLanguageEnum {
   /**
    * 邮件标题国际化key
    * @return java.lang.String
-   * @date 2024/12/31 15:07
+   * @since 2024/12/31 15:07
    */
   public String getTitleKey() {
     return TITLE_PREFIX + name();
@@ -38,7 +38,7 @@ public enum MailLanguageEnum {
   /**
    * 邮件内容国际化key
    * @return java.lang.String
-   * @date 2024/12/31 15:07
+   * @since 2024/12/31 15:07
    */
   public String getContentKey() {
     return CONTENT_PREFIX + name();

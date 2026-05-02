@@ -15,14 +15,18 @@ import com.mumu.framework.core.util2.ModifierUtil;
  */
 public interface RedisChannelListener<T> {
 
-  /** 订阅到消息 */
-  void onMessage(String channel, T message);
+    /**
+     * 订阅到消息
+     */
+    void onMessage(String channel, T message);
 
-  /** 订阅目标渠道 */
-  RedisChannel subscribeChannel();
+    /**
+     * 订阅目标渠道
+     */
+    RedisChannel subscribeChannel();
 
-  default Class<T> getTargetClazz() {
-    return ModifierUtil.getGenericInterfaceClass(this.getClass(), RedisChannelListener.class, null);
-  }
+    default Class<T> getTargetClazz() {
+        return ModifierUtil.getGenericInterfaceClass(this.getClass(), RedisChannelListener.class, null);
+    }
 
 }

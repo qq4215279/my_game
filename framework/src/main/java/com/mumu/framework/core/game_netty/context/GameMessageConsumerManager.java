@@ -49,7 +49,7 @@ public class GameMessageConsumerManager {
      * @param gameChannelInitializer gameChannelInitializer
      * @param localServerId localServerId
      * @return void
-     * @date 2024/6/26 14:52
+     * @since 2024/6/26 14:52
      */
     public void start(GameChannelInitializer gameChannelInitializer, int localServerId) {
         // TODO
@@ -64,7 +64,7 @@ public class GameMessageConsumerManager {
      *
      * @param context context
      * @author liuzhen
-     * @date 2025/3/30 18:52
+     * @since 2025/3/30 18:52
      */
     public void fireReadGameMessage(MessageContext context) {
         gameMessageDispatchServlet.fireReadGameMessage(context.getProxy().getHeader().getPlayerId(), context);

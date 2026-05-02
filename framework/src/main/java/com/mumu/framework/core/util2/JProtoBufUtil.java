@@ -11,7 +11,12 @@
 // import java.net.URL;
 // import java.util.Arrays;
 //
-// /** JProtoBuf 工具类 @Date: 2024/7/23 下午3:03 @Author: xu.hai */
+/**
+ * JProtoBuf
+ * 工具类
+ * @author liuzhen
+ * @version 1.0.0 2025/3/16 15:59
+ */
 // @SuppressWarnings({"all"})
 // public class JProtoBufUtil {
 //   public static byte[] NONE = new byte[0];

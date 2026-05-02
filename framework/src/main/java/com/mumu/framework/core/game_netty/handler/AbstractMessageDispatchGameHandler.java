@@ -151,7 +151,7 @@ public abstract class AbstractMessageDispatchGameHandler<T> implements GameChann
      * @param playerId playerId
      * @param promise promise
      * @return void
-     * @date 2024/6/26 16:40
+     * @since 2024/6/26 16:40
      */
     protected abstract void initData(AbstractGameChannelHandlerContext ctx, long playerId, GameChannelPromise promise);
 

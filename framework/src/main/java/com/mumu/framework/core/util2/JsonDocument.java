@@ -35,7 +35,7 @@ public class JsonDocument {
 	 * 开始创建对象节点
 	 * @param elementName 元素名称
 	 * @return void
-	 * @date 2023/9/1 15:20
+	 * @since 2023/9/1 15:20
 	 */
 	public void startObject(String elementName) {
 		if (!first) {
@@ -49,7 +49,7 @@ public class JsonDocument {
 	/**
 	 * 开始创建对象节点
 	 * @return void
-	 * @date 2023/9/1 15:20
+	 * @since 2023/9/1 15:20
 	 */
 	public void startObject() {
 		if (!first) {
@@ -62,7 +62,7 @@ public class JsonDocument {
 	/**
 	 * 结束对象节点
 	 * @return void
-	 * @date 2023/9/1 15:20
+	 * @since 2023/9/1 15:20
 	 */
 	public void endObject() {
 		append('}');
@@ -73,7 +73,7 @@ public class JsonDocument {
 	 * 开始创建数组节点
 	 * @param elementName 元素名称
 	 * @return void
-	 * @date 2023/9/1 15:20
+	 * @since 2023/9/1 15:20
 	 */
 	public void startArray(String elementName) {
 		if (!first) {
@@ -87,7 +87,7 @@ public class JsonDocument {
 	/**
 	 * 开始创建数组节点
 	 * @return void
-	 * @date 2023/9/1 15:20
+	 * @since 2023/9/1 15:20
 	 */
 	public void startArray() {
 		if (!first) {
@@ -100,7 +100,7 @@ public class JsonDocument {
 	/**
 	 * 结束数组节点
 	 * @return void
-	 * @date 2023/9/1 15:20
+	 * @since 2023/9/1 15:20
 	 */
 	public void endArray() {
 		append(']');
@@ -112,7 +112,7 @@ public class JsonDocument {
 	 * @param elementName 元素名称
 	 * @param o 对象
 	 * @return void
-	 * @date 2023/9/1 15:20
+	 * @since 2023/9/1 15:20
 	 */
 	public void createElement(String elementName, Object o) {
 		if (!first) {
@@ -128,7 +128,7 @@ public class JsonDocument {
 	 * 创建元素
 	 * @param o 对象
 	 * @return void
-	 * @date 2023/9/1 15:20
+	 * @since 2023/9/1 15:20
 	 */
 	public void createElement(Object o) {
 		if (!first) {
@@ -142,7 +142,7 @@ public class JsonDocument {
 	 * 创建值
 	 * @param o 对象
 	 * @return void
-	 * @date 2023/9/1 15:20
+	 * @since 2023/9/1 15:20
 	 */
 	private void createValue(Object o) {
 		try {
@@ -158,7 +158,7 @@ public class JsonDocument {
 	 * Append json
 	 * @param json json字节数组
 	 * @return void
-	 * @date 2023/9/1 15:21
+	 * @since 2023/9/1 15:21
 	 */
 	public void appendJson(final byte[] json) {
 		if (!first) {
@@ -173,7 +173,7 @@ public class JsonDocument {
 	 * @param elementName 元素名称
 	 * @param json json字节数组
 	 * @return void
-	 * @date 2023/9/1 15:21
+	 * @since 2023/9/1 15:21
 	 */
 	public void appendJson(final String elementName, final byte[] json) {
 		if (!first) {
@@ -190,7 +190,7 @@ public class JsonDocument {
 	 * @param elementName 元素名称
 	 * @param json json字节数组
 	 * @return void
-	 * @date 2023/9/1 15:21
+	 * @since 2023/9/1 15:21
 	 */
 	public void appendObjectJson(final String elementName, final byte[] json) {
 		if (!first) {
@@ -206,7 +206,7 @@ public class JsonDocument {
 	/**
 	 * toString
 	 * @return java.lang.String
-	 * @date 2023/9/1 15:21
+	 * @since 2023/9/1 15:21
 	 */
 	@Override
 	public String toString() {
@@ -216,7 +216,7 @@ public class JsonDocument {
 	/**
 	 * toByte
 	 * @return byte[]
-	 * @date 2023/9/1 15:21
+	 * @since 2023/9/1 15:21
 	 */
 	public byte[] toByte() {
 		return out.toBytes("UTF-8");
@@ -226,7 +226,7 @@ public class JsonDocument {
 	 * 往输出流中写入一个对象
 	 * @param bytes 字符数组
 	 * @return com.mumu.java_tools.fastjson.json.JsonDocument
-	 * @date 2023/9/1 15:21
+	 * @since 2023/9/1 15:21
 	 */
 	private JsonDocument append(final char[] bytes) {
 		try {
@@ -243,7 +243,7 @@ public class JsonDocument {
 	 * 往输出流中写入一个对象
 	 * @param bytes 字符数组
 	 * @return com.mumu.java_tools.fastjson.json.JsonDocument
-	 * @date 2023/9/1 15:21
+	 * @since 2023/9/1 15:21
 	 */
 	private JsonDocument append(final char bytes) {
 		try {
@@ -258,7 +258,7 @@ public class JsonDocument {
 	 * 往输出流中写入一个对象
 	 * @param bytes 字符数组
 	 * @return com.mumu.java_tools.fastjson.json.JsonDocument
-	 * @date 2023/9/1 15:22
+	 * @since 2023/9/1 15:22
 	 */
 	private JsonDocument append(final byte[] bytes) {
 		try {
@@ -272,7 +272,7 @@ public class JsonDocument {
 	/**
 	 * 重置
 	 * @return void
-	 * @date 2023/9/1 15:43
+	 * @since 2023/9/1 15:43
 	 */
 	private void reset() {
 		out = new SerializeWriter();

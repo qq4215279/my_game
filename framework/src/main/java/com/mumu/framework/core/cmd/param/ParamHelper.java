@@ -59,7 +59,7 @@ public class ParamHelper {
      * 获取指定类型对象的默认值
      * @param clazz clazz
      * @return java.lang.Object
-     * @date 2024/12/5 22:42
+     * @since 2024/12/5 22:42
      */
     public static Object getDefaultValue(Class<?> clazz) {
         if (clazz.isPrimitive()) {
@@ -72,7 +72,7 @@ public class ParamHelper {
      * 判断Clazz是否是简单Class
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:42
+     * @since 2024/12/5 22:42
      */
     public static boolean isSimpleClass(Class<?> clazz) {
         return SIMPLE_CLASS.contains(clazz);
@@ -82,7 +82,7 @@ public class ParamHelper {
      * 获得包装类
      * @param clazz clazz
      * @return java.lang.Class<?>
-     * @date 2024/12/5 22:43
+     * @since 2024/12/5 22:43
      */
     public static Class<?> getWrapper(Class<?> clazz) {
         if (clazz.isPrimitive()) {
@@ -96,7 +96,7 @@ public class ParamHelper {
      * @param src 要转换的对象
      * @param clazz 目标类型
      * @return T
-     * @date 2024/12/5 22:44
+     * @since 2024/12/5 22:44
      */
     @SuppressWarnings("unchecked")
     public static <T> T castTo(Object src, Class<T> clazz) {
@@ -113,7 +113,7 @@ public class ParamHelper {
      * @param fromType fromType
      * @param toType toType
      * @return T
-     * @date 2024/12/5 22:44
+     * @since 2024/12/5 22:44
      */
     @SuppressWarnings("unchecked")
     public static <T, F> T castTo(Object src, Class<F> fromType, Class<T> toType) {
@@ -149,7 +149,7 @@ public class ParamHelper {
      * @param str str
      * @param type type
      * @return T
-     * @date 2024/12/5 22:44
+     * @since 2024/12/5 22:44
      */
     @SuppressWarnings("unchecked")
     public static <T> T String2Object(String str, Class<T> type) {
@@ -191,7 +191,7 @@ public class ParamHelper {
      * 是否是布尔型
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     public static boolean isBoolean(Class<?> clazz) {
         return is(clazz, boolean.class) || is(clazz, Boolean.class);
@@ -201,7 +201,7 @@ public class ParamHelper {
      * 是否是指定类型
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     public static boolean isByte(Class<?> clazz) {
         return is(clazz, byte.class) || is(clazz, Byte.class);
@@ -211,7 +211,7 @@ public class ParamHelper {
      * 是否是指定类型
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     public static boolean isChar(Class<?> clazz) {
         return is(clazz, char.class) || is(clazz, Character.class);
@@ -221,7 +221,7 @@ public class ParamHelper {
      * 是否是指定类型
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     public static boolean isShort(Class<?> clazz) {
         return is(clazz, short.class) || is(clazz, Short.class);
@@ -231,7 +231,7 @@ public class ParamHelper {
      * 是否是指定类型
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     public static boolean isInteger(Class<?> clazz) {
         return is(clazz, int.class) || is(clazz, Integer.class);
@@ -241,7 +241,7 @@ public class ParamHelper {
      * 是否是指定类型
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     public static boolean isLong(Class<?> clazz) {
         return is(clazz, long.class) || is(clazz, Long.class);
@@ -252,7 +252,7 @@ public class ParamHelper {
      * 是否是指定类型
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     public static boolean isFloat(Class<?> clazz) {
         return is(clazz, float.class) || is(clazz, Float.class);
@@ -262,7 +262,7 @@ public class ParamHelper {
      * 是否是指定类型
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     public static boolean isDouble(Class<?> clazz) {
         return is(clazz, double.class) || is(clazz, Double.class);
@@ -272,7 +272,7 @@ public class ParamHelper {
      * 是否是指定类型
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     public static boolean isString(Class<?> clazz) {
         return is(clazz, String.class);
@@ -282,7 +282,7 @@ public class ParamHelper {
      * 是否是指定类型
      * @param clazz clazz
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     public static boolean isStringLike(Class<?> clazz) {
         return CharSequence.class.isAssignableFrom(clazz);
@@ -294,7 +294,7 @@ public class ParamHelper {
      * @param clazz1 clazz1
      * @param clazz2 clazz2
      * @return boolean
-     * @date 2024/12/5 22:45
+     * @since 2024/12/5 22:45
      */
     private static boolean is(Class<?> clazz1, Class<?> clazz2) {
         return clazz1 == clazz2;

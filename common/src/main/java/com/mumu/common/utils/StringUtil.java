@@ -1,12 +1,12 @@
 package com.mumu.common.utils;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * StringUtil
@@ -21,7 +21,7 @@ public class StringUtil {
      *
      * @param str str
      * @return int[]
-     * @date 2023/7/24 16:06
+     * @since 2023/7/24 16:06
      */
     public static int[] str2IntArray(String str) {
         return str2IntArray(str, ",");
@@ -33,7 +33,7 @@ public class StringUtil {
      * @param str   str
      * @param comma 分隔符
      * @return int[]
-     * @date 2023/7/24 16:07
+     * @since 2023/7/24 16:07
      */
     public static int[] str2IntArray(String str, String comma) {
         if (StringUtils.isEmpty(str)) {
@@ -55,7 +55,7 @@ public class StringUtil {
      *
      * @param str str
      * @return java.util.List<java.lang.Integer>
-     * @date 2023/7/24 16:12
+     * @since 2023/7/24 16:12
      */
     public static List<Integer> str2List(String str) {
         return str2List(str, ",");
@@ -67,7 +67,7 @@ public class StringUtil {
      * @param str   str
      * @param comma 分隔符
      * @return java.util.List<java.lang.Integer>
-     * @date 2023/7/24 16:12
+     * @since 2023/7/24 16:12
      */
     public static List<Integer> str2List(String str, String comma) {
         if (StringUtils.isEmpty(str)) {
@@ -89,7 +89,7 @@ public class StringUtil {
      *
      * @param str str
      * @return java.util.List<java.lang.Integer>
-     * @date 2023/7/24 16:12
+     * @since 2023/7/24 16:12
      */
     public static Set<Integer> str2Set(String str) {
         return str2Set(str, ",");
@@ -101,7 +101,7 @@ public class StringUtil {
      * @param str   str
      * @param comma 分隔符
      * @return java.util.List<java.lang.Integer>
-     * @date 2023/7/24 16:12
+     * @since 2023/7/24 16:12
      */
     public static Set<Integer> str2Set(String str, String comma) {
         return new HashSet<>(str2List(str, comma));
@@ -112,7 +112,7 @@ public class StringUtil {
      *
      * @param list list
      * @return java.lang.String
-     * @date 2023/7/24 16:27
+     * @since 2023/7/24 16:27
      */
     public static <T> String list2Str(List<T> list) {
         return list2Str(list, ",");
@@ -124,7 +124,7 @@ public class StringUtil {
      * @param list  list
      * @param comma 分隔符
      * @return java.lang.String
-     * @date 2023/7/24 16:27
+     * @since 2023/7/24 16:27
      */
     public static <T> String list2Str(List<T> list, String comma) {
         if (list == null || list.isEmpty()) {
@@ -144,7 +144,7 @@ public class StringUtil {
      *
      * @param set set
      * @return java.lang.String
-     * @date 2023/7/24 16:27
+     * @since 2023/7/24 16:27
      */
     public static <T> String set2Str(Set<T> set) {
         return set2Str(set, ",");
@@ -156,7 +156,7 @@ public class StringUtil {
      * @param set   set
      * @param comma 分隔符
      * @return java.lang.String
-     * @date 2023/7/24 16:27
+     * @since 2023/7/24 16:27
      */
     public static <T> String set2Str(Set<T> set, String comma) {
         if (set == null || set.isEmpty()) {

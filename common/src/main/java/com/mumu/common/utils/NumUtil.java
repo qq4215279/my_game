@@ -5,9 +5,6 @@
 
 package com.mumu.common.utils;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -16,11 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
 /**
  * 数字格式化的类
  *
  * @author gobestsoft
- * @date 2016年11月30日 下午5:58:40
+ * @since 2016年11月30日 下午5:58:40
  */
 public class NumUtil {
 

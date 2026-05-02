@@ -25,7 +25,7 @@ public interface GameChannelInboundHandler  extends GameChannelHandler {
      * @param playerId playerId
      * @param promise promise
      * @return void
-     * @date 2024/6/19 19:12
+     * @since 2024/6/19 19:12
      */
     void channelRegister(AbstractGameChannelHandlerContext ctx, long playerId, GameChannelPromise promise);
 
@@ -33,7 +33,7 @@ public interface GameChannelInboundHandler  extends GameChannelHandler {
      * GameChannel被移除的时候调用
      * @param ctx ctx
      * @return void
-     * @date 2024/6/19 19:12
+     * @since 2024/6/19 19:12
      */
     void channelInactive(AbstractGameChannelHandlerContext ctx) throws Exception;
 
@@ -42,7 +42,7 @@ public interface GameChannelInboundHandler  extends GameChannelHandler {
      * @param ctx ctx
      * @param msg msg
      * @return void
-     * @date 2024/6/19 19:12
+     * @since 2024/6/19 19:12
      */
     void channelRead(AbstractGameChannelHandlerContext ctx, Object msg) throws Exception;
 
@@ -52,7 +52,7 @@ public interface GameChannelInboundHandler  extends GameChannelHandler {
      * @param evt evt
      * @param promise promise
      * @return void
-     * @date 2024/6/19 19:12
+     * @since 2024/6/19 19:12
      */
     void userEventTriggered(AbstractGameChannelHandlerContext ctx, Object evt, Promise<Object> promise) throws Exception;
 
@@ -61,7 +61,7 @@ public interface GameChannelInboundHandler  extends GameChannelHandler {
      * @param ctx ctx
      * @param msg msg
      * @return void
-     * @date 2024/6/19 19:42
+     * @since 2024/6/19 19:42
      */
     void channelReadRpcRequest(AbstractGameChannelHandlerContext ctx, MessageContext msg) throws Exception;
 

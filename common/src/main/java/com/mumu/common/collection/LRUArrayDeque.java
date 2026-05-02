@@ -14,7 +14,6 @@ import java.util.List;
  * LRUArrayDeque
  * 固定大小并且遵循先进先出（FIFO）容器
  * 注：存在线程安全问题
- *
  * @author liuzhen
  * @version 1.0.0 2025/3/14 13:57
  */

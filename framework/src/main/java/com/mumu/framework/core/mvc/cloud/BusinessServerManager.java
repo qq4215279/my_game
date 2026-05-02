@@ -5,7 +5,16 @@
 
 package com.mumu.framework.core.mvc.cloud;
 
-import com.mumu.framework.core.mvc.constants.ServiceType;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -13,14 +22,7 @@ import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.mumu.framework.core.mvc.constants.ServiceType;
 
 /**
  * BusinessServerManager
@@ -53,7 +55,7 @@ public class BusinessServerManager implements ApplicationListener<HeartbeatEvent
     /**
      * 刷新网关后面的服务列表
      * @return void
-     * @date 2024/6/19 11:24
+     * @since 2024/6/19 11:24
      */
     private void refreshAndConnnectBusinessServerInfo() {
         Map<ServiceType, List<ServerInfo>> tempServerInfoMap = new HashMap<>();
@@ -108,7 +110,7 @@ public class BusinessServerManager implements ApplicationListener<HeartbeatEvent
      * @param serviceId serviceId
      * @param playerId playerId
      * @return com.mygame.common.model.ServerInfo
-     * @date 2024/6/19 11:24
+     * @since 2024/6/19 11:24
      */
     public ServerInfo selectServerInfo(long playerId, int serviceId) {
         // 再次声明一下，防止游戏网关列表发生变化，导致数据不一致。
@@ -135,7 +137,7 @@ public class BusinessServerManager implements ApplicationListener<HeartbeatEvent
      * @param serverId
      * @return
      * @author wgs
-     * @date 2019年5月18日 下午6:20:59
+     * @since 2019年5月18日 下午6:20:59
      *
      */
     public boolean isEnableServer(int serviceId, int serverId) {

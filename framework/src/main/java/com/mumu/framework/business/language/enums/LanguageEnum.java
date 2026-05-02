@@ -1,8 +1,10 @@
 package com.mumu.framework.business.language.enums;
 
-import com.mumu.framework.business.language.ConfigMultiLanguage;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.mumu.framework.business.language.ConfigMultiLanguage;
+
 import lombok.Getter;
 
 /**
@@ -85,7 +87,7 @@ public enum LanguageEnum {
    * 获取国际化枚举
    * @param languageCode languageCode
    * @return com.game.business.language.enums.LanguageEnum
-   * @date 2024/12/31 14:55
+   * @since 2024/12/31 14:55
    */
   public static LanguageEnum getLanguageEnum(String languageCode) {
     return languageCodeMap.getOrDefault(languageCode, ZHCN);
@@ -96,7 +98,7 @@ public enum LanguageEnum {
    * @param playerId 玩家id
    * @param key 国际化key
    * @return java.lang.String
-   * @date 2024/12/31 14:59
+   * @since 2024/12/31 14:59
    */
   public static String getContent(long playerId, String key) {
     // TODO

@@ -23,7 +23,7 @@ public class StandardThreadFactory implements ThreadFactory {
     /**
      * 创建一个线程工厂
      * @return java.util.concurrent.ThreadFactory
-     * @date 2024/5/27 15:00
+     * @since 2024/5/27 15:00
      */
     public static ThreadFactory defaultThreadFactory() {
         return new StandardThreadFactory("DefaultPool");
@@ -33,7 +33,7 @@ public class StandardThreadFactory implements ThreadFactory {
      * 标准线程工厂类
      * @param poolName poolName
      * @return
-     * @date 2024/5/27 15:00
+     * @since 2024/5/27 15:00
      */
     public StandardThreadFactory(String poolName) {
         SecurityManager s = System.getSecurityManager();

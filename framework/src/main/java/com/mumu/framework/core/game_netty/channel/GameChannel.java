@@ -67,7 +67,7 @@ public class GameChannel {
      * @param executor executor
      * @param playerId playerId
      * @return void
-     * @date 2024/6/26 14:40
+     * @since 2024/6/26 14:40
      */
     public void register(EventExecutor executor, long playerId) {
         this.executor = executor;
@@ -91,7 +91,7 @@ public class GameChannel {
     /**
      *
      * @return void
-     * @date 2024/6/26 14:42
+     * @since 2024/6/26 14:42
      */
     public void fireChannelInactive() {
         this.safeExecute(() -> {
@@ -103,7 +103,7 @@ public class GameChannel {
      *
      * @param context context
      * @return void
-     * @date 2024/6/26 14:42
+     * @since 2024/6/26 14:42
      */
     public void fireReadGameMessage(MessageContext context) {
         this.safeExecute(() -> {
@@ -123,7 +123,7 @@ public class GameChannel {
      * @param message message
      * @param promise promise
      * @return void
-     * @date 2024/6/26 14:42
+     * @since 2024/6/26 14:42
      */
     public void fireUserEvent(Object message, Promise<Object> promise) {
         this.safeExecute(() -> {
@@ -135,7 +135,7 @@ public class GameChannel {
      *
      * @param gameMessage gameMessage
      * @return void
-     * @date 2024/6/26 14:42
+     * @since 2024/6/26 14:42
      */
     public void fireChannelReadRPCRequest(MessageContext gameMessage) {
         this.safeExecute(() -> {
@@ -147,7 +147,7 @@ public class GameChannel {
      *
      * @param gameMessage gameMessage
      * @return void
-     * @date 2024/6/26 14:42
+     * @since 2024/6/26 14:42
      */
     public void pushMessage(ResponseResult gameMessage) {
         safeExecute(() -> {
@@ -159,7 +159,7 @@ public class GameChannel {
      * 执行任务
      * @param task task
      * @return void
-     * @date 2024/6/26 15:27
+     * @since 2024/6/26 15:27
      */
     private void safeExecute(Runnable task) {
         if (this.executor.inEventLoop()) {
@@ -175,7 +175,7 @@ public class GameChannel {
      * do 执行任务
      * @param task task
      * @return void
-     * @date 2024/6/26 15:27
+     * @since 2024/6/26 15:27
      */
     private void safeExecute0(Runnable task) {
         try {
@@ -194,7 +194,7 @@ public class GameChannel {
      * @param gameMessagePackage gameMessagePackage
      * @param promise promise
      * @return void
-     * @date 2024/6/26 14:43
+     * @since 2024/6/26 14:43
      */
     public void unsafeSendMessage(GameMessagePackage gameMessagePackage, GameChannelPromise promise) {
         // this.messageSendFactory.sendMessage(gameMessagePackage, promise);
@@ -205,7 +205,7 @@ public class GameChannel {
      * @param gameMessage gameMessage
      * @param callback callback
      * @return void
-     * @date 2024/6/26 14:43
+     * @since 2024/6/26 14:43
      */
     public void unsafeSendRpcMessage(MessageContext gameMessage, Promise<MessageContext> callback) {
         // TODO

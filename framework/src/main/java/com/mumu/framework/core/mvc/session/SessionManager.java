@@ -86,7 +86,7 @@ public class SessionManager {
      * 向Channel广播消息
      * @param consumer consumer
      * @return void
-     * @date 2024/6/19 17:42
+     * @since 2024/6/19 17:42
      */
     public void broadcast(BiConsumer<Long, IoSession> consumer) {
         this.readLock(() -> {
@@ -98,7 +98,7 @@ public class SessionManager {
      * 封装添加写锁，统一添加，防止写错
      * @param task task
      * @return void
-     * @date 2024/6/19 17:41
+     * @since 2024/6/19 17:41
      */
     private void writeLock(Runnable task) {
         lock.writeLock().lock();
@@ -117,7 +117,7 @@ public class SessionManager {
      * 封装添加读锁，统一添加，防止写错
      * @param task task
      * @return void
-     * @date 2024/6/19 17:41
+     * @since 2024/6/19 17:41
      */
     private void readLock(Runnable task) {
         lock.readLock().lock();

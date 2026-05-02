@@ -22,7 +22,7 @@ public enum SystemMsgLanguageEnum {
   /**
    * 获取系统国际化key
    * @return java.lang.String
-   * @date 2024/12/31 15:05
+   * @since 2024/12/31 15:05
    */
   public String getSysMsgKey() {
     return PREFIX + name();

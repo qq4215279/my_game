@@ -63,7 +63,7 @@ public class ClientServer {
     /**
      * 连接服务器
      * @param remoteServers remoteServers
-     * @date 2025/3/28 23:01
+     * @since 2025/3/28 23:01
      */
     public void connectServers(Map<ServiceType, List<ServerInfo>> remoteServers) {
         log.info("reconnectServers", "remoteServers", remoteServers);
@@ -182,7 +182,7 @@ public class ClientServer {
     /**
      * 连接请求任务
      * @author liuzhen
-     * @date 2025/3/28 22:42
+     * @since 2025/3/28 22:42
      */
     @Getter
     public class ConnectionRequestTask implements Runnable {

@@ -26,7 +26,6 @@ import lombok.Getter;
 public class MessageContext {
     /** 消息代理 */
     private GameMessagePackage proxy;
-
     /** 消息来源 session */
     private transient IoSession session;
 

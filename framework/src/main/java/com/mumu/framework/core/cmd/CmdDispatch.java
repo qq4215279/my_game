@@ -37,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CmdDispatch implements AutoInitEvent {
     /** 加载完成 */
     private final AtomicBoolean loaded = new AtomicBoolean();
-
     /** 加载的 action 集合 */
     private Map<Integer, ActionInvocation> messageIdActionMap = Collections.emptyMap();
 

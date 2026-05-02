@@ -5,18 +5,20 @@
 
 package com.mumu.framework.core.mvc;
 
+import org.springframework.stereotype.Service;
+
 import com.google.common.util.concurrent.RateLimiter;
 import com.mumu.framework.core.mvc.message.GatewayHandlerListener;
 import com.mumu.framework.core.mvc.message.MessageHandlerListener;
 import com.mumu.framework.core.mvc.servlet.initializer.GatewayServletChannelInitializer;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.springframework.stereotype.Service;
+import jakarta.annotation.Resource;
 
-import javax.annotation.Resource;
 
 /**
  * ServletBootstrap

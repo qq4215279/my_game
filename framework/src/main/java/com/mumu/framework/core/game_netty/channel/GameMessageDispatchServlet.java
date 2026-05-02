@@ -49,7 +49,7 @@ public class GameMessageDispatchServlet {
      * @param playerId playerId
      * @return com.mumu.framework.core.game_netty.channel.GameChannel
      * @author liuzhen
-     * @date 2025/3/30 22:08
+     * @since 2025/3/30 22:08
      */
     private GameChannel getGameChannel(long playerId) {
         GameChannel gameChannel = this.gameChannelGroupMap.get(playerId);
@@ -69,7 +69,7 @@ public class GameMessageDispatchServlet {
      * 发送GameChannel失效的事件，在这个事件中可以处理一些数据落地的操作
      * @param playerId playerId
      * @return void
-     * @date 2024/6/19 19:21
+     * @since 2024/6/19 19:21
      */
     public void fireInactiveChannel(long playerId) {
         this.safeExecute(() -> {
@@ -89,7 +89,7 @@ public class GameMessageDispatchServlet {
      * @param playerId playerId
      * @param context context
      * @return void
-     * @date 2024/6/19 19:21
+     * @since 2024/6/19 19:21
      */
     public void fireReadGameMessage(long playerId, MessageContext context) {
         this.safeExecute(() -> {
@@ -104,7 +104,7 @@ public class GameMessageDispatchServlet {
      * @param msg msg
      * @param promise promise
      * @return void
-     * @date 2024/6/19 19:21
+     * @since 2024/6/19 19:21
      */
     public void fireUserEvent(long playerId, Object msg, Promise<Object> promise) {
         this.safeExecute(() -> {
@@ -118,7 +118,7 @@ public class GameMessageDispatchServlet {
      * @param gameMessage gameMessage
      * @param playerIds playerIds
      * @return void
-     * @date 2024/6/19 19:21
+     * @since 2024/6/19 19:21
      */
     public void broadcastMessage(ResponseResult gameMessage, long... playerIds) {
         if (playerIds == null || playerIds.length == 0) {
@@ -140,7 +140,7 @@ public class GameMessageDispatchServlet {
      * 广播所有玩家
      * @param gameMessage gameMessage
      * @return void
-     * @date 2024/6/26 15:13
+     * @since 2024/6/26 15:13
      */
     public void broadcastMessage(ResponseResult gameMessage) {
         this.safeExecute(() -> {
@@ -155,7 +155,7 @@ public class GameMessageDispatchServlet {
      * 将方法的请求变成事件，在此类所属的事件线程池中执行
      * @param task task
      * @return void
-     * @date 2024/6/19 19:19
+     * @since 2024/6/19 19:19
      */
     private void safeExecute(Runnable task) {
         // 如果当前调用这个方法的线程和此类所属的线程是同一个线程，则可以立刻执行执行。

@@ -138,7 +138,7 @@ public class GameChannelPipeline {
      *
      * @param handlers handlers
      * @return com.mygame.gateway.message.channel.context.GameChannelPipeline
-     * @date 2024/6/26 20:02
+     * @since 2024/6/26 20:02
      */
     public final GameChannelPipeline addLast(GameChannelHandler... handlers) {
         return addLast(null, false, handlers);
@@ -194,7 +194,7 @@ public class GameChannelPipeline {
      * @param handler
      * @return
      * @author wgs
-     * @date 2019年5月25日 下午6:42:49
+     * @since 2019年5月25日 下午6:42:49
      */
     private AbstractGameChannelHandlerContext newContext(GameEventExecutorGroup group,
         boolean singleEventExecutorPerGroup, String name, GameChannelHandler handler) {
@@ -355,7 +355,7 @@ public class GameChannelPipeline {
     /**
      * 尾ChannelHandlerContext
      * 
-     * @date 2024/6/26 13:58
+     * @since 2024/6/26 13:58
      */
     final class TailChannelHandlerContext extends AbstractGameChannelHandlerContext
         implements GameChannelInboundHandler {
@@ -406,7 +406,7 @@ public class GameChannelPipeline {
     /**
      * 头ChannelHandlerContext
      * 
-     * @date 2024/6/26 13:58
+     * @since 2024/6/26 13:58
      */
     final class HeadChannelHandlerContext extends AbstractGameChannelHandlerContext
         implements GameChannelOutboundHandler, GameChannelInboundHandler {

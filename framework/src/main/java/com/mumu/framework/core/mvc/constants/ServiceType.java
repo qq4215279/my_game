@@ -39,11 +39,11 @@ public enum ServiceType {
     }
 
     /**
-     *
+     * 获取服务器类型
      * @param serviceId serviceId
      * @return com.mumu.framework.core.cloud.ServiceType
      * @author liuzhen
-     * @date 2025/3/28 23:05
+     * @since 2025/3/28 23:05
      */
     public static ServiceType getServiceType(int serviceId) {
         for (ServiceType serviceType : ServiceType.values()) {

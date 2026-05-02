@@ -1,8 +1,9 @@
 package com.mumu.framework.core.redis.constants;
 
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 
 /**
  * ScoreInfo
@@ -13,17 +14,17 @@ import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 @Data
 @NoArgsConstructor
 public class ScoreInfo {
-  private long playerId;
-  private long score;
-  private int rank;
+    private long playerId;
+    private long score;
+    private int rank;
 
-  public ScoreInfo(long playerId) {
-    this.playerId = playerId;
-  }
+    public ScoreInfo(long playerId) {
+        this.playerId = playerId;
+    }
 
-  public ScoreInfo(TypedTuple<String> tuple, int rank) {
-    this.playerId = Long.parseLong(tuple.getValue());
-    this.score = (long) Math.ceil(tuple.getScore());
-    this.rank = rank;
-  }
+    public ScoreInfo(TypedTuple<String> tuple, int rank) {
+        this.playerId = Long.parseLong(tuple.getValue());
+        this.score = (long)Math.ceil(tuple.getScore());
+        this.rank = rank;
+    }
 }

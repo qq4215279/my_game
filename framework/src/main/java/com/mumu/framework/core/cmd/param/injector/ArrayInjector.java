@@ -9,7 +9,7 @@ import com.mumu.framework.core.mvc.server.MessageContext;
 
 /**
  * ArrayInjector
- *
+ * 数组注入器
  * @author liuzhen
  * @version 1.0.0 2024/12/5 22:37
  */

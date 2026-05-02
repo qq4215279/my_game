@@ -15,7 +15,6 @@ import io.netty.util.AttributeKey;
 /**
  * IoSession
  * 原始的连接对象，如 netty的Channel，mina的IoSession等
- *
  * @author liuzhen
  * @version 1.0.0 2025/3/28 23:14
  */

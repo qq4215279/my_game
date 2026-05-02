@@ -15,11 +15,15 @@ import com.mumu.framework.core.autoinit.enums.AutoInitModule;
  * @version 1.0.0 2025/3/16 15:11
  */
 public interface AutoInitEvent extends AutoConditional {
-  /** 自动初始化逻辑 */
-  void autoInit();
+    /**
+     * 自动初始化逻辑
+     */
+    void autoInit();
 
-  /** 所属模块 */
-  default AutoInitModule getInitGroup() {
-    return AutoInitModule.DEFAULE;
-  }
+    /**
+     * 所属模块
+     */
+    default AutoInitModule getInitGroup() {
+        return AutoInitModule.DEFAULE;
+    }
 }
