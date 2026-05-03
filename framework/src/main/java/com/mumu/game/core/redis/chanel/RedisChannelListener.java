@@ -1,0 +1,32 @@
+/*
+ * Copyright 2020-2026, mumu without 996.
+ * All Right Reserved.
+ */
+
+package com.mumu.game.core.redis.chanel;
+
+import com.mumu.game.core.redis.constants.RedisChannel;
+import com.mumu.game.core.utils.ModifierUtil;
+
+/**
+ * RedisChannelListener
+ * @author liuzhen
+ * @version 1.0.0 2025/3/16 15:35
+ */
+public interface RedisChannelListener<T> {
+
+    /**
+     * 订阅到消息
+     */
+    void onMessage(String channel, T message);
+
+    /**
+     * 订阅目标渠道
+     */
+    RedisChannel subscribeChannel();
+
+    default Class<T> getTargetClazz() {
+        return ModifierUtil.getGenericInterfaceClass(this.getClass(), RedisChannelListener.class, null);
+    }
+
+}

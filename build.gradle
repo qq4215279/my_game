@@ -79,7 +79,10 @@ subprojects {
         // mongodb
         implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
-        implementation 'com.baidu:jprotobuf:2.4.12'
+        // jprotobuf
+        // 百度 jprotobuf - Protobuf 序列化工具
+        implementation 'com.baidu:jprotobuf:2.4.20'
+
 
         // groovy
         implementation group: 'org.codehaus.groovy', name: 'groovy', version: '3.0.23'
@@ -116,6 +119,11 @@ subprojects {
         testImplementation 'org.mockito:mockito-core:5.14.2'
         testImplementation 'org.powermock:powermock-core:2.0.0-beta.5'
         testImplementation 'org.powermock:powermock-api-mockito2:2.0.0-beta.5'
+
+
+        // TODO my-game-server:
+        //
+        implementation 'io.jsonwebtoken:jjwt:0.9.1'
     }
 
     tasks.withType(JavaCompile) {

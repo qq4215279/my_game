@@ -1,54 +1,17 @@
 application:
-  name: GateServer
+  name: gateway
 
+# web端口号
 server:
-  port: 8288
+  port: 7002
 
-net:
-  id: 2000
-  group: GATE
-  server:
-    enable: true
-    # 当前服务器 ip
-    ip: 127.0.0.1
-    port: 8200
-    protocol: websocket
-    bossThreadNum: 1
-    workThreadNum: 16
-    soBacklog: 128
-    soKeepalive: true
-    tcpNoDelay: false
-  client:
-    enable: true
-    protocol: socket
-    clientThreadNum: 16
-    soKeepalive: true
-    tcpNoDelay: false
-  register:
-    enable: true
-    retryCount: 20
-    servers:
-      - ip: 127.0.0.1
-        port: 8100
-  thread:
-    enable: true
-    player-core-pool-size: 16
-
-rpc:
-  enable: true
-
-luban:
-  enable: true
-  remote: true
-  endpoint: https://luban-dev.baloot-xy.com/luban_server/
-  port: 8299
-  secret-access-key: xxxx123
-  config-file-cache-path: D:\data\luban\baloot\gate-cache
-  config-entity-package-names:
-    - com.game.luban
+# 指定logback配置文件
+logging:
+  config: classpath:logback-spring.xml
 
 spring:
   data:
+    # 配置redis信息
     redis:
       host: r-uf6jzg20l7dcc3nstlpd.redis.rds.aliyuncs.com
       port: 6379
@@ -61,61 +24,58 @@ spring:
           min-idle: 5
           max-idle: 128
           max-wait: 3000
-  datasource:
-    dynamic:
-      primary: primary
-      datasource:
-        primary:
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://rm-uf6a91300v21mb045bo.mysql.rds.aliyuncs.com:3306/baloot_dat_local?autoReconnect=true&allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-          username: mysql_root
-          password: hcT2jnHAKsqRYDJg
-          type: com.alibaba.druid.pool.DruidDataSource
-          druid:
-            initial-size: 15
-            max-active: 30
-            min-idle: 5
-            max-wait: 60000
-            validation-query: SELECT 1
-            test-on-borrow: true
-        baloot_statistic:
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://rm-uf6a91300v21mb045bo.mysql.rds.aliyuncs.com:3306/baloot_statistic_local?autoReconnect=true&allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-          username: mysql_root
-          password: hcT2jnHAKsqRYDJg
-          type: com.alibaba.druid.pool.DruidDataSource
-          druid:
-            initial-size: 15
-            max-active: 30
-            min-idle: 5
-            max-wait: 60000
-            validation-query: SELECT 1
-            test-on-borrow: true
-    # Druid的其他属性配置
-    druid:
-      # 开启后台 http://localhost:8288/druid
-      stat-view-servlet:
-        enabled: true
-        url-pattern: /druid/*
-        # 访问监控页面 登陆账号
-        login-username: admin
-        # 访问监控页面 登陆密码
-        login-password: admin
-      # 是否开启 FilterStat，默认true
-      filter:
-        stat:
-          enabled: true
-          # 是否开启 慢SQL 记录，默认false
-          log-slow-sql: true
-          # 慢 SQL 的日志级别
-          slow-sql-log-level: WARN
-          # 慢 SQL 的标准，默认 3000，单位：毫秒
-          slow-sql-millis: 1000
 
-# 指定logback配置文件
-logging:
-  config: classpath:logback-local.xml
+    # 以下是配置数据库mongodb的信息
+    mongodb:
+      host: 115.28.208.195
+      port: 27017
+      username: my-game
+      password: xxx123456
+      authentication-database: admin
+      database: my-game
 
-groovy:
-  enable: true
-  groovyPath: scripts/groovy
+# 游戏网络自定义配置
+net:
+  # 版本号
+  version: 0
+  # 服务id
+  id: 2000
+  # 服务器类型
+  serviceType: GATEWAY
+  server:
+    enable: true
+    # 当前服务器 ip
+    ip: 192.168.1.183
+    port: 8200
+    protocol: websocket
+    bossThreadNum: 1
+    workThreadNum: 64
+    soBacklog: 128
+    soKeepalive: true
+    tcpNoDelay: false
+  client:
+    enable: true
+    protocol: socket
+    clientThreadNum: 64
+    soKeepalive: true
+    tcpNoDelay: false
+  register:
+    enable: true
+    retryCount: 20
+    servers:
+      - ip: 192.168.1.183
+        port: 8100
+  thread:
+    enable: true
+    player-core-pool-size: 64
+
+# 游戏配置
+game:
+  # 游戏通用配置
+  common:
+    # groovy 脚本
+    groovy:
+      # 是否开启
+      enable: true
+      # groovy 脚本路径
+      groovyPath: /data/groovy

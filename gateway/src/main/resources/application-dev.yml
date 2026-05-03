@@ -1,11 +1,11 @@
+application:
+  name: gateway
+
 # 此服务的Http端口
 server:
   port: 7002
 
 spring:
-  # 服务的应用名称
-  application:
-    name: game-arena
   data:
     # 配置redis信息
     redis:
@@ -30,69 +30,45 @@ spring:
       authentication-database: admin
       database: my-game
 
-  # 配置注册到consul的信息
-  cloud:
-    consul:
-      host: localhost
-      port: 7777
-      discovery:
-        prefer-ip-address: true
-        # 注册的ip信息
-        ip-address: 127.0.0.1
-        register: true
-        # 注册到Consul上面的服务名称，用于区分此服务是否为游戏逻辑
-        service-name: game-logic
-        health-check-critical-timeout: 30s
-        tags:
-          # 服务的ServiceID，用于获取一组服务
-          - serviceId=${game.server.config.service-id}
-          - # 服务的serverID，用于定位某一个具体的服务。
-          - serverId=${game.server.config.server-id}
-          # 服务器负载权重
-          - weight=3
-    bus:
-      enabled: true
-    stream:
-      # 配置Kafka地址
-      kafka:
-        binder:
-          brokers:
-            - localhost:9092
-  kafka:
-    producer:
-      # 指定生产者的Key的序列化方式
-      key-serializer:
-        org.apache.kafka.common.serialization.StringSerializer
-game:
+# 游戏网络自定义配置
+net:
+  # 版本号
+  version: 0
+  # 服务id
+  id: 2000
+  group: GATE
   server:
-    config:
-      # 服务器中配置服务Id
-      service-id: 102
-      # 当前服务器的id
-      server-id: 10102
-      # 用于测试，后期可以删除
-      business-game-message-topic: business-game-message-topic-${game.server.config.server-id}
-      # 用于测试，后期可以删除
-      gateway-game-message-topic: gateway-game-message-topic
-  channel:
-    # 网关监听的topic，用于接收发送给网关的消息
-    gateway-game-message-topic: gateway-game-message-topic
-    # 业务服务监听的topic，用于接收网关转发的消息
-    business-game-message-topic: business-game-message-topic
-    # RPC接收端监听的topic,用于接收rpc的请求
-    rpc-request-game-message-topic: rpc-request-game-message-topic
-    # RPC接收监听的topic，用于接收rpc的响应消息
-    rpc-response-game-message-topic: rpc-response-game-message-topic
-    # 消费者组id
-    topic-group-id: ${game.server.config.server-id}
-  # 客户端连接
+    enable: true
+    # 当前服务器 ip
+    ip: 192.168.1.183
+    port: 8200
+    protocol: websocket
+    bossThreadNum: 1
+    workThreadNum: 64
+    soBacklog: 128
+    soKeepalive: true
+    tcpNoDelay: false
   client:
     enable: true
     protocol: socket
-    clientThreadNum: 16
+    clientThreadNum: 64
     soKeepalive: true
     tcpNoDelay: false
+  register:
+    enable: true
+    retryCount: 20
+    servers:
+      - ip: 192.168.1.183
+        port: 8100
+  thread:
+    enable: true
+    player-core-pool-size: 64
+
 
 # 指定logback配置文件
 logging:
-config: classpath:logback-local.xml
+  config: classpath:logback-spring.xml
+
+groovy:
+  enable: true
+  groovyPath: /data/groovy

@@ -1,0 +1,24 @@
+/*
+ * Copyright 2020-2026, mumu without 996.
+ * All Right Reserved.
+ */
+
+package com.mumu.game.core.game_netty.context;
+
+import com.mumu.game.core.cmd.response.ResponseResult;
+
+/**
+ * GameMessageContext
+ * 游戏消息上下文
+ * @author liuzhen
+ * @version 1.0.0 2025/3/30 17:43
+ */
+public interface GameMessageContext {
+    long getPlayerId();
+
+    String getRemoteHost();
+
+    <T> T getRequest();
+
+    void sendMessage(ResponseResult message);
+}

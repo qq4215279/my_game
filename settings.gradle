@@ -6,10 +6,18 @@
 // settings.gradle
 rootProject.name = 'my_game'
 
-include 'auto_gen'
-include 'common'
-include 'framework'
-include 'gateway'
-include 'game'
-include 'world'
+// 游戏服务器中心
+include 'service_center'
 
+// 协议
+include 'auto_gen'
+// 通用包
+include 'common'
+// 框架包
+include 'framework'
+// 网关服
+include 'gateway'
+// 游戏服
+include 'game'
+// 大厅服
+include 'world'
