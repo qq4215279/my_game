@@ -14,6 +14,7 @@ import lombok.Data;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "game.gateway.server.config")
+@Deprecated
 public class GatewayServerConfig {
     /** 服务器ID */
     private int serverId;

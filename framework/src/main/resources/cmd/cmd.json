@@ -1,0 +1,17 @@
+{
+  "HeartbeatMsg" : {
+    "messageId" : 643964,
+    "reqMessage" : "HeartbeatMsgCE",
+    "resMessage" : "HeartbeatMsgEC"
+  },
+  "ConnectConfirmMsg" : {
+    "messageId" : 745664,
+    "reqMessage" : "ConnectConfirmMsgCE",
+    "resMessage" : "ConnectConfirmMsgEC"
+  },
+  "ReconnectServerMsg" : {
+    "messageId" : 233865,
+    "reqMessage" : "ReconnectServerMsgEA",
+    "resMessage" : "ReconnectServerMsgAE"
+  }
+}

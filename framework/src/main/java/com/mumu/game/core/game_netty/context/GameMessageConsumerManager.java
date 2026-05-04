@@ -12,7 +12,6 @@ import com.mumu.game.core.game_netty.channel.GameChannelInitializer;
 import com.mumu.game.core.game_netty.channel.GameMessageDispatchServlet;
 import com.mumu.game.core.game_netty.channel.GameServerConfig;
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.mvc.cloud.PlayerServiceManager;
 import com.mumu.game.core.net.server.MessageContext;
 import com.mumu.game.thread.GameEventExecutorGroup;
 
@@ -36,8 +35,8 @@ public class GameMessageConsumerManager {
     /** 消息管理类，负责管理根据消息id，获取对应的消息类实例 */
     @Resource
     private CmdDispatch cmdDispatch;
-    @Resource
-    private PlayerServiceManager playerServiceManager;
+    // @Resource
+    // private PlayerServiceManager playerServiceManager;
 
     /** 消息事件分类发，负责将用户的消息发到相应的GameChannel之中。 */
     private GameMessageDispatchServlet gameMessageDispatchServlet;

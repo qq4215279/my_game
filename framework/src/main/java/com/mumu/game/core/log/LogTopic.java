@@ -92,8 +92,11 @@ public enum LogTopic {
         // Player player = PlayerManager.self().getPlayerOrNullable(playerId);
         // TODO
         Player player = new Player();
-        if (player != null) warn(player, action, args);
-        else log.warn(getStatisticsKey(PATTERN_PLAYER_ID, args), action, playerId);
+        if (player != null) {
+            warn(player, action, args);
+        } else {
+            log.warn(getStatisticsKey(PATTERN_PLAYER_ID, args), action, playerId);
+        }
     }
 
     /**
@@ -176,6 +179,21 @@ public enum LogTopic {
         for (Object param : extras) {
             sb.append(Symbol.SPLIT_NUMBER)
                     .append(ArrayUtil.isArray(param) ? ArrayUtil.toString(param) : param);
+        }
+        return sb.toString();
+    }
+
+    /** 获取堆栈信息日志 */
+    public static String getStackTrace() {
+        return getStackTrace(Thread.currentThread());
+    }
+
+    /** 获取指定线程堆栈信息日志 */
+    public static String getStackTrace(Thread thread) {
+        StringBuilder sb = new StringBuilder();
+        StackTraceElement[] stackTrace = thread.getStackTrace();
+        for (int i = 3; i < stackTrace.length; i++) {
+            sb.append(Symbol.NEW_LINE_TAB).append(stackTrace[i]);
         }
         return sb.toString();
     }

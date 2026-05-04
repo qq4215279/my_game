@@ -1,0 +1,62 @@
+application:
+  # 应用名称
+  name: service-center-server
+
+# web端口号
+server:
+  port: 8088
+  tomcat:
+    keep-alive-timeout: 30000
+    max-keep-alive-requests: 200
+    connection-timeout: 60000
+
+# 指定logback配置文件
+logging:
+  config: classpath:logback-local.xml
+
+spring:
+  data:
+    # 配置redis信息
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password:
+      database: 0
+      # 连接超时时间（毫秒）
+      connect-timeout: 3000
+      lettuce:
+        pool:
+          # 连接池最大活跃连接数
+          max-active: 512
+          # 连接池最小空闲连接数
+          min-idle: 5
+          # 连接池最大空闲连接数
+          max-idle: 128
+          # 连接池获取连接最大等待时间（毫秒）
+          max-wait: 3000
+    # 以下是配置数据库mongodb的信息
+    mongodb:
+        host: 127.0.0.1  # MongoDB服务器地址
+        port: 27017  # MongoDB服务器端口
+        username: my-game  # MongoDB用户名
+        password:  # MongoDB密码（为空表示无密码）
+        authentication-database: admin  # 认证数据库
+        database: my-game  # 业务数据库名称
+
+
+# MyBatis-Plus配置
+mybatis-plus:
+  # Mapper XML文件位置
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    db-config:
+      # 主键生成策略：自增
+      id-type: auto
+  configuration:
+    # SQL日志实现：控制台输出
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# HTTP配置
+http:
+  # 是否启用HTTP日志
+  log-enabled: true

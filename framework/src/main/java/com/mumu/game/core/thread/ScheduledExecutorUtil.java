@@ -13,8 +13,8 @@ import com.google.common.collect.Maps;
 import com.mumu.game.core.log.LogTopic;
 
 /**
- * ScheduledExecutorUtil 定时任务处理
- * 
+ * ScheduledExecutorUtil
+ * 简单定时任务处理
  * @author liuzhen
  * @version 1.0.0 2025/3/16 15:56
  */

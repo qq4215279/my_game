@@ -8,172 +8,111 @@ package com.mumu.game.constants;
  */
 public interface Symbol {
 
-    /**
-     * BLANK
-     */
+    /** BLANK */
     String TAB = "\t";
-    /**
-     * WRAP
-     */
+
+    /** WRAP */
     String WRAP = "\r\n";
-    /**
-     * NEW_LINE
-     */
+
+    /** 换行 + tab */
+    String NEW_LINE_TAB = WRAP + TAB;
+
+    /** NEW_LINE */
     String NEW_LINE = "\n";
-    /**
-     * 分隔符
-     */
+
+    /** 分隔符 */
     String SPLIT_VERTICAL = "\\|";
-    /**
-     * 冒号
-     */
+
+    /** 冒号 */
     String COLON = ":";
-    /**
-     * 逗号
-     */
+
+    /** 逗号 */
     String COMMA = ",";
-    /**
-     * 分号
-     */
+
+    /** 分号 */
     String SEMICOLON = ";";
-    /**
-     * 下划线
-     */
+
+    /** 下划线 */
     String UNDERLINE = "_";
-    /**
-     * 等号
-     */
+
+    /** 等号 */
     String EQUAL = "=";
-    /**
-     * 加号
-     */
+
+    /** 加号 */
     String ADD = "+";
-    /**
-     * 减号
-     */
+
+    /** 减号 */
     String MINUS = "-";
-    /**
-     * #分隔， 如：1#2
-     */
+
+    /** #分隔， 如：1#2 */
     String SPLIT_NUMBER = "#";
-    /**
-     * 美元分割 如：1$2
-     */
+
+    /** 美元分割 如：1$2 */
     String SPLIT_DOLLAR = "$";
-    /**
-     * 单反引号（数据库查询标记字段用） 如：`
-     */
+
+    /** 单反引号（数据库查询标记字段用） 如：` */
     String SPLIT_BACKQUOTE = "`";
-    /**
-     * 问号
-     */
+
+    /** 问号 */
     String QUESTION = "?";
-    /**
-     * 或
-     */
+
+    /** 或 */
     String OR = "\\|\\|";
-    /**
-     * 冒号
-     */
-    String B_COLON = ":";
-    /**
-     * 逗号
-     */
-    String B_COMMA = ",";
-    /**
-     * {
-     */
-    String B_L_BRACE = "{";
-    /**
-     * }
-     */
-    String B_R_BRACE = "}";
-    /**
-     * [
-     */
-    String B_L_BRACKET = "[";
-    /**
-     * ]
-     */
-    String B_R_BRACKET = "]";
-    /**
-     * "
-     */
-    String B_QUOT = "\"";
-    /**
-     * 正斜杠 /
-     */
+
+    /** 正斜杠 / */
     String FORWARD_SLASH = "/";
-    /**
-     * <
-     */
+
+    /** < */
     String LT = "<";
-    /**
-     * </
-     */
+
+    /** </ */
     String LT_END = "</";
-    /**
-     * >
-     */
+
+    /** > */
     String RT = ">";
-    /**
-     * />
-     */
+
+    /** /> */
     String RT_END = "/>";
-    /**
-     * &
-     */
+
+    /** & */
     String AMP = "&";
-    /**
-     * "
-     */
+
+    /** " */
     String QUOT = "\"";
-    /**
-     * {
-     */
+
+    /** { */
     String L_BRACE = "{";
-    /**
-     * }
-     */
+
+    /** } */
     String R_BRACE = "}";
-    /**
-     * (
-     */
+
+    /** ( */
     String L_ROUND_BRACKET = "(";
-    /**
-     * )
-     */
+
+    /** ) */
     String R_ROUND_BRACKET = ")";
-    /**
-     * [
-     */
+
+    /** [ */
     String L_BRACKET = "[";
-    /**
-     * ]
-     */
+
+    /** ] */
     String R_BRACKET = "]";
-    /**
-     * BLANK
-     */
+
+    /** BLANK */
     String BLANK = " ";
-    /**
-     * "*"号 通配符
-     */
+
+    /** "*"号 通配符 */
     String PATTERN = "*";
-    /**
-     * 中文乘号
-     */
+
+    /** 中文乘号 */
     String CHINESE_MULT = "×";
-    /**
-     * 中文逗号
-     */
+
+    /** 中文逗号 */
     String CHINESE_COMMA = "，";
-    /**
-     * 方块点
-     */
+
+    /** 方块点 */
     String CHINESE_DOT = "▪";
-    /**
-     * 点
-     */
+
+    /** 点 */
     String POINT = ".";
 }

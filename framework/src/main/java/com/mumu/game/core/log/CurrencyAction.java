@@ -8,7 +8,6 @@ package com.mumu.game.core.log;
 /**
  * CurrencyAction
  * 货币流通事件，用于日志
- *
  * @author liuzhen
  * @version 1.0.0 2025/3/16 15:08
  */

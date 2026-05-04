@@ -15,6 +15,7 @@ import com.mumu.game.core.utils.ThreadPoolUtil;
  * @author liuzhen
  * @version 1.0.0 2025/3/16 15:57
  */
+@Deprecated
 public class ThreadPoolGroupExecutor {
     private final ThreadPoolExecutor[] executors;
 

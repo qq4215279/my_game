@@ -9,6 +9,7 @@ import com.mumu.game.core.cmd.enums.Cmd;
 import com.mumu.game.proto.message.core.ErrorCode;
 import com.mumu.game.proto.message.system.message.GameMessageHeader;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,6 +20,7 @@ import lombok.Setter;
  * @version 1.0.0 2024/11/28 17:59
  */
 @Getter
+@Deprecated
 public class ResponseResult2 {
     /** 玩家id */
     private long playerId;

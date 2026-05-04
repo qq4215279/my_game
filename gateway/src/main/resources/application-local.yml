@@ -1,52 +1,59 @@
 application:
-  name: gateway
+  # 应用名称
+  name: gateway-server
 
 # web端口号
 server:
-  port: 7002
+  port: 8188
 
 # 指定logback配置文件
 logging:
-  config: classpath:logback-spring.xml
+  config: classpath:logback-local.xml
 
 spring:
   data:
     # 配置redis信息
     redis:
-      host: r-uf6jzg20l7dcc3nstlpd.redis.rds.aliyuncs.com
+      host: 127.0.0.1
       port: 6379
-      password: PtfR4duIAGnW5jQk
-      database: 10
+      password:
+      database: 0
+      # 连接超时时间（毫秒）
       connect-timeout: 3000
       lettuce:
         pool:
+          # 连接池最大活跃连接数
           max-active: 512
+          # 连接池最小空闲连接数
           min-idle: 5
+          # 连接池最大空闲连接数
           max-idle: 128
+          # 连接池获取连接最大等待时间（毫秒）
           max-wait: 3000
-
     # 以下是配置数据库mongodb的信息
     mongodb:
-      host: 115.28.208.195
-      port: 27017
-      username: my-game
-      password: xxx123456
-      authentication-database: admin
-      database: my-game
+        host: 127.0.0.1  # MongoDB服务器地址
+        port: 27017  # MongoDB服务器端口
+        username: my-game  # MongoDB用户名
+        password:  # MongoDB密码（为空表示无密码）
+        authentication-database: admin  # 认证数据库
+        database: my-game  # 业务数据库名称
 
 # 游戏网络自定义配置
 net:
-  # 版本号
+  # 当前服务器版本号
   version: 0
-  # 服务id
-  serverId: 2000
+  # 当前服务器ID（唯一标识）
+  serverId: 1000
   # 服务器类型
   serviceType: GATEWAY
+  # Netty服务器配置（接收客户端连接）
   server:
+    # 是否启用Netty服务器
     enable: true
     # 当前服务器 ip
     host: 127.0.0.1
-    port: 8200
+    port: 8100
     protocol: socket
     bossThreadNum: 1
     workThreadNum: 64
@@ -54,28 +61,30 @@ net:
     soKeepalive: true
     tcpNoDelay: false
   client:
+    # 是否启用Netty客户端
     enable: true
+    # 通信协议
     protocol: socket
+    # 客户端IO线程数
     clientThreadNum: 64
+    # 是否开启TCP心跳保活
     soKeepalive: true
+    # 是否禁用Nagle算法
     tcpNoDelay: false
-  register:
-    enable: true
-    retryCount: 20
-    servers:
-      - ip: 192.168.1.183
-        port: 8100
+  # 业务线程池配置
   thread:
+    # 是否启用自定义线程池
     enable: true
+    # 玩家业务线程池核心线程数
     player-core-pool-size: 64
 
-# 游戏配置
+# 游戏通用配置
 game:
   # 游戏通用配置
   common:
-    # groovy 脚本
+    # Groovy动态脚本配置
     groovy:
-      # 是否开启
+      # 是否启用Groovy热更新脚本
       enable: true
-      # groovy 脚本路径
+      # Groovy脚本存放路径
       groovyPath: /data/groovy

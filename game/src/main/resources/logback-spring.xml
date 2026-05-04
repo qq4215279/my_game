@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true">
-    <property name="SERVER_NAME" value="GateServer"/>
+    <property name="SERVER_NAME" value="GameServer"/>
     <property name="LOG_PATH" value="logs"/>
     <property name="LOG_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level][%thread][%logger{36}] %msg%n"/>
@@ -24,7 +24,7 @@
             <fileNamePattern>${LOG_PATH}/${SERVER_NAME}/action/${SERVER_NAME}Action.log.%d{yyyyMMdd}.%i
             </fileNamePattern>
             <!-- 日志保存15天 -->
-            <maxHistory>5</maxHistory>
+            <maxHistory>15</maxHistory>
             <!-- 单个日志文件超过x, 则新建日志文件存储 -->
             <maxFileSize>512MB</maxFileSize>
         </rollingPolicy>
@@ -44,7 +44,7 @@
             <fileNamePattern>${LOG_PATH}/${SERVER_NAME}/net/${SERVER_NAME}Net.log.%d{yyyyMMdd}.%i
             </fileNamePattern>
             <!-- 日志保存15天 -->
-            <maxHistory>5</maxHistory>
+            <maxHistory>15</maxHistory>
             <!-- 单个日志文件超过x, 则新建日志文件存储 -->
             <maxFileSize>512MB</maxFileSize>
         </rollingPolicy>
@@ -60,7 +60,7 @@
             <fileNamePattern>${LOG_PATH}/${SERVER_NAME}/error/${SERVER_NAME}Error.log.%d{yyyyMMdd}.%i
             </fileNamePattern>
             <!-- 日志保存15天 -->
-            <maxHistory>5</maxHistory>
+            <maxHistory>15</maxHistory>
             <!-- 单个日志文件超过x, 则新建日志文件存储 -->
             <maxFileSize>512MB</maxFileSize>
         </rollingPolicy>
@@ -85,7 +85,7 @@
             <fileNamePattern>${LOG_PATH}/${SERVER_NAME}/model/${SERVER_NAME}Model.log.%d{yyyyMMdd}.%i
             </fileNamePattern>
             <!-- 日志保存15天 -->
-            <maxHistory>5</maxHistory>
+            <maxHistory>15</maxHistory>
             <!-- 单个日志文件超过x, 则新建日志文件存储 -->
             <maxFileSize>512MB</maxFileSize>
         </rollingPolicy>
@@ -93,6 +93,7 @@
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
     </appender>
+
 
     <!-- ======================= RPC日志 ======================== -->
     <appender name="AsyncRpcAppender" class="ch.qos.logback.classic.AsyncAppender">
@@ -104,7 +105,7 @@
             <fileNamePattern>${LOG_PATH}/${SERVER_NAME}/rpc/${SERVER_NAME}Rpc.log.%d{yyyyMMdd}.%i
             </fileNamePattern>
             <!-- 日志保存15天 -->
-            <maxHistory>5</maxHistory>
+            <maxHistory>15</maxHistory>
             <!-- 单个日志文件超过x, 则新建日志文件存储 -->
             <maxFileSize>512MB</maxFileSize>
         </rollingPolicy>
@@ -112,31 +113,28 @@
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
     </appender>
+
     <!-- ============================ 日志定义  ============================ -->
     <!-- 通用日志 -->
     <logger name="ACTION" additivity="false" level="INFO">
-        <appender-ref ref="DefaultAppender"/>
         <appender-ref ref="AsyncActionAppender"/>
         <appender-ref ref="ErrorAppender"/>
     </logger>
 
     <!-- 网络层相关 -->
-    <logger name="NET" additivity="false" level="DEBUG">
-        <appender-ref ref="DefaultAppender"/>
+    <logger name="NET" additivity="false" level="INFO">
         <appender-ref ref="AsyncNetAppender"/>
         <appender-ref ref="ErrorAppender"/>
     </logger>
 
     <!-- 数据模型层相关日志 -->
     <logger name="MODEL" additivity="false" level="INFO">
-        <appender-ref ref="DefaultAppender"/>
         <appender-ref ref="AsyncModelAppender"/>
         <appender-ref ref="ErrorAppender"/>
     </logger>
 
     <!-- RPC相关 -->
     <logger name="RPC" additivity="false" level="INFO">
-        <appender-ref ref="DefaultAppender"/>
         <appender-ref ref="AsyncRpcAppender"/>
         <appender-ref ref="ErrorAppender"/>
     </logger>

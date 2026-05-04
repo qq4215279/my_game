@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true">
-    <property name="SERVER_NAME" value="GateServer"/>
+    <property name="SERVER_NAME" value="GameServer"/>
     <property name="LOG_PATH" value="logs"/>
     <property name="LOG_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level][%thread][%logger{36}] %msg%n"/>
@@ -121,7 +121,7 @@
     </logger>
 
     <!-- 网络层相关 -->
-    <logger name="NET" additivity="false" level="DEBUG">
+    <logger name="NET" additivity="false" level="INFO">
         <appender-ref ref="DefaultAppender"/>
         <appender-ref ref="AsyncNetAppender"/>
         <appender-ref ref="ErrorAppender"/>
@@ -129,8 +129,9 @@
 
     <!-- 数据模型层相关日志 -->
     <logger name="MODEL" additivity="false" level="INFO">
-        <appender-ref ref="DefaultAppender"/>
+        <!--    <appender-ref ref="DefaultAppender"/>-->
         <appender-ref ref="AsyncModelAppender"/>
+
         <appender-ref ref="ErrorAppender"/>
     </logger>
 

@@ -113,7 +113,8 @@ public class GameChannel {
             }
 
             GameMessagePackage gameMessage = context.getMessagePackage();
-            this.gatewayServerId = gameMessage.getHeader().getFromServerId();
+            // TODO 获取gatewayServerId
+            // this.gatewayServerId = gameMessage.getHeader().getFromServerId();
             this.channelPipeline.fireChannelRead(context);
         });
     }

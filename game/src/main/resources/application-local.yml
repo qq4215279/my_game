@@ -1,10 +1,10 @@
 application:
   # 应用名称
-  name: gateway-server
+  name: game-server
 
 # web端口号
 server:
-  port: 8188
+  port: 8388
 
 # 指定logback配置文件
 logging:
@@ -32,28 +32,28 @@ spring:
           max-wait: 3000
     # 以下是配置数据库mongodb的信息
     mongodb:
-      host: 127.0.0.1  # MongoDB服务器地址
-      port: 27017  # MongoDB服务器端口
-      username: my-game  # MongoDB用户名
-      password:  # MongoDB密码（为空表示无密码）
-      authentication-database: admin  # 认证数据库
-      database: my-game  # 业务数据库名称
+        host: 127.0.0.1  # MongoDB服务器地址
+        port: 27017  # MongoDB服务器端口
+        username: my-game  # MongoDB用户名
+        password:  # MongoDB密码（为空表示无密码）
+        authentication-database: admin  # 认证数据库
+        database: my-game  # 业务数据库名称
 
 # 游戏网络自定义配置
 net:
   # 当前服务器版本号
   version: 0
   # 当前服务器ID（唯一标识）
-  serverId: 1000
+  serverId: 3000
   # 服务器类型
-  serviceType: GATEWAY
+  serviceType: GAME
   # Netty服务器配置（接收客户端连接）
   server:
     # 是否启用Netty服务器
     enable: true
     # 当前服务器 ip
     host: 127.0.0.1
-    port: 8100
+    port: 8300
     protocol: socket
     bossThreadNum: 1
     workThreadNum: 64

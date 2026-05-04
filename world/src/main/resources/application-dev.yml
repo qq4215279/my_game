@@ -1,10 +1,10 @@
 application:
   # 应用名称
-  name: gateway-server
+  name: world-server
 
 # web端口号
 server:
-  port: 8188
+  port: 8288
 
 # 指定logback配置文件
 logging:
@@ -44,16 +44,16 @@ net:
   # 当前服务器版本号
   version: 0
   # 当前服务器ID（唯一标识）
-  serverId: 1000
+  serverId: 2000
   # 服务器类型
-  serviceType: GATEWAY
+  serviceType: WORLD
   # Netty服务器配置（接收客户端连接）
   server:
     # 是否启用Netty服务器
     enable: true
     # 当前服务器 ip
     host: 127.0.0.1
-    port: 8100
+    port: 8200
     protocol: socket
     bossThreadNum: 1
     workThreadNum: 64

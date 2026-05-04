@@ -17,7 +17,6 @@ import lombok.Setter;
 public class Worker implements Runnable {
     @Setter
     Runnable task;
-
     @Setter
     Cmd cmd;
 

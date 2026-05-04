@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.mumu.game.core.utils.JProtoBufUtil;
 
+import com.mumu.game.proto.message.system.message.GameMessagePackage;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,11 +18,11 @@ import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
  * @version 1.0.0 2026/5/2 23:23
  */
 @ChannelHandler.Sharable
-public class WebSocketJProtobufEncoder extends MessageToMessageEncoder<MessageProxy> {
+public class WebSocketJProtobufEncoder extends MessageToMessageEncoder<GameMessagePackage> {
 
     @Override
     protected void encode(
-            ChannelHandlerContext channelHandlerContext, MessageProxy proxy, List<Object> out)
+            ChannelHandlerContext channelHandlerContext, GameMessagePackage proxy, List<Object> out)
             throws Exception {
         out.add(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(JProtoBufUtil.encode(proxy))));
     }

@@ -33,6 +33,7 @@ public class CoreConfig {
     /** 数据模型缓存大小 */
     @Value("${model.cache-size:200000}")
     private int cacheSize;
+
     /** 服务器关服时间，默认开启=0 */
     @Getter
     public static volatile long serverClosingTime;

@@ -24,11 +24,16 @@ import com.mumu.game.proto.message.system.message.MessageTypeEnum;
  */
 public class MessageSenderV2 {
 
+    @Deprecated
     public static void sendMessage(GameMessagePackage gameMessagePackage, GameChannelPromise promise) {
         GameMessageHeader header = gameMessagePackage.getHeader();
         long playerId = header.getPlayerId();
-        ServiceType toServiceType = ServiceType.getServiceType(header.getToServiceId());
-        int toServerId = header.getToServerId();
+        // TODO
+        // ServiceType toServiceType = ServiceType.getServiceType(header.getToServiceId());
+        // int toServerId = header.getToServerId();
+
+        ServiceType toServiceType = ServiceType.GAME;
+        int toServerId = 0;
 
 
         IoSession session = SessionManager.self().getServerSession(toServiceType, toServerId);

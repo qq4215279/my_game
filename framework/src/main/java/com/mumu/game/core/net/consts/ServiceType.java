@@ -22,14 +22,16 @@ import lombok.Getter;
 public enum ServiceType {
     /** 全部服 */
     ALL(-1),
+    /** 未知服 */
+    NONE(0),
     /** 网关服 */
-    GATEWAY(0),
+    GATEWAY(1),
     /** 大厅服 */
-    WORLD(1),
+    WORLD(2),
     /** 游戏服 */
-    GAME(2),
+    GAME(3),
     /** 聊天服 */
-    CHAT(3);
+    CHAT(4);
 
     /** 服务id */
     private final int serviceId;

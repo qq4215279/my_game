@@ -11,7 +11,10 @@ package com.mumu.game.core.log;
  * @author liuzhen
  * @version 1.0.0 2025/3/16 15:07
  */
-public class LogAction {
+public interface LogAction {
     /** 活动任务模块 */
     String ACTIVITY_TASK = "activityTask";
+    /**  */
+    String JVM_LOCK = "jvmLock";
+
 }

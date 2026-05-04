@@ -39,7 +39,6 @@ public class ServerInfo {
 
     /** 构造DTO数据 */
     public ClientServerBean build() {
-        // TODO
         ClientServerBean info = new ClientServerBean();
         info.setServiceId(serviceType.getServiceId());
         info.setServerId(serverId);

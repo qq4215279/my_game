@@ -27,6 +27,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
  */
 @Configuration
 @EnableConfigurationProperties(ServerProperties.class)
+// 这个注解组合起来表示：只有当配置文件（如 application.yml）中存在 net.server.enable=true 时，才会加载被注解的 Bean 或配置类。
 @ConditionalOnProperty(prefix = "net.server", name = "enable", havingValue = "true")
 public class NettyServerConfiguration {
     /** 本服信息 */
