@@ -3,7 +3,7 @@
  * All Right Reserved.
  */
 
-package com.mumu.game.core.mvc.server;
+package com.mumu.game.core.net.server;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.mumu.game.core.cmd.enums.Cmd;
@@ -30,11 +30,6 @@ public class MessageContext {
     private transient IoSession session;
 
 
-    /** 获取消息 */
-    public <T> T getMsg(Class<T> clazz) {
-        return JProtoBufUtil.decode(messagePackage.getBody(), clazz);
-    }
-
     /** 获取请求消息 */
     @SuppressWarnings("unchecked")
     public <T> T getReqMsg() {
@@ -49,13 +44,18 @@ public class MessageContext {
         return cmd != null && cmd.getResMsgClass() != null ? (T) getMsg(cmd.getResMsgClass()) : null;
     }
 
+    /** 获取消息 */
+    private <T> T getMsg(Class<T> clazz) {
+        return JProtoBufUtil.decode(messagePackage.getBody(), clazz);
+    }
+
     /** 获取玩家ID */
     public Long getPlayerId() {
         return messagePackage.getHeader().getPlayerId();
     }
 
-    /** 获取 Cmd Code */
-    public int getCmdCode() {
+    /** 获取协议id */
+    public int getMessageId() {
         return messagePackage.getHeader().getMessageId();
     }
 
@@ -68,6 +68,7 @@ public class MessageContext {
     public int getSeq() {
         return messagePackage.getHeader().getSeq();
     }
+
 
     /** 判断连接上是否存在指定 key 的属性 */
     public <T> boolean hasAttr(AttributeKey<T> key) {
@@ -84,6 +85,8 @@ public class MessageContext {
         return session.getAttr(key, orElse);
     }
 
+
+
     /** 构造消息上下文 */
     public static MessageContext of(GameMessagePackage gameMessagePackage, IoSession session) {
         MessageContext context = new MessageContext();
@@ -94,12 +97,13 @@ public class MessageContext {
 
     @Override
     public String toString() {
-        long begin = System.nanoTime();
         JSONObject json = new JSONObject();
         GameMessageHeader header = messagePackage.getHeader();
         json.put("playerId", header.getPlayerId());
         json.put("messageId", header.getMessageId());
+        json.put("messageType", header.getMessageType());
         json.put("seq", header.getSeq());
+        json.put("version", header.getVersion());
         json.put("errorCode", header.getErrorCode());
         if (session != null) {
             // json.put("session", session.session().toString());
@@ -120,7 +124,9 @@ public class MessageContext {
             }
         }
 
-        json.put("cost", System.nanoTime() - begin);
+        // 客户端发送时间
+        long begin = header.getSendTime();
+        json.put("cost", System.currentTimeMillis() - begin);
         return json.toString();
     }
 

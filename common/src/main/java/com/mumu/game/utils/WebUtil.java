@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -899,9 +898,6 @@ public final class WebUtil {
 		return ints;
 	}
 
-	public static List<Integer> stringArray2IntList(String[] strs){
-		return CollectionUtils.arrayToList(stringArray2IntArray(strs));
-	}
 
 	/**
 	 * 获取匹配的下标

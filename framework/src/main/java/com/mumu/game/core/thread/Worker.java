@@ -3,6 +3,7 @@ package com.mumu.game.core.thread;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.LongAdder;
 
+import com.mumu.game.core.cmd.enums.Cmd;
 import com.mumu.game.core.log.LogTopic;
 
 import lombok.Setter;
@@ -18,13 +19,12 @@ public class Worker implements Runnable {
     Runnable task;
 
     @Setter
-    int cmd;
+    Cmd cmd;
 
     /** 记录开始时间 */
-    long recordNanoTime;
-
+    private long recordNanoTime;
     /** 统计 - 完成的任务总数 */
-    final LongAdder processTaskCount;
+    private final LongAdder processTaskCount;
 
     /** 工作池 */
     final LinkedBlockingQueue<Worker> workPool;
@@ -71,7 +71,7 @@ public class Worker implements Runnable {
 
     public void clear() {
         task = null;
-        cmd = 0;
+        cmd = Cmd.None;
         recordNanoTime = 0;
         if (workPool.remainingCapacity() > 0) {
             workPool.add(this);

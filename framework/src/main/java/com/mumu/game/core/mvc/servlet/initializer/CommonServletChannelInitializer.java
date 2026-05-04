@@ -6,7 +6,7 @@
 package com.mumu.game.core.mvc.servlet.initializer;
 
 import com.google.common.util.concurrent.RateLimiter;
-import com.mumu.game.core.mvc.GatewayServerConfig;
+import com.mumu.game.core.mvc.config.GatewayServerConfig;
 import com.mumu.game.core.mvc.servlet.handler.HeartbeatHandler;
 import com.mumu.game.core.mvc.servlet.handler.codec.DecodeHandler;
 import com.mumu.game.core.mvc.servlet.handler.codec.EncodeHandler;

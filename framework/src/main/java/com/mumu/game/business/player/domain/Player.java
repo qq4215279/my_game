@@ -13,7 +13,6 @@ import lombok.Data;
 /**
  * Player
  * 玩家对象
- *
  * @author liuzhen
  * @version 1.0.0 2025/3/16 15:24
  */
@@ -41,6 +40,29 @@ public class Player {
     private String languageCode = LanguageEnum.AR.getLanguageCode();
     /** 登陆渠道 */
     private String loginChannel;
+
+    /** 玩家离线超过指定时间 (秒) */
+    public boolean isLeft(long duration) {
+        return isLeft() && leftTime + duration * 1000 < System.currentTimeMillis();
+    }
+
+    /** 触发下线 */
+    public void onLeft() {
+        if (!left) {
+            this.left = true;
+            this.leftTime = System.currentTimeMillis();
+        }
+    }
+
+    /** 清除下线 */
+    public void clearLeft() {
+        if (this.left || this.onlineTime == 0) {
+            this.left = false;
+            this.leftTime = 0;
+            this.onlineTime = System.currentTimeMillis();
+        }
+    }
+
     /** 添加玩家所在服务器组 */
     public synchronized void addServerGroup(ServiceType serviceType, int serverId) {
         // 同步更新当前服务位置

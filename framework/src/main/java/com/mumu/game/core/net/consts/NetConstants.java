@@ -5,7 +5,7 @@
 
 package com.mumu.game.core.net.consts;
 
-import com.mumu.game.core.mvc.cloud.ServerInfo2;
+import com.mumu.game.core.properties.ServerInfo;
 
 import io.netty.util.AttributeKey;
 
@@ -16,6 +16,7 @@ import io.netty.util.AttributeKey;
  * @version 1.0.0 2025/3/24 22:44
  */
 public interface NetConstants {
+    /** netty客户端 */
     /** 客户端标识（主动注册标识） */
     AttributeKey<Boolean> SESSION_CLIENT = AttributeKey.valueOf("connect-client");
     /** 连接所属服务类型 - ServerType */
@@ -23,7 +24,7 @@ public interface NetConstants {
     /** 连接所属服务ID - serverId */
     AttributeKey<Integer> SESSION_SERVER_ID = AttributeKey.valueOf("connect-server-id");
     /** 服务器信息 - ServerInfo */
-    AttributeKey<ServerInfo2> SESSION_SERVER_INFO = AttributeKey.valueOf("connect-server-info");
+    AttributeKey<ServerInfo> SESSION_SERVER_INFO = AttributeKey.valueOf("connect-server-info");
 
     /** 玩家ID标识 - playerId */
     AttributeKey<Long> SESSION_PLAYER_ID = AttributeKey.valueOf("connect-player-id");
@@ -37,6 +38,8 @@ public interface NetConstants {
 
     /** 客户端IP地址 */
     AttributeKey<String> SESSION_CLIENT_IP = AttributeKey.valueOf("client_ip");
+
+
 
     /** 连接所属服务类型 */
     String SESSION_ATTR_GROUP = "connect-server-group";
@@ -57,6 +60,7 @@ public interface NetConstants {
     // String SESSION_ATTR_CONNECT_OPENING = "connect-server-opening";
     // String SESSION_ATTR_CONNECT_CLOSED = "connect-server-closed";
     // String SESSION_ATTR_LAST_LIVE_TIME = "connect-server-last-live-time";
+
 
     String LOOP_GROUP_SERVER_BOSS = "netty-server-boss-";
     String LOOP_GROUP_SERVER_WORK = "netty-server-work-";

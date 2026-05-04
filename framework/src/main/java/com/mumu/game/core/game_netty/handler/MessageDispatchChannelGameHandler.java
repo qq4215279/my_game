@@ -11,7 +11,7 @@ import com.mumu.game.business.player.domain.Player;
 import com.mumu.game.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
 import com.mumu.game.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.game.core.game_netty.context.GameMessageContextImpl;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Promise;
@@ -143,7 +143,7 @@ public class MessageDispatchChannelGameHandler extends AbstractMessageDispatchGa
     public void channelRead(AbstractGameChannelHandlerContext gameChannelHandlerContext, Object msg) throws Exception {
         MessageContext context = (MessageContext)msg;
         GameMessageContextImpl messageContext = new GameMessageContextImpl(context, gameChannelHandlerContext);
-        cmdDispatch.callMethod(messageContext);
+        cmdDispatch.invokeMethod(messageContext);
     }
 
     @Override

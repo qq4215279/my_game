@@ -8,12 +8,12 @@ package com.mumu.game.core.game_netty.channel;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mumu.game.core.cmd.response.ResponseResult;
+import com.mumu.game.core.cmd.response.ResponseResult2;
 import com.mumu.game.core.game_netty.channel.context.GameChannelPipeline;
 import com.mumu.game.core.game_netty.channel.future.DefaultGameChannelPromise;
 import com.mumu.game.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 import com.mumu.game.core.utils.SpringContextUtils;
 import com.mumu.game.proto.message.system.message.GameMessagePackage;
 
@@ -149,7 +149,7 @@ public class GameChannel {
      * @return void
      * @since 2024/6/26 14:42
      */
-    public void pushMessage(ResponseResult gameMessage) {
+    public void pushMessage(ResponseResult2 gameMessage) {
         safeExecute(() -> {
             this.channelPipeline.writeAndFlush(gameMessage);
         });

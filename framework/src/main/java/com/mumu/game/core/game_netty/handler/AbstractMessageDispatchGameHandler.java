@@ -13,7 +13,7 @@ import com.mumu.game.core.game_netty.channel.context.AbstractGameChannelHandlerC
 import com.mumu.game.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.game.core.game_netty.channel.handler.GameChannelInboundHandler;
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 import com.mumu.game.core.utils.SpringContextUtils;
 
 import io.netty.util.concurrent.DefaultPromise;

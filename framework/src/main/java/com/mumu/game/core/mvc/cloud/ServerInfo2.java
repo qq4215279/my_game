@@ -17,6 +17,7 @@ import lombok.Data;
  * @version 1.0.0 2025/3/3 23:34
  */
 @Data
+@Deprecated
 public class ServerInfo2 {
     /** 服务id(serviceId)，与GameMessageMetadata中的一致 */
     private ServiceType serviceType;

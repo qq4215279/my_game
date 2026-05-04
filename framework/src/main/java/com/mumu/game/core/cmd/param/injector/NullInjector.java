@@ -6,7 +6,7 @@
 package com.mumu.game.core.cmd.param.injector;
 
 import com.mumu.game.core.cmd.param.ParamHelper;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 
 /**
  * NullInjector

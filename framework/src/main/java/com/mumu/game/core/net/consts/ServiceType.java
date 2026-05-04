@@ -8,7 +8,7 @@ package com.mumu.game.core.net.consts;
 import java.util.List;
 
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.mvc.config.CoreConfig;
+import com.mumu.game.core.properties.CoreConfig;
 
 import lombok.Getter;
 

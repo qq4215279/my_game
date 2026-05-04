@@ -52,7 +52,7 @@ public class RequestRateLimiterHandler extends ChannelInboundHandlerAdapter {
 
        // 6.7.3 消息幂等处理 p167
        GameMessagePackage gameMessagePackage = (GameMessagePackage) msg;
-       int clientSeqId = gameMessagePackage.getHeader().getClientSeqId();
+       int clientSeqId = gameMessagePackage.getHeader().getSeq();
        if (lastClientSeqId > 0) {
            // 直接返回，不再处理。
            if (clientSeqId <= lastClientSeqId) {

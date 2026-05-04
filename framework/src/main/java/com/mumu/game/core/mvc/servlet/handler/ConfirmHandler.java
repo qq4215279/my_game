@@ -11,12 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mumu.game.core.cmd.enums.Cmd;
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.mvc.GatewayServerConfig;
-import com.mumu.game.core.mvc.cloud.PlayerServiceManager;
-import com.mumu.game.core.mvc.server.IoSession;
+import com.mumu.game.core.mvc.config.GatewayServerConfig;
+import com.mumu.game.core.net.server.IoSession;
 import com.mumu.game.core.mvc.servlet.handler.codec.JProtobufDecoder;
 import com.mumu.game.core.mvc.servlet.handler.codec.JProtobufEncoder;
-import com.mumu.game.core.mvc.session.SessionManager;
+import com.mumu.game.core.net.session.SessionManager;
 import com.mumu.game.core.utils.JProtoBufUtil;
 import com.mumu.game.proto.message.core.ErrorCode;
 import com.mumu.game.proto.message.gate.core.ConnectConfirmMsgCE;
@@ -47,7 +46,7 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
     /** 注入服务端配置 */
     private GatewayServerConfig serverConfig;
     /** 注入业务服务管理类，从这里获取负载均衡的服务器信息 */
-    private PlayerServiceManager businessServerService;
+    // private PlayerServiceManager businessServerService;
     /** session管理器 */
     private SessionManager sessionManager;
 
@@ -63,7 +62,7 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
     public ConfirmHandler(GatewayServerConfig serverConfig) {
         this.serverConfig = serverConfig;
         this.sessionManager = SessionManager.self();
-        this.businessServerService = PlayerServiceManager.self();
+        // this.businessServerService = PlayerServiceManager.self();
     }
 
     /**

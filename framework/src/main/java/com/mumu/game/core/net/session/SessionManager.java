@@ -3,7 +3,7 @@
  * All Right Reserved.
  */
 
-package com.mumu.game.core.mvc.session;
+package com.mumu.game.core.net.session;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,13 +15,14 @@ import org.springframework.stereotype.Component;
 
 import com.mumu.game.collection.ConcurrentMultiKeyMap;
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.mvc.cloud.ServerInfo2;
-import com.mumu.game.core.mvc.server.IoSession;
+import com.mumu.game.core.net.server.IoSession;
 import com.mumu.game.core.net.consts.NetConstants;
 import com.mumu.game.core.net.consts.ServiceType;
+import com.mumu.game.core.properties.ServerInfo;
 import com.mumu.game.core.utils.SpringContextUtils;
 
 import io.netty.channel.Channel;
+import jakarta.annotation.Resource;
 
 /**
  * PlayerSessionManager
@@ -37,13 +38,15 @@ public class SessionManager {
         return SpringContextUtils.getBean(SessionManager.class);
     }
 
+    /** 玩家信息管理 */
+    @Resource
+    PlayerManager playerManager;
 
-    /** playerId 与 IoSession的映射容器，这里使用的是HashMap，所以，对于Map的操作都要放在锁里面 */
-    private final Map<Long, IoSession> playerSessionMap = new HashMap<>();
     /** 读写锁,使用非公平锁 */
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-
+    /** playerId 与 IoSession的映射容器，这里使用的是HashMap，所以，对于Map的操作都要放在锁里面 */
+    private final Map<Long, IoSession> playerSessionMap = new HashMap<>();
     /** 缓存的全部连接 key: sessionId */
     private final NonBlockingHashMap<String, IoSession> allSessionMap = new NonBlockingHashMap<>();
 
@@ -81,11 +84,9 @@ public class SessionManager {
         });
     }
 
-
     /**
      * 向Channel广播消息
      * @param consumer consumer
-     * @return void
      * @since 2024/6/19 17:42
      */
     public void broadcast(BiConsumer<Long, IoSession> consumer) {
@@ -97,7 +98,6 @@ public class SessionManager {
     /**
      * 封装添加写锁，统一添加，防止写错
      * @param task task
-     * @return void
      * @since 2024/6/19 17:41
      */
     private void writeLock(Runnable task) {
@@ -116,7 +116,6 @@ public class SessionManager {
     /**
      * 封装添加读锁，统一添加，防止写错
      * @param task task
-     * @return void
      * @since 2024/6/19 17:41
      */
     private void readLock(Runnable task) {
@@ -142,6 +141,8 @@ public class SessionManager {
         }
     }
 
+
+    // serverSessionMap =========>
     /** 根据服务id，获取连接 */
     public IoSession getServerSession(ServiceType serviceType, int serverId) {
         return serverSessionMap.get(serviceType, serverId);
@@ -152,7 +153,7 @@ public class SessionManager {
     }
 
     // TODO 进行握手
-    public void addServerSession(IoSession ioSession, ServerInfo2 serverInfo) {
+    public void addServerSession(IoSession ioSession, ServerInfo serverInfo) {
         // 标记
         ioSession.setAttr(NetConstants.SESSION_SERVICE_TYPE, serverInfo.getServiceType());
         ioSession.setAttr(NetConstants.SESSION_SERVER_ID, serverInfo.getServerId());
@@ -174,8 +175,8 @@ public class SessionManager {
         }
         
         // 移除服务器session和serverInfo缓存
-        Integer serverId = session.getAttr(NetConstants.SESSION_SERVER_ID);
         ServiceType serviceType = session.getAttr(NetConstants.SESSION_SERVICE_TYPE);
+        Integer serverId = session.getAttr(NetConstants.SESSION_SERVER_ID);
         if (serverId != null && serviceType != null) {
             serverSessionMap.remove(serviceType, serverId);
         }
@@ -196,6 +197,41 @@ public class SessionManager {
     /** 判断 session存在 */
     public boolean contains(String sessionKey) {
         return allSessionMap.containsKey(sessionKey);
+    }
+
+
+
+    // ==================>
+    /** 玩家数据下行session,即给玩家发消息(Gate服会返回玩家连接,其他服返回玩家所在Gate的连接) */
+    public IoSession getOutSession(long playerId) {
+        IoSession session = playerSessionMap.get(playerId);
+        if (session != null) {
+            return session;
+        }
+
+        // 获取玩家所在网关
+        return getByServerId(ServiceType.GATEWAY, playerManager.getServerId(playerId, ServiceType.GATEWAY));
+    }
+
+    /** 玩家数据上行session,即接收玩家消息,路由到玩家所在服务器 */
+    public IoSession getInSession(long playerId, ServiceType serviceType) {
+        return getByServerId(serviceType, getInServerId(playerId, serviceType));
+    }
+
+    /** 根据服务id，获取连接 */
+    public IoSession getByServerId(ServiceType serviceType, int serverId) {
+        return serverSessionMap.get(serviceType, serverId);
+    }
+
+    /** 获取玩家所在服（不存在则会找一个） */
+    public int getInServerId(long playerId, ServiceType serviceType) {
+        // 获取玩家所在服务器的连接，目标服务连接不存在时，查找一个
+        int serverId = playerManager.getServerId(playerId, serviceType);
+        if (containsServerId(serviceType, serverId)) {
+            return serverId;
+        }
+
+        return serverId;
     }
 
 }

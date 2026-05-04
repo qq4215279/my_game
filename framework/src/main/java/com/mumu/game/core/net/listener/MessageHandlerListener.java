@@ -5,8 +5,8 @@
 
 package com.mumu.game.core.net.listener;
 
-import com.mumu.game.core.mvc.server.IoSession;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.IoSession;
+import com.mumu.game.core.net.server.MessageContext;
 
 import io.netty.channel.ChannelHandlerContext;
 

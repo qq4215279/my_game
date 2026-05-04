@@ -5,7 +5,7 @@
 
 package com.mumu.game.core.game_netty.context;
 
-import com.mumu.game.core.cmd.response.ResponseResult;
+import com.mumu.game.core.cmd.response.ResponseResult2;
 
 /**
  * GameMessageContext
@@ -20,5 +20,5 @@ public interface GameMessageContext {
 
     <T> T getRequest();
 
-    void sendMessage(ResponseResult message);
+    void sendMessage(ResponseResult2 message);
 }

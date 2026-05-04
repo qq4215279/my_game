@@ -1,22 +1,39 @@
+/*
+ * Copyright 2020-2026, mumu without 996.
+ * All Right Reserved.
+ */
+
 package com.mumu.game.core.cmd.response;
 
+import com.mumu.game.core.cmd.enums.Cmd;
 import com.mumu.game.proto.message.core.ErrorCode;
+import com.mumu.game.proto.message.system.message.GameMessageHeader;
+
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * ResponseResult
  * 结果返回消息体
  * @author liuzhen
- * @version 1.0.0 2026/5/4 16:18
+ * @version 1.0.0 2024/11/28 17:59
  */
 @Getter
-public class ResponseResult {
+public class ResponseResult2 {
     /** 玩家id */
     private long playerId;
     /** 错误码 */
     private ErrorCode errorCode = ErrorCode.SUCCESS;
     /** res */
     private Object resMsg = null;
+    
+    /** cmd */
+    @Setter
+    private Cmd cmd;
+    /** 请求header */
+    @Deprecated
+    @Setter
+    private GameMessageHeader header = null;
 
     public boolean isSuccess() {
         return errorCode == ErrorCode.SUCCESS;
@@ -28,7 +45,7 @@ public class ResponseResult {
      * @return com.game.framework.core.cmd.response.ResponseBody
      * @since 2024/11/28 18:23
      */
-    public static ResponseResult success(long playerId) {
+    public static ResponseResult2 success(long playerId) {
         return of(playerId, ErrorCode.SUCCESS, null);
     }
 
@@ -39,7 +56,7 @@ public class ResponseResult {
      * @return com.game.framework.core.cmd.response.ResponseBody
      * @since 2024/11/28 18:23
      */
-    public static <T> ResponseResult success(long playerId, T resMsg) {
+    public static <T> ResponseResult2 success(long playerId, T resMsg) {
         return of(playerId, ErrorCode.SUCCESS, resMsg);
     }
 
@@ -50,7 +67,7 @@ public class ResponseResult {
      * @return com.game.framework.core.cmd.response.ResponseBody
      * @since 2024/11/28 18:23
      */
-    public static ResponseResult error(long playerId, ErrorCode errorCode) {
+    public static ResponseResult2 error(long playerId, ErrorCode errorCode) {
         return of(playerId, errorCode, null);
     }
 
@@ -60,7 +77,7 @@ public class ResponseResult {
      * @return com.game.framework.core.cmd.response.ResponseResult
      * @since 2024/12/2 17:43
      */
-    public static ResponseResult errorByNotOpen(long playerId) {
+    public static ResponseResult2 errorByNotOpen(long playerId) {
         return error(playerId, ErrorCode.FAIL_FUNCTION_NOT_OPOEN);
     }
 
@@ -70,7 +87,7 @@ public class ResponseResult {
      * @return com.game.framework.core.cmd.response.ResponseBody
      * @since 2024/11/28 18:23
      */
-    public static ResponseResult errorByEmpty(long playerId) {
+    public static ResponseResult2 errorByEmpty(long playerId) {
         return error(playerId, ErrorCode.FAIL_PARAM_EMPTY);
     }
 
@@ -80,7 +97,7 @@ public class ResponseResult {
      * @return com.game.framework.core.cmd.response.ResponseBody
      * @since 2024/11/28 18:24
      */
-    public static ResponseResult errorByParam(long playerId) {
+    public static ResponseResult2 errorByParam(long playerId) {
         return error(playerId, ErrorCode.FAIL_PARAM_ERROR);
     }
 
@@ -90,7 +107,7 @@ public class ResponseResult {
      * @return com.game.framework.core.cmd.response.ResponseBody
      * @since 2024/11/28 18:24
      */
-    public static ResponseResult errorByFail(long playerId) {
+    public static ResponseResult2 errorByFail(long playerId) {
         return error(playerId, ErrorCode.FAIL);
     }
 
@@ -102,8 +119,8 @@ public class ResponseResult {
      * @return com.game.framework.core.cmd.response.ResponseBody
      * @since 2024/11/28 18:24
      */
-    public static ResponseResult of(long playerId, ErrorCode errorCode, Object resMsg) {
-        ResponseResult responseResult = new ResponseResult();
+    public static ResponseResult2 of(long playerId, ErrorCode errorCode, Object resMsg) {
+        ResponseResult2 responseResult = new ResponseResult2();
         responseResult.playerId = playerId;
         responseResult.errorCode = errorCode;
         responseResult.resMsg = resMsg;

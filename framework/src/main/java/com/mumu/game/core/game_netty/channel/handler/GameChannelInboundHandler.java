@@ -7,7 +7,7 @@ package com.mumu.game.core.game_netty.channel.handler;
 
 import com.mumu.game.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
 import com.mumu.game.core.game_netty.channel.future.GameChannelPromise;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 
 import io.netty.util.concurrent.Promise;
 

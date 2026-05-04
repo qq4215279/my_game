@@ -5,7 +5,7 @@
 
 package com.mumu.game.core.game_netty.channel.context;
 
-import com.mumu.game.core.cmd.response.ResponseResult;
+import com.mumu.game.core.cmd.response.ResponseResult2;
 import com.mumu.game.core.game_netty.channel.GameChannel;
 import com.mumu.game.core.game_netty.channel.future.DefaultGameChannelPromise;
 import com.mumu.game.core.game_netty.channel.future.GameChannelFuture;
@@ -13,7 +13,7 @@ import com.mumu.game.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.game.core.game_netty.channel.handler.GameChannelHandler;
 import com.mumu.game.core.game_netty.channel.handler.GameChannelInboundHandler;
 import com.mumu.game.core.game_netty.channel.handler.GameChannelOutboundHandler;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 
 import io.netty.channel.DefaultChannelPipeline;
 import io.netty.util.ReferenceCountUtil;
@@ -339,7 +339,7 @@ public abstract class AbstractGameChannelHandlerContext {
      * @return com.mygame.gateway.message.channel.future.GameChannelFuture
      * @since 2024/6/26 14:11
      */
-    public GameChannelFuture writeAndFlush(ResponseResult msg) {
+    public GameChannelFuture writeAndFlush(ResponseResult2 msg) {
         return writeAndFlush(msg, newPromise());
     }
 
@@ -350,7 +350,7 @@ public abstract class AbstractGameChannelHandlerContext {
      * @return com.mygame.gateway.message.channel.future.GameChannelFuture
      * @since 2024/6/26 14:11
      */
-    public GameChannelFuture writeAndFlush(ResponseResult msg, GameChannelPromise promise) {
+    public GameChannelFuture writeAndFlush(ResponseResult2 msg, GameChannelPromise promise) {
         AbstractGameChannelHandlerContext next = findContextOutbound();
         EventExecutor executor = next.executor();
         if (executor.inEventLoop()) {
@@ -366,7 +366,7 @@ public abstract class AbstractGameChannelHandlerContext {
         return promise;
     }
 
-    private void invokeWrite(ResponseResult msg, GameChannelPromise promise) {
+    private void invokeWrite(ResponseResult2 msg, GameChannelPromise promise) {
         try {
             ((GameChannelOutboundHandler)handler()).writeAndFlush(this, msg, promise);
         } catch (Throwable t) {

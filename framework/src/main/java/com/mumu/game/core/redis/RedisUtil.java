@@ -37,7 +37,7 @@ import com.mumu.game.core.redis.constants.RedisLuaScript;
 import com.mumu.game.core.redis.constants.ScoreInfo;
 import com.mumu.game.core.redis.manager.RedisExpireManager;
 import com.mumu.game.core.utils.CovertUtil;
-import com.mumu.game.core.utils.JsonUtil;
+import com.mumu.game.utils.JsonUtil;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;

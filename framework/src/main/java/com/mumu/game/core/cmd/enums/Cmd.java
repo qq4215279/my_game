@@ -32,6 +32,8 @@ import lombok.Getter;
  * @version 1.0.0 2025/3/30 12:49
  */
 public enum Cmd {
+    /** 空 */
+    None(ServiceType.ALL, null, null),
     /** 心跳消息 */
     HeartbeatMsg(ServiceType.GATEWAY, HeartbeatMsgCE.class, HeartbeatMsgEC.class),
     /** 连接验证消息 */

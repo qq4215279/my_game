@@ -31,7 +31,6 @@ public class DispatchServlet implements Servlet {
     @Override
     public void doCommand(ChannelHandlerContext ctx, Object msg) {
         GameMessagePackage gameMessagePackage = (GameMessagePackage)msg;
-        int serviceId = gameMessagePackage.getHeader().getServiceId();
 
         Request request = new Request(ctx.channel(), ctx, gameMessagePackage);
         Response response = new Response(ctx.channel());

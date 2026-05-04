@@ -8,12 +8,12 @@ package com.mumu.game.core.game_netty.handler;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import com.mumu.game.core.cmd.response.ResponseResult;
+import com.mumu.game.core.cmd.response.ResponseResult2;
 import com.mumu.game.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
 import com.mumu.game.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.game.core.game_netty.channel.handler.GameChannelInboundHandler;
 import com.mumu.game.core.game_netty.channel.handler.GameChannelOutboundHandler;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -184,7 +184,7 @@ public class IdleStateGameChannelHandler implements GameChannelInboundHandler, G
     }
 
     @Override
-    public void writeAndFlush(AbstractGameChannelHandlerContext ctx, ResponseResult msg, GameChannelPromise promise) throws Exception {
+    public void writeAndFlush(AbstractGameChannelHandlerContext ctx, ResponseResult2 msg, GameChannelPromise promise) throws Exception {
         if (writerIdleTimeNanos > 0 || allIdleTimeNanos > 0) {
             this.lastWriteTime = this.ticksInNanos();
         }

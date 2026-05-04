@@ -3,7 +3,7 @@
  * All Right Reserved.
  */
 
-package com.mumu.game.core.mvc.config;
+package com.mumu.game.core.properties;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -45,17 +45,17 @@ public class CoreConfig {
     /** 玩家核心线程数 */
     private static int playerCoreSize;
 
-    @Value("${net.group}")
+    @Value("${net.serviceType}")
     public void setServiceType(ServiceType serviceType) {
         CoreConfig.serviceType = serviceType;
     }
 
-    @Value("${net.id}")
+    @Value("${net.serverId}")
     public void setServerId(int serverId) {
         CoreConfig.serverId = serverId;
     }
 
-    @Value("${net.thread.playerCorePoolSize:64}")
+    @Value("${net.thread.player-core-pool-size:64}")
     public void setPlayerCoreSize(int playerCoreSize) {
         CoreConfig.playerCoreSize = playerCoreSize;
     }

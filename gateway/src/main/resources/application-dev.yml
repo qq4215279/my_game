@@ -1,9 +1,13 @@
 application:
   name: gateway
 
-# 此服务的Http端口
+# web端口号
 server:
   port: 7002
+
+# 指定logback配置文件
+logging:
+  config: classpath:logback-spring.xml
 
 spring:
   data:
@@ -35,14 +39,15 @@ net:
   # 版本号
   version: 0
   # 服务id
-  id: 2000
-  group: GATE
+  serverId: 2000
+  # 服务器类型
+  serviceType: GATEWAY
   server:
     enable: true
     # 当前服务器 ip
-    ip: 192.168.1.183
+    host: 127.0.0.1
     port: 8200
-    protocol: websocket
+    protocol: socket
     bossThreadNum: 1
     workThreadNum: 64
     soBacklog: 128
@@ -64,11 +69,13 @@ net:
     enable: true
     player-core-pool-size: 64
 
-
-# 指定logback配置文件
-logging:
-  config: classpath:logback-spring.xml
-
-groovy:
-  enable: true
-  groovyPath: /data/groovy
+# 游戏配置
+game:
+  # 游戏通用配置
+  common:
+    # groovy 脚本
+    groovy:
+      # 是否开启
+      enable: true
+      # groovy 脚本路径
+      groovyPath: /data/groovy

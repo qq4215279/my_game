@@ -25,10 +25,8 @@ public class GameMessageHeader {
     private MessageTypeEnum messageType;
     /** 请求序号 */
     private Integer seq;
-    /** 客户端发送时间 */
+    /** 发送时间 */
     private Long sendTime;
-    /** 服务端发送时间 */
-    private Long serverSendTime;
     /** 版本号 */
     private Integer version;
     /** 玩家id */

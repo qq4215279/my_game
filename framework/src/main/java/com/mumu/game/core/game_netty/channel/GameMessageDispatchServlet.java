@@ -8,10 +8,10 @@ package com.mumu.game.core.game_netty.channel;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mumu.game.core.cmd.response.ResponseResult;
+import com.mumu.game.core.cmd.response.ResponseResult2;
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.mvc.cloud.GameChannelCloseEvent;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 import com.mumu.game.core.utils.SpringContextUtils;
 import com.mumu.game.thread.GameEventExecutorGroup;
 
@@ -120,7 +120,7 @@ public class GameMessageDispatchServlet {
      * @return void
      * @since 2024/6/19 19:21
      */
-    public void broadcastMessage(ResponseResult gameMessage, long... playerIds) {
+    public void broadcastMessage(ResponseResult2 gameMessage, long... playerIds) {
         if (playerIds == null || playerIds.length == 0) {
             log.info("广播的对象集合为空，直接返回");
             return;
@@ -142,7 +142,7 @@ public class GameMessageDispatchServlet {
      * @return void
      * @since 2024/6/26 15:13
      */
-    public void broadcastMessage(ResponseResult gameMessage) {
+    public void broadcastMessage(ResponseResult2 gameMessage) {
         this.safeExecute(() -> {
             this.gameChannelGroupMap.values().forEach(channel -> {
                 channel.pushMessage(gameMessage);

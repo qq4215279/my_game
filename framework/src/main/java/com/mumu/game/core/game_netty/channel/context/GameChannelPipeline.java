@@ -9,7 +9,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import com.mumu.game.core.cmd.response.ResponseResult;
+import com.mumu.game.core.cmd.response.ResponseResult2;
 import com.mumu.game.core.game_netty.channel.GameChannel;
 import com.mumu.game.core.game_netty.channel.future.DefaultGameChannelPromise;
 import com.mumu.game.core.game_netty.channel.future.GameChannelFuture;
@@ -17,7 +17,7 @@ import com.mumu.game.core.game_netty.channel.future.GameChannelPromise;
 import com.mumu.game.core.game_netty.channel.handler.GameChannelHandler;
 import com.mumu.game.core.game_netty.channel.handler.GameChannelInboundHandler;
 import com.mumu.game.core.game_netty.channel.handler.GameChannelOutboundHandler;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 import com.mumu.game.core.utils.JProtoBufUtil;
 import com.mumu.game.proto.message.system.message.GameMessageHeader;
 import com.mumu.game.proto.message.system.message.GameMessagePackage;
@@ -314,11 +314,11 @@ public class GameChannelPipeline {
     }
 
 
-    public final GameChannelFuture writeAndFlush(ResponseResult msg) {
+    public final GameChannelFuture writeAndFlush(ResponseResult2 msg) {
         return tail.writeAndFlush(msg);
     }
 
-    public final GameChannelFuture writeAndFlush(ResponseResult msg, GameChannelPromise promise) {
+    public final GameChannelFuture writeAndFlush(ResponseResult2 msg, GameChannelPromise promise) {
         return tail.writeAndFlush(msg, promise);
     }
 
@@ -453,7 +453,7 @@ public class GameChannelPipeline {
         }
 
         @Override
-        public void writeAndFlush(AbstractGameChannelHandlerContext ctx, ResponseResult responseResult,
+        public void writeAndFlush(AbstractGameChannelHandlerContext ctx, ResponseResult2 responseResult,
                                   GameChannelPromise promise) throws Exception {
             GameMessagePackage gameMessagePackage = new GameMessagePackage();
 
@@ -462,9 +462,6 @@ public class GameChannelPipeline {
             header.setPlayerId(pipeline.channel.getPlayerId());
             header.setErrorCode(responseResult.getErrorCode());
             header.setMessageId(responseResult.getCmd().getResMessageId());
-            header.setToServerId(channel.getGatewayServerId());
-            header.setFromServerId(channel.getServerConfig().getServerId());
-            header.setServerSendTime(System.currentTimeMillis());
             // 设置头信息
             gameMessagePackage.setHeader(header);
             // 返回信息

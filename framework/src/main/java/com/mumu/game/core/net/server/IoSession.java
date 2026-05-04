@@ -3,7 +3,7 @@
  * All Right Reserved.
  */
 
-package com.mumu.game.core.mvc.server;
+package com.mumu.game.core.net.server;
 
 import java.net.InetSocketAddress;
 

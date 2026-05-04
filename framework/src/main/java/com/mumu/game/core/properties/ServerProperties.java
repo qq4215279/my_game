@@ -20,7 +20,7 @@ public class ServerProperties {
     /** 协议类型（SOCKET/HTTP/WEBSOCKET） */
     private ServerProtocol protocol = ServerProtocol.SOCKET;
     /** 服务端ip */
-    private String ip = "127.0.0.1";
+    private String host = "127.0.0.1";
     /** 服务端口 */
     private int port;
     /** 是否是主服务（即根据server路由时，优先选择master服） */

@@ -5,6 +5,7 @@
 
 package com.mumu.game.core.mvc;
 
+import com.mumu.game.core.mvc.config.GatewayServerConfig;
 import org.springframework.stereotype.Service;
 
 import com.google.common.util.concurrent.RateLimiter;

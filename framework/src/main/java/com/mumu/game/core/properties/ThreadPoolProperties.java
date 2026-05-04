@@ -1,18 +1,16 @@
-package com.mumu.game.core.thread.config;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
+package com.mumu.game.core.properties;
 
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * ThreadPoolProperties
- * 线程池配置（工作线程池 和 玩家线程池）
+ * ThreadPoolProperties 线程池配置（工作线程池 和 玩家线程池）
+ * 
  * @author liuzhen
- * @version 1.0.0 2025/3/16 15:52
+ * @version 1.0.0 2026/5/4 17:13
  */
 @Data
-@ConfigurationProperties(prefix = "game.thread")
-@Deprecated
+@ConfigurationProperties(prefix = "net.thread")
 public class ThreadPoolProperties {
     /** 默认线程数 cup数量*2 */
     private static final int DEF_THREAD_NUM = Runtime.getRuntime().availableProcessors() << 1;

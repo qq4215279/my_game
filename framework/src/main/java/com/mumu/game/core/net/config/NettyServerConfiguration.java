@@ -59,7 +59,7 @@ public class NettyServerConfiguration {
         listener = listener == null ? MessageHandlerListener.DUMMY : listener;
         listener.handleStart();
         LogTopic.NET.info("nettyServer", "serviceType", serverInfo.getServiceType(), "serverName",
-            serverInfo.getServerName(), "serverId", serverInfo.getId(), "listener", listener.getClass().getName(),
+            serverInfo.getServerName(), "serverId", serverInfo.getServerId(), "listener", listener.getClass().getName(),
             "serverProperties", serverProperties);
 
         ServerBootstrap serverBootstrap = new ServerBootstrap();

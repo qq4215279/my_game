@@ -2,7 +2,7 @@
  * Copyright 2020-2026, mumu without 996. All Right Reserved.
  */
 
-package com.mumu.game.core.utils;
+package com.mumu.game.utils;
 
 import java.util.Arrays;
 import java.util.Collections;

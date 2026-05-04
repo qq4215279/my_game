@@ -7,11 +7,10 @@ package com.mumu.game.core.mvc.servlet.handler;
 
 import com.mumu.game.core.game_netty.context.GameMessageConsumerManager;
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.mvc.GatewayServerConfig;
-import com.mumu.game.core.mvc.cloud.PlayerServiceManager;
-import com.mumu.game.core.mvc.server.IoSession;
-import com.mumu.game.core.mvc.server.MessageContext;
-import com.mumu.game.core.mvc.session.SessionManager;
+import com.mumu.game.core.mvc.config.GatewayServerConfig;
+import com.mumu.game.core.net.server.IoSession;
+import com.mumu.game.core.net.server.MessageContext;
+import com.mumu.game.core.net.session.SessionManager;
 import com.mumu.game.core.net.listener.MessageHandlerListener;
 import com.mumu.game.core.utils.SpringContextUtils;
 import com.mumu.game.proto.message.system.message.GameMessagePackage;
@@ -32,7 +31,7 @@ public class DispatchServletHandler extends ChannelInboundHandlerAdapter {
     /** 消息处理监听器 */
     private final MessageHandlerListener listener;
 
-    private final PlayerServiceManager playerServiceManager;
+    // private final PlayerServiceManager playerServiceManager;
 
     /**  */
     private final GameMessageConsumerManager gameMessageConsumerManager;
@@ -42,7 +41,7 @@ public class DispatchServletHandler extends ChannelInboundHandlerAdapter {
 
     public DispatchServletHandler(MessageHandlerListener messageHandlerListener) {
         this.listener = messageHandlerListener;
-        this.playerServiceManager = SpringContextUtils.getBean(PlayerServiceManager.class);
+        // this.playerServiceManager = SpringContextUtils.getBean(PlayerServiceManager.class);
         this.gameMessageConsumerManager = SpringContextUtils.getBean(GameMessageConsumerManager.class);
     }
 

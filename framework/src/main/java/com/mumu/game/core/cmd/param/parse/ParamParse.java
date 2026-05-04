@@ -9,7 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import com.mumu.game.core.cmd.param.injector.ParamInjector;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 
 /**
  * ParamParse

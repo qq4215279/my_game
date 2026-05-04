@@ -4,6 +4,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.LongAdder;
 
+import com.mumu.game.constants.ThreadConstants;
+import com.mumu.game.core.cmd.enums.Cmd;
+import com.mumu.game.core.properties.CoreConfig;
+import com.mumu.game.core.net.server.MessageContext;
+import com.mumu.game.core.net.consts.ServiceType;
+import com.mumu.game.core.thread2.GameEventExecutorGroup;
+
 /**
  * ThreadPoolRouter
  * 线程选择器
@@ -18,14 +25,15 @@ public class ThreadPoolRouter {
     /** 统计 - 完成的任务总数 */
     final LongAdder processTaskCount = new LongAdder();
     /** 玩家线程 */
-    final ThreadPoolGroupExecutor playerExecutor;
+    final GameEventExecutorGroup playerExecutor;
     /** 服务线程 */
+    @Deprecated
     final ThreadPoolExecutor serverExecutor;
 
     static final int MAX_QUEUE_SIZE = 5000;
     final LinkedBlockingQueue<Worker> workPool = new LinkedBlockingQueue<>(MAX_QUEUE_SIZE);
 
-    public ThreadPoolRouter(ThreadPoolGroupExecutor playerExecutor, ThreadPoolExecutor serverExecutor) {
+    public ThreadPoolRouter(GameEventExecutorGroup playerExecutor, ThreadPoolExecutor serverExecutor) {
         this.playerExecutor = playerExecutor;
         this.serverExecutor = serverExecutor;
         // 初始化任务队列池
@@ -34,8 +42,28 @@ public class ThreadPoolRouter {
         }
     }
 
-    private Worker newWorker() {
-        return new Worker(workPool, processTaskCount);
+
+    /** 消息路由 */
+    public void autoExecute(MessageContext context, Runnable task) {
+    autoExecute(getRouteId(context.getPlayerId()), context.getCmd(), task);
+    }
+
+    /** 消息路由 */
+    private void autoExecute(Long key, Cmd cmd, Runnable task) {
+        Worker worker = getWorker();
+        worker.setCmd(cmd);
+        worker.setTask(task);
+        worker.begin();
+        /* if (key == null) {
+            serverExecutor.execute(worker);
+            serverTaskCount.increment();
+        } else {
+            playerExecutor.execute(key, worker);
+            playerTaskCount.increment();
+        } */
+
+        playerExecutor.submit(key, worker);
+        playerTaskCount.increment();
     }
 
     private Worker getWorker() {
@@ -43,23 +71,38 @@ public class ThreadPoolRouter {
         return worker != null ? worker : newWorker();
     }
 
-    /** TODO 消息路由 */
-    // public void autoExecute(MessageContext context, Runnable task) {
-    // autoExecute(context.getRouteId(), context.getCmdCode(), task);
-    // }
+    private Worker newWorker() {
+        return new Worker(workPool, processTaskCount);
+    }
 
-    /** 消息路由 */
-    public void autoExecute(Long key, int cmd, Runnable task) {
-        Worker worker = getWorker();
-        worker.setCmd(cmd);
-        worker.setTask(task);
-        worker.begin();
-        if (key == null) {
-            serverExecutor.execute(worker);
-            serverTaskCount.increment();
-        } else {
-            playerExecutor.addTask(key, worker);
-            playerTaskCount.increment();
+
+    // ==========================> 工具方法 <=========================
+    /** 获取路由Id，用于计算执行线程 */
+    public static Long getRouteId(Long playerId) {
+        Long key = playerId;
+        if (key == null || ServiceType.GAME.notMyself()) {
+            return key;
         }
+
+        // 如果当前是游戏服，且玩家在桌子内，则路由到对应桌子
+        /* Player player = PlayerManager.self().getPlayerOrNullable(key);
+        if (player != null && player.getTableId() != 0) {
+            return (long) player.getTableId();
+        } */
+        return key;
+    }
+
+    /** 当前是玩家线程 */
+    public static boolean isPlayerThread() {
+        return Thread.currentThread().getName().startsWith(ThreadConstants.THREAD_PREFIX_PLAYER);
+    }
+
+    /** 当前是指定的玩家线程 */
+    public static boolean isPlayerThread(long key) {
+        return isPlayerThread()
+                && Thread.currentThread()
+                .getName()
+                .equals(
+                        ThreadConstants.THREAD_PREFIX_PLAYER + CoreConfig.route(getRouteId(key)) + "-1");
     }
 }

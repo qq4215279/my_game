@@ -1,9 +1,9 @@
 package com.mumu.game.core.net.handler;
 
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.mvc.server.IoSession;
-import com.mumu.game.core.mvc.server.MessageContext;
-import com.mumu.game.core.mvc.session.SessionManager;
+import com.mumu.game.core.net.server.IoSession;
+import com.mumu.game.core.net.server.MessageContext;
+import com.mumu.game.core.net.session.SessionManager;
 import com.mumu.game.core.net.consts.NetConstants;
 import com.mumu.game.core.net.listener.MessageHandlerListener;
 import com.mumu.game.core.properties.ServerInfo;

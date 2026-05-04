@@ -5,9 +5,9 @@
 
 package com.mumu.game.core.game_netty.context;
 
-import com.mumu.game.core.cmd.response.ResponseResult;
+import com.mumu.game.core.cmd.response.ResponseResult2;
 import com.mumu.game.core.game_netty.channel.context.AbstractGameChannelHandlerContext;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 import com.mumu.game.proto.message.system.message.GameMessageHeader;
 import com.mumu.game.proto.message.system.message.GameMessagePackage;
 
@@ -50,13 +50,13 @@ public class GameMessageContextImpl implements GameMessageContext {
      * @param message message
      * @return void
      */
-    public void broadcastMessage(ResponseResult message) {
+    public void broadcastMessage(ResponseResult2 message) {
         if (message != null) {
             gameContext.gameChannel().getGameMessageDispatchServlet().broadcastMessage(message);
         }
     }
 
-    public void broadcastMessage(ResponseResult message, long... playerIds) {
+    public void broadcastMessage(ResponseResult2 message, long... playerIds) {
         gameContext.gameChannel().getGameMessageDispatchServlet().broadcastMessage(message, playerIds);
     }
 
@@ -103,22 +103,20 @@ public class GameMessageContextImpl implements GameMessageContext {
     }
 
     @Override
-    public void sendMessage(ResponseResult response) {
+    public void sendMessage(ResponseResult2 response) {
         if (response != null) {
             wrapResponseMessage(response);
             gameContext.writeAndFlush(response);
         }
     }
 
-    private void wrapResponseMessage(ResponseResult response) {
+    private void wrapResponseMessage(ResponseResult2 response) {
         GameMessageHeader responseHeader = response.getHeader();
         GameMessageHeader requestHeader = this.reqGameMessagePackage.getHeader();
-        responseHeader.setClientSendTime(requestHeader.getClientSendTime());
-        responseHeader.setClientSeqId(requestHeader.getClientSeqId());
+        responseHeader.setSendTime(requestHeader.getSendTime());
+        responseHeader.setSeq(requestHeader.getSeq());
         responseHeader.setPlayerId(requestHeader.getPlayerId());
-        responseHeader.setServerSendTime(System.currentTimeMillis());
-        responseHeader.setToServerId(requestHeader.getFromServerId());
-        responseHeader.setFromServerId(requestHeader.getToServerId());
+        responseHeader.setSendTime(System.currentTimeMillis());
         responseHeader.setVersion(requestHeader.getVersion());
     }
 

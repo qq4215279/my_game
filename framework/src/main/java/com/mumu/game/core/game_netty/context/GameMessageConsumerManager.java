@@ -5,9 +5,6 @@
 
 package com.mumu.game.core.game_netty.context;
 
-import javax.annotation.Resource;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.mumu.game.core.cmd.CmdDispatch;
@@ -16,11 +13,12 @@ import com.mumu.game.core.game_netty.channel.GameMessageDispatchServlet;
 import com.mumu.game.core.game_netty.channel.GameServerConfig;
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.mvc.cloud.PlayerServiceManager;
-import com.mumu.game.core.mvc.server.MessageContext;
+import com.mumu.game.core.net.server.MessageContext;
 import com.mumu.game.thread.GameEventExecutorGroup;
 
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
+import jakarta.annotation.Resource;
 
 /**
  * GameMessageConsumerManager 游戏消息管理器
@@ -33,7 +31,7 @@ public class GameMessageConsumerManager {
     private static final LogTopic log = LogTopic.ACTION;
 
     /** GameChannel的一些配置信息 */
-    @Autowired
+    @Resource
     private GameServerConfig serverConfig;
     /** 消息管理类，负责管理根据消息id，获取对应的消息类实例 */
     @Resource

@@ -1,8 +1,4 @@
-/*
- * Copyright 2020-2026, mumu without 996. All Right Reserved.
- */
-
-package com.mumu.game.core.thread.config;
+package com.mumu.game.core.net.config;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -14,26 +10,28 @@ import org.springframework.context.annotation.Configuration;
 
 import com.mumu.game.constants.ThreadConstants;
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.thread.ThreadPoolGroupExecutor;
+import com.mumu.game.core.properties.ThreadPoolProperties;
 import com.mumu.game.core.thread.ThreadPoolRouter;
+import com.mumu.game.core.thread2.GameEventExecutorGroup;
 import com.mumu.game.core.utils.ThreadPoolUtil;
 
 import jakarta.annotation.PreDestroy;
 
 /**
  * ThreadPoolConfiguration
- * 
+ * 线程池配置类
  * @author liuzhen
- * @version 1.0.0 2025/3/16 15:52
+ * @version 1.0.0 2026/5/4 17:14
  */
 @Configuration
 @EnableConfigurationProperties(ThreadPoolProperties.class)
 @ConditionalOnProperty(prefix = "net.thread", name = "enable", havingValue = "true")
-@Deprecated
 public class ThreadPoolConfiguration {
-    private ThreadPoolGroupExecutor playerExecutor;
+
+    private GameEventExecutorGroup playerExecutor;
     private ThreadPoolExecutor serverExecutor;
     private ScheduledExecutorService scheduledExecutor;
+    private ThreadPoolRouter threadPoolRouter;
 
     private final ThreadPoolProperties properties;
 
@@ -43,12 +41,11 @@ public class ThreadPoolConfiguration {
 
     /** 玩家线程池（根据玩家id路由到对应线程处理，且每个线程持有一个任务队列） */
     @Bean
-    public ThreadPoolGroupExecutor playerExecutor() {
+    public GameEventExecutorGroup playerExecutor() {
         LogTopic.NET.info("playerExecutor", "corePoolSize", properties.getPlayerCorePoolSize(), "maxQueueSize",
             properties.getPlayerMaxQueueSize());
-        // TODO
-        // return playerExecutor = new ThreadPoolGroupExecutor(properties.getPlayerCorePoolSize(), properties.getPlayerMaxQueueSize());
-        return null;
+        return playerExecutor = new GameEventExecutorGroup(ThreadConstants.THREAD_PREFIX_PLAYER,
+            properties.getPlayerCorePoolSize(), properties.getPlayerMaxQueueSize());
     }
 
     /** 服务内部线程池（请求随机分配给空闲线程处理） */
@@ -73,8 +70,7 @@ public class ThreadPoolConfiguration {
     /** 线程路由器 */
     @Bean
     public ThreadPoolRouter threadPoolRouter() {
-        // return new ThreadPoolRouter(playerExecutor(), serverExecutor());
-        return null;
+        return this.threadPoolRouter = new ThreadPoolRouter(playerExecutor(), serverExecutor());
     }
 
     @PreDestroy
@@ -88,5 +84,52 @@ public class ThreadPoolConfiguration {
         } catch (Exception e) {
             LogTopic.NET.error(e, "容器关闭 ExecutorPool destroy error");
         }
+    }
+
+    /* @AutoScheduled(key = AutoScheduleKey.LOG_THREAD_INFO, cron = Cron.EVERY_5_MINUTE)
+    public void logThreadInfo() {
+        if (!ConfigSwitchEnum.LOG_SYSTEM.getBool())
+            return;
+        if (playerExecutor != null) {
+            for (int i = 0; i < playerExecutor.executors.length; i++) {
+                logInfo("threadInfo-playerExecutor-" + i, playerExecutor.executors[i]);
+            }
+        }
+        if (serverExecutor != null) {
+            logInfo("threadInfo-serverExecutor", serverExecutor);
+        }
+        if (threadPoolRouter != null) {
+            LogTopic.ACTION.info("threadInfo-threadPoolRouter",
+                // 任务对象池可用大小
+                "remainingWorkPool", threadPoolRouter.workPool.remainingCapacity(),
+                // 玩家任务数量
+                "playerTaskCount", threadPoolRouter.playerTaskCount.longValue(),
+                // 内部服务任务数量
+                "serverTaskCount", threadPoolRouter.serverTaskCount.longValue(),
+                // 完成的任务数量
+                "processTaskCount", threadPoolRouter.processTaskCount.longValue());
+        }
+    } */
+
+    private void logInfo(String action, ThreadPoolExecutor pool) {
+        LogTopic.ACTION.info(action,
+            // 池中线程的数量
+            "poolSize", pool.getPoolSize(),
+            // 核心线程的数量
+            "corePoolSize", pool.getCorePoolSize(),
+            // 最大线程数
+            "maximumPoolSize", pool.getMaximumPoolSize(),
+            // 正在执行任务的线程数量
+            "activeCount", pool.getActiveCount(),
+            // 已完成任务的数量
+            "completedTaskCount", pool.getCompletedTaskCount(),
+            // 任务总数
+            "taskCount", pool.getTaskCount(),
+            // 是否已关闭
+            "isShutdown", pool.isShutdown(),
+            // 是否正在终止
+            "isTerminating", pool.isTerminating(),
+            // 是否已终止
+            "isTerminated", pool.isTerminated());
     }
 }

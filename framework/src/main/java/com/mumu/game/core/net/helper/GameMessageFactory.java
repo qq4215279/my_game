@@ -1,14 +1,6 @@
-/*
- * Copyright 2020-2026, mumu without 996.
- * All Right Reserved.
- */
-
-package com.mumu.game.core.mvc.server;
+package com.mumu.game.core.net.helper;
 
 import com.mumu.game.core.cmd.enums.Cmd;
-import com.mumu.game.core.game_netty.channel.future.GameChannelPromise;
-import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.mvc.session.SessionManager;
 import com.mumu.game.core.net.consts.ServiceType;
 import com.mumu.game.core.utils.JProtoBufUtil;
 import com.mumu.game.proto.message.core.ErrorCode;
@@ -17,35 +9,12 @@ import com.mumu.game.proto.message.system.message.GameMessagePackage;
 import com.mumu.game.proto.message.system.message.MessageTypeEnum;
 
 /**
- * MessageSender
- * 消息发送类
+ * GameMessageFactory
+ * 游戏详细构建工厂
  * @author liuzhen
- * @version 1.0.0 2025/4/4 18:02
+ * @version 1.0.0 2026/5/4 09:37
  */
-public class MessageSender {
-
-    public static void sendMessage(GameMessagePackage gameMessagePackage, GameChannelPromise promise) {
-        GameMessageHeader header = gameMessagePackage.getHeader();
-        long playerId = header.getPlayerId();
-        ServiceType toServiceType = ServiceType.getServiceType(header.getToServiceId());
-        int toServerId = header.getToServerId();
-
-
-        IoSession session = SessionManager.self().getServerSession(toServiceType, toServerId);
-        if (session == null) {
-            LogTopic.NET.error("MessageSendHelper.sendMessage", "error", "gateSession is null", "gateServerId",
-                    toServerId, "playerId", playerId);
-            return;
-        }
-
-        // 发出消息
-        session.write(gameMessagePackage);
-
-        if (promise != null) {
-            promise.setSuccess();
-        }
-    }
-
+public class GameMessageFactory {
 
     public static GameMessagePackage reqProxy(
             Cmd cmd, ServiceType toServiceType, int toServerId,
@@ -82,20 +51,19 @@ public class MessageSender {
         header.setMessageType(messageType);
 
         // TODO 设置当前服务器信息
-        header.setFromServerId(1);
-        header.setFromServerId(1);
+        // header.setFromServerId(1);
+        // header.setFromServerId(1);
 
-        header.setToServiceId(toServiceType.getServiceId());
-        header.setToServerId(toServerId);
+        // header.setToServiceId(toServiceType.getServiceId());
+        // header.setToServerId(toServerId);
         header.setPlayerId(playerId);
         header.setErrorCode(errorCode == null ? ErrorCode.SUCCESS : errorCode);
 
         // TODO
-        header.setClientSeqId(1000000);
+        header.setSeq(1000000);
         // TODO 获取客户端发送时间
         long now = System.currentTimeMillis();
-        header.setClientSendTime(now);
-        header.setServerSendTime(now);
+        header.setSendTime(now);
         // TODO 获取当前服务器版本号
         header.setVersion(1000);
 

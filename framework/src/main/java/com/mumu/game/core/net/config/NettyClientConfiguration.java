@@ -55,7 +55,7 @@ public class NettyClientConfiguration {
         listener = listener == null ? MessageHandlerListener.DUMMY : listener;
         listener.handleStart();
         LogTopic.NET.info("nettyClient", "serviceType", serverInfo.getServiceType(), "serverName",
-            serverInfo.getServerName(), "serverId", serverInfo.getId(), "listener", listener.getClass().getName(),
+            serverInfo.getServerName(), "serverId", serverInfo.getServerId(), "listener", listener.getClass().getName(),
             "clientProperties", clientProperties);
 
         Bootstrap bootstrap = new Bootstrap();
@@ -75,6 +75,6 @@ public class NettyClientConfiguration {
             clientGroup.shutdownGracefully();
         }
         LogTopic.NET.info("容器关闭 nettyClient stop finish", "serviceType", serverInfo.getServiceType(), "serverName",
-            serverInfo.getServerName(), "serverId", serverInfo.getId());
+            serverInfo.getServerName(), "serverId", serverInfo.getServerId());
     }
 }

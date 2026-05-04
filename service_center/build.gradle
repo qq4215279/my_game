@@ -1,7 +1,7 @@
 dependencies {
     implementation project(":common")
 
-    // 接口校验工具
+  /*  // 接口校验工具
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     // 鲁班配置服务 exclude(group: 'cn.hutool', module: 'hutool-http') exclude(group: 'cn.hutool', module: 'hutool-json')
     implementation 'com.cx:luban-config-client:master-SNAPSHOT' exclude(group: 'com.google.guava', module: 'guava')
@@ -21,7 +21,7 @@ dependencies {
     // ip解析库，jdk17版本，不支持直接使用sun.net.util.IPAddressUtil，需改为InetAddress，或者添加jvm参数，目前直接修改源码使用
 //    implementation("net.ipip:ipdb:1.1.3")
     // 邮件发送
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'*/
 }
 
 springBoot {

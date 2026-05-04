@@ -6,7 +6,7 @@ package com.mumu.game.core.redis.constants;
 
 import java.nio.charset.StandardCharsets;
 
-import com.mumu.game.core.utils.JsonUtil;
+import com.mumu.game.utils.JsonUtil;
 
 /**
  * SerializerType

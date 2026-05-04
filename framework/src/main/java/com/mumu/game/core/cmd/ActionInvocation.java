@@ -8,12 +8,18 @@ package com.mumu.game.core.cmd;
 import java.lang.reflect.Method;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
+import com.mumu.game.core.cmd.enums.Cmd;
 import com.mumu.game.core.cmd.enums.CmdManager;
 import com.mumu.game.core.cmd.param.parse.ParamParse;
 import com.mumu.game.core.cmd.response.ResponseResult;
+import com.mumu.game.core.cmd.response.ResponseResult2;
 import com.mumu.game.core.game_netty.context.GameMessageContextImpl;
+import com.mumu.game.core.net.server.MessageContext;
+import com.mumu.game.core.net.helper.MessageSender;
 import com.mumu.game.core.utils.JProtoBufUtil;
+import com.mumu.game.proto.message.system.message.GameMessageHeader;
 import com.mumu.game.proto.message.system.message.GameMessagePackage;
+import com.mumu.game.proto.message.system.message.MessageTypeEnum;
 
 import lombok.Data;
 
@@ -26,7 +32,7 @@ import lombok.Data;
 @Data
 public class ActionInvocation {
     /** CMD */
-    private int messageId;
+    private Cmd cmd;
     /** 标记了 @CmdAction 的 action 对象 */
     private Object action;
     /** 标记了 @CmdMapping 的 action 对象中的方法 */
@@ -41,29 +47,76 @@ public class ActionInvocation {
     /** TODO 参数解析器 */
     protected ParamParse paramParse;
 
-    public ActionInvocation(int messageId, Object action, Method method) {
+    public ActionInvocation(Cmd cmd, Object action, Method method) {
         this.actionName = action.getClass().getSimpleName();
         this.methodName = method.getName();
 
-        this.messageId = messageId;
+        this.cmd = cmd;
         this.action = action;
         this.method = method;
         this.methodAccess = MethodAccess.get(action.getClass());
     }
 
     /** TODO 执行目标事件 */
+    @Deprecated
     public void invokeMethod(GameMessageContextImpl gameMessageContext) {
-        // TODO
         GameMessagePackage reqGameMessagePackage = gameMessageContext.getReqGameMessagePackage();
         Class<?> reqMsgClass = CmdManager.getCmd(reqGameMessagePackage.getHeader().getMessageId()).getReqMsgClass();
 
         Object reqMsg = JProtoBufUtil.decode(reqGameMessagePackage.getBody(), reqMsgClass);
         Object res = methodAccess.invoke(action, method.getName(), gameMessageContext.getPlayerId(), reqMsg);
-        if (res instanceof ResponseResult responseResult) {
-            // TODO GameChannelPromise promise
-            responseResult.setCmd(CmdManager.getCmd(messageId));
+        if (res instanceof ResponseResult2 responseResult) {
+            responseResult.setCmd(cmd);
             responseResult.setHeader(reqGameMessagePackage.getHeader());
             gameMessageContext.getGameContext().writeAndFlush(responseResult);
         }
+    }
+
+    /**
+     * 执行目标事件
+     * @param context 消息上下文
+     */
+    public void invokeMethod(MessageContext context) {
+        GameMessagePackage reqGameMessagePackage = context.getMessagePackage();
+        GameMessageHeader header = reqGameMessagePackage.getHeader();
+        long playerId = header.getPlayerId();
+        Class<?> reqMsgClass = CmdManager.getCmd(header.getMessageId()).getReqMsgClass();
+
+        Object reqMsg = JProtoBufUtil.decode(reqGameMessagePackage.getBody(), reqMsgClass);
+
+        Object res = methodAccess.invoke(action, method.getName(), playerId, reqMsg);
+        if (res instanceof ResponseResult responseResult) {
+
+            GameMessageHeader clone = clone(header);
+            clone.setMessageType(MessageTypeEnum.RESPONSE);
+            clone.setSendTime(System.currentTimeMillis());
+            clone.setErrorCode(responseResult.getErrorCode());
+
+            GameMessagePackage resGameMessagePackage = new GameMessagePackage();
+            resGameMessagePackage.setHeader(clone);
+            if (cmd.getResMsgClass() != null && responseResult.getResMsg() != null) {
+                byte[] encode = JProtoBufUtil.encode(responseResult.getResMsg());
+                resGameMessagePackage.setBody(encode);
+            }
+
+            MessageSender.sendToPlayer(resGameMessagePackage);
+        }
+    }
+
+    /**
+     * 拷贝消息头
+     * @param header 消息头
+     * @return 拷贝的消息头
+     */
+    private static GameMessageHeader clone(GameMessageHeader header) {
+        GameMessageHeader headerClone = new GameMessageHeader();
+        headerClone.setMessageId(header.getMessageId());
+        headerClone.setMessageType(header.getMessageType());
+        headerClone.setSeq(header.getSeq());
+        headerClone.setSendTime(header.getSendTime());
+        headerClone.setVersion(header.getVersion());
+        headerClone.setPlayerId(header.getPlayerId());
+        headerClone.setErrorCode(header.getErrorCode());
+        return headerClone;
     }
 }

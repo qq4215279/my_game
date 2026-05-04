@@ -3,7 +3,7 @@
  * All Right Reserved.
  */
 
-package com.mumu.game.core.mvc.cloud;
+package com.mumu.game.core.net.server;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,10 +19,9 @@ import org.springframework.stereotype.Component;
 
 import com.mumu.game.core.cmd.enums.Cmd;
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.mvc.server.IoSession;
-import com.mumu.game.core.mvc.server.MessageSender;
 import com.mumu.game.core.net.consts.NetConstants;
 import com.mumu.game.core.net.consts.ServiceType;
+import com.mumu.game.core.properties.ServerInfo;
 import com.mumu.game.core.thread.ScheduledExecutorUtil;
 import com.mumu.game.proto.message.server.ReconnectServerMsgEA;
 import com.mumu.game.proto.message.system.message.GameMessagePackage;
@@ -65,14 +64,14 @@ public class ClientServer {
      * @param remoteServers remoteServers
      * @since 2025/3/28 23:01
      */
-    public void connectServers(Map<ServiceType, List<ServerInfo2>> remoteServers) {
+    public void connectServers(Map<ServiceType, List<ServerInfo>> remoteServers) {
         log.info("reconnectServers", "remoteServers", remoteServers);
 
         long now = System.currentTimeMillis();
         try {
-            for (Map.Entry<ServiceType, List<ServerInfo2>> entry : remoteServers.entrySet()) {
+            for (Map.Entry<ServiceType, List<ServerInfo>> entry : remoteServers.entrySet()) {
                 ServiceType serviceType = entry.getKey();
-                List<ServerInfo2> remoteServerInfoList = entry.getValue();
+                List<ServerInfo> remoteServerInfoList = entry.getValue();
                 
                 // 1. 检查已连接
                 Map<Integer, IoSession> serverIdSessionMap = serviceIdServerIdSessionMap.getOrDefault(serviceType, Collections.emptyMap());
@@ -88,7 +87,7 @@ public class ClientServer {
                 removeSession(willRemoveServerIdList, serverIdSessionMap, serviceType);
 
                 // 3. 建立新连接
-                for (ServerInfo2 serverInfo : entry.getValue()) {
+                for (ServerInfo serverInfo : entry.getValue()) {
                     connect(serverInfo, RETRY_INTERVAL, MAX_RETRY_COUNT);
                 }
             }
@@ -99,8 +98,8 @@ public class ClientServer {
     }
 
     private void checkAndRemoveSessionList(ServiceType serviceType, IoSession ioSession,
-                                           List<ServerInfo2> remoteServerInfoList, List<Integer> willRemoveServerIdList, long now) {
-        ServerInfo2 info = ioSession.getAttr(NetConstants.SESSION_SERVER_INFO);
+                                           List<ServerInfo> remoteServerInfoList, List<Integer> willRemoveServerIdList, long now) {
+        ServerInfo info = ioSession.getAttr(NetConstants.SESSION_SERVER_INFO);
         int serverId = info.getServerId();
         // 1. 新拉取服务器信息未包含当前session
         if (!remoteServerInfoList.contains(info)) {
@@ -136,12 +135,12 @@ public class ClientServer {
 
 
     /** 连接指定服务器 */
-    private void connect(ServerInfo2 serverInfo) {
+    private void connect(ServerInfo serverInfo) {
         connect(serverInfo, RETRY_INTERVAL, MAX_RETRY_COUNT);
     }
 
     /** 连接指定服务器 */
-    private void connect(ServerInfo2 serverInfo, int retryInterval, int retryCount) {
+    private void connect(ServerInfo serverInfo, int retryInterval, int retryCount) {
         ConnectionRequestTask requestTask = new ConnectionRequestTask(serverInfo, retryInterval, retryCount);
         // boolean contains = connectingMap.contains(requestTask);
         // LogTopic.NET.info();
@@ -187,7 +186,7 @@ public class ClientServer {
     @Getter
     public class ConnectionRequestTask implements Runnable {
         /** 服务器信息 */
-        private final ServerInfo2 serverInfo;
+        private final ServerInfo serverInfo;
         /** 服务组 */
         private final ServiceType serviceType;
         /** serverId */
@@ -205,7 +204,7 @@ public class ClientServer {
         /** 是否成功 */
         private volatile boolean successed;
 
-        public ConnectionRequestTask(ServerInfo2 serverInfo, int retryInterval, int maxRetryCount) {
+        public ConnectionRequestTask(ServerInfo serverInfo, int retryInterval, int maxRetryCount) {
             this.serverInfo = serverInfo;
             this.serviceType = serverInfo.getServiceType();
             this.serverId = serverInfo.getServerId();
@@ -264,8 +263,8 @@ public class ClientServer {
             // TODO 发送本服信息进行握手
             ReconnectServerMsgEA reqMsg = new ReconnectServerMsgEA();
             reqMsg.setClientServerBean(serverInfo.build());
-            GameMessagePackage gameMessagePackage = MessageSender.reqProxy(Cmd.ReconnectServerMsg, serviceType, serverId, 0L, null, reqMsg);
-            MessageSender.sendMessage(gameMessagePackage, null);
+            GameMessagePackage gameMessagePackage = MessageSenderV2.reqProxy(Cmd.ReconnectServerMsg, serviceType, serverId, 0L, null, reqMsg);
+            MessageSenderV2.sendMessage(gameMessagePackage, null);
 
             // 记录channel
             Map<Integer, IoSession> serverIdChannelMap = serviceIdServerIdSessionMap.computeIfAbsent(serviceType, k -> new HashMap<>());

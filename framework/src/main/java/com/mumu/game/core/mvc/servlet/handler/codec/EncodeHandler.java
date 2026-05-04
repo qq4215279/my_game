@@ -5,7 +5,7 @@
 
 package com.mumu.game.core.mvc.servlet.handler.codec;
 
-import com.mumu.game.core.mvc.GatewayServerConfig;
+import com.mumu.game.core.mvc.config.GatewayServerConfig;
 import com.mumu.game.core.utils.CompressUtil;
 import com.mumu.game.proto.message.system.message.GameMessageHeader;
 import com.mumu.game.proto.message.system.message.GameMessagePackage;
@@ -60,9 +60,9 @@ public class EncodeHandler extends MessageToByteEncoder<GameMessagePackage> {
         out.writeInt(messageSize);
 
         GameMessageHeader header = msg.getHeader();
-        out.writeInt(header.getClientSeqId());
+        out.writeInt(header.getSeq());
         out.writeInt(header.getMessageId());
-        out.writeLong(header.getServerSendTime());
+        out.writeLong(header.getSendTime());
         out.writeInt(header.getVersion());
         out.writeByte(compress);
 
