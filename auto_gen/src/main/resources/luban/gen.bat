@@ -1,109 +1,103 @@
 @echo off
 @REM ========================================
-@REM 鲁班配置表生成脚本
-@REM 功能：从 Excel 表格生成 Java 代码和 JSON 数据
+@REM Luban Config Generator Script
+@REM Generate Java code and JSON data from Excel
 @REM ========================================
 
-title 鲁班配置表生成工具
+title Luban Config Generator
 
 echo ========================================
-echo   鲁班配置表生成工具
+echo   Luban Config Generator
 echo ========================================
 echo.
 
-@REM 设置工作目录（当前脚本所在目录）
+@REM Set working directory
 set WORKSPACE=.
-echo [1/5] 工作目录: %CD%
+echo [1/5] Working directory: %CD%
 echo.
 
-@REM 鲁班工具路径
+@REM Luban tool path
 set LUBAN_DLL=%WORKSPACE%\Tools\Luban\Luban.dll
-echo [2/5] 检查 Luban.dll...
+echo [2/5] Checking Luban.dll...
 if not exist "%LUBAN_DLL%" (
-    echo [错误] 找不到 Luban.dll: %LUBAN_DLL%
-    echo 请确认 Tools\Luban 目录下存在 Luban.dll
+    echo [ERROR] Luban.dll not found: %LUBAN_DLL%
+    echo Please confirm Luban.dll exists in Tools\Luban directory
     pause
     exit /b 1
 )
-echo [成功] Luban.dll 存在
+echo [OK] Luban.dll exists
 echo.
 
-@REM 检查 dotnet 是否安装
-echo [3/5] 检查 dotnet 环境...
+@REM Check dotnet installation
+echo [3/5] Checking dotnet environment...
 where dotnet >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [错误] 未找到 dotnet 命令！
-    echo 请先安装 .NET SDK 6.0 或更高版本
-    echo 下载地址: https://dotnet.microsoft.com/download
+    echo [ERROR] dotnet command not found!
+    echo Please install .NET SDK 6.0 or higher
+    echo Download: https://dotnet.microsoft.com/download
     pause
     exit /b 1
 )
-echo [成功] dotnet 已安装
+echo [OK] dotnet installed
 dotnet --version
 echo.
 
-@REM 配置文件根目录
+@REM Config file root
 set CONF_ROOT=%WORKSPACE%
-echo [4/5] 检查配置文件...
+echo [4/5] Checking config file...
 if not exist "%CONF_ROOT%\luban.conf" (
-    echo [错误] 找不到 luban.conf: %CONF_ROOT%\luban.conf
+    echo [ERROR] luban.conf not found: %CONF_ROOT%\luban.conf
     pause
     exit /b 1
 )
-echo [成功] luban.conf 存在
+echo [OK] luban.conf exists
 echo.
 
-@REM 确保输出目录存在
-echo [5/5] 创建输出目录...
+@REM Ensure output directories exist
+echo [5/5] Creating output directories...
 if not exist "%WORKSPACE%\output\json" (
     mkdir "%WORKSPACE%\output\json"
-    echo [创建] output\json
+    echo [CREATE] output\json
 ) else (
-    echo [存在] output\json
+    echo [EXISTS] output\json
 )
 
 if not exist "%WORKSPACE%\..\..\java\com\mumu\game\luban\cfg" (
     mkdir "%WORKSPACE%\..\..\java\com\mumu\game\luban\cfg"
-    echo [创建] java\com\mumu\game\luban\cfg
+    echo [CREATE] java\com\mumu\game\luban\cfg
 ) else (
-    echo [存在] java\com\mumu\game\luban\cfg
+    echo [EXISTS] java\com\mumu\game\luban\cfg
 )
 echo.
 
 echo ========================================
-echo   开始生成配置...
+echo   Start generating configs...
 echo ========================================
 echo.
 
-@REM 执行鲁班生成
-@REM -t all: 生成所有组（client, server, editor）
-@REM -c java-json: 生成 Java 代码，使用 JSON 数据格式
-@REM -d json: 数据导出格式为 JSON
-@REM --conf: 指定配置文件
-@REM -x outputCodeDir: 代码输出目录
-@REM -x outputDataDir: 数据输出目录
+@REM Execute Luban generation
 dotnet "%LUBAN_DLL%" ^
-    -t all ^
+    -t server ^
     -c java-json ^
     -d json ^
     --conf "%CONF_ROOT%\luban.conf" ^
     -x outputCodeDir="%WORKSPACE%\..\..\java\com\mumu\game\luban\cfg" ^
     -x outputDataDir="%WORKSPACE%\output\json"
 
-@REM 检查执行结果
+@REM Check execution result
 if %errorlevel% equ 0 (
     echo.
     echo ========================================
-    echo   生成成功！
+    echo   Generation SUCCESS!
     echo ========================================
-    echo 代码输出: %WORKSPACE%\..\..\java\com\mumu\game\luban\cfg
-    echo 数据输出: %WORKSPACE%\output\json
+    echo Code output: %WORKSPACE%\..\..\java\com\mumu\game\luban\cfg
+    echo Data output: %WORKSPACE%\output\json
 ) else (
     echo.
     echo ========================================
-    echo   生成失败！错误码: %errorlevel%
+    echo   Generation FAILED! Error code: %errorlevel%
     echo ========================================
-    echo 请检查上面的错误信息
+    echo Please check error messages above
 )
 
 echo.
