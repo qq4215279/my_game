@@ -9,7 +9,6 @@
 
 package com.mumu.game.luban.cfg;
 
-import luban.*;
 import com.google.gson.JsonElement;
 
 public final class CfgTables
@@ -19,11 +18,11 @@ public final class CfgTables
         JsonElement load(String file) throws java.io.IOException;
     }
 
-    private final com.mumu.game.luban.cfg.demo.Tbitem _tbitem;
-    public com.mumu.game.luban.cfg.demo.Tbitem getTbitem() { return _tbitem; }
+    private final com.mumu.game.luban.cfg.demo.TbItem _tbitem;
+    public com.mumu.game.luban.cfg.demo.TbItem getTbItem() { return _tbitem; }
 
     public CfgTables(IJsonLoader loader) throws java.io.IOException {
-        _tbitem = new com.mumu.game.luban.cfg.demo.Tbitem(loader.load("demo_tbitem")); 
+        _tbitem = new com.mumu.game.luban.cfg.demo.TbItem(loader.load("demo_tbitem")); 
     }
 }
 

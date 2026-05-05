@@ -9,20 +9,19 @@
 
 package com.mumu.game.luban.cfg.demo;
 
-import luban.*;
-import com.google.gson.JsonElement;
+import com.mumu.game.luban.base.AbstractBean;
 import com.google.gson.JsonObject;
 
 
-public final class item extends AbstractBean {
-    public item(JsonObject _buf) { 
+public final class Item extends AbstractBean {
+    public Item(JsonObject _buf) { 
         id = _buf.get("id").getAsInt();
         name = _buf.get("name").getAsString();
         count = _buf.get("count").getAsInt();
     }
 
-    public static item deserialize(JsonObject _buf) {
-            return new com.mumu.game.luban.cfg.demo.item(_buf);
+    public static Item deserialize(JsonObject _buf) {
+            return new com.mumu.game.luban.cfg.demo.Item(_buf);
     }
 
     /**
@@ -38,7 +37,7 @@ public final class item extends AbstractBean {
      */
     public final int count;
 
-    public static final int __ID__ = 750578750;
+    public static final int __ID__ = 749625438;
     
     @Override
     public int getTypeId() { return __ID__; }

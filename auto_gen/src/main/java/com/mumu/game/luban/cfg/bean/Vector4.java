@@ -10,8 +10,6 @@
 package com.mumu.game.luban.cfg.bean;
 
 import com.mumu.game.luban.base.AbstractBean;
-import luban.*;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 

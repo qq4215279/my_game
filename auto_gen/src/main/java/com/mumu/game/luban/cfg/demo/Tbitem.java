@@ -9,29 +9,28 @@
 
 package com.mumu.game.luban.cfg.demo;
 
-import luban.*;
 import com.google.gson.JsonElement;
 
 
-public final class Tbitem {
-    private final java.util.HashMap<Integer, com.mumu.game.luban.cfg.demo.item> _dataMap;
-    private final java.util.ArrayList<com.mumu.game.luban.cfg.demo.item> _dataList;
+public final class TbItem {
+    private final java.util.HashMap<Integer, com.mumu.game.luban.cfg.demo.Item> _dataMap;
+    private final java.util.ArrayList<com.mumu.game.luban.cfg.demo.Item> _dataList;
     
-    public Tbitem(JsonElement _buf) {
-        _dataMap = new java.util.HashMap<Integer, com.mumu.game.luban.cfg.demo.item>();
-        _dataList = new java.util.ArrayList<com.mumu.game.luban.cfg.demo.item>();
+    public TbItem(JsonElement _buf) {
+        _dataMap = new java.util.HashMap<Integer, com.mumu.game.luban.cfg.demo.Item>();
+        _dataList = new java.util.ArrayList<com.mumu.game.luban.cfg.demo.Item>();
         
         for (com.google.gson.JsonElement _e_ : _buf.getAsJsonArray()) {
-            com.mumu.game.luban.cfg.demo.item _v;
-            _v = com.mumu.game.luban.cfg.demo.item.deserialize(_e_.getAsJsonObject());
+            com.mumu.game.luban.cfg.demo.Item _v;
+            _v = com.mumu.game.luban.cfg.demo.Item.deserialize(_e_.getAsJsonObject());
             _dataList.add(_v);
             _dataMap.put(_v.id, _v);
         }
     }
 
-    public java.util.HashMap<Integer, com.mumu.game.luban.cfg.demo.item> getDataMap() { return _dataMap; }
-    public java.util.ArrayList<com.mumu.game.luban.cfg.demo.item> getDataList() { return _dataList; }
+    public java.util.HashMap<Integer, com.mumu.game.luban.cfg.demo.Item> getDataMap() { return _dataMap; }
+    public java.util.ArrayList<com.mumu.game.luban.cfg.demo.Item> getDataList() { return _dataList; }
 
-    public com.mumu.game.luban.cfg.demo.item get(int key) { return _dataMap.get(key); }
+    public com.mumu.game.luban.cfg.demo.Item get(int key) { return _dataMap.get(key); }
 
 }
