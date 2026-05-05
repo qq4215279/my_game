@@ -2,6 +2,7 @@ package com.mumu.game.core.redis.constants;
 
 import com.mumu.game.core.redis.RedisUtil;
 
+import com.mumu.game.core.register.listener.ServiceRegistryChangeMessage;
 import lombok.Getter;
 
 /**
@@ -26,6 +27,11 @@ public enum RedisChannel {
     CLOSE_SERVER_NOTICE(SerializerType.JSON),
     /** 任务事件 */
     TASK(SerializerType.PROTOBUF),
+    /**
+     * 服务注册中心目录变更通知
+     * 消息体为 JSON，对应 {@link ServiceRegistryChangeMessage}
+     */
+    SERVICE_REGISTRY(SerializerType.JSON),
     ;
 
     /** 序列化类型 */

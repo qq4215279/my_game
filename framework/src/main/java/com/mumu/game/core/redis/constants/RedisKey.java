@@ -1,6 +1,7 @@
 package com.mumu.game.core.redis.constants;
 
 import cn.hutool.core.util.StrUtil;
+import com.mumu.game.core.register.bo.RegisteredServerInfo;
 
 /**
  * RedisKey Redis key 枚举类 - 用于构建redis key
@@ -67,6 +68,28 @@ public enum RedisKey {
     TOURNAMENT_PLAYER_RANK("tournament:{}:{}", RedisTypeEnum.ZSET),
     /** 比赛玩家积分榜（临时榜） %d-比赛id %d-比赛key */
     TOURNAMENT_PLAYER_RANK_TMP("tournament:{}:{}:tmp", RedisTypeEnum.ZSET),
+
+    // 注册中心相关
+    /**
+     * 服务注册中心-全局目录版本号
+     * 值为自增数字字符串，目录任意变更（注册/下线/Gateway 清理）时 INCR
+     */
+    SERVICE_REGISTRY_VERSION("registry:svc:version", RedisTypeEnum.STRING),
+    /**
+     * 服务注册中心-出现过的 serverType 集合
+     * 成员为 serviceTypeId 的字符串形式，用于发现端枚举需拉取哪些类型 Hash
+     */
+    SERVICE_REGISTRY_TYPES("registry:svc:types", RedisTypeEnum.SET),
+    /**
+     * 服务注册中心-某 serverType 下全部实例
+     * field 为 serverId，value 为 {@link RegisteredServerInfo} 的 JSON
+     */
+    SERVICE_REGISTRY_TYPE_HASH("registry:svc:type:{}", RedisTypeEnum.HASH),
+    /**
+     * 服务注册中心-实例存活心跳
+     * 占位值即可，带 TTL；过期后由 Gateway 定时任务从类型 Hash 中删除对应 serverId
+     */
+    SERVICE_REGISTRY_HEARTBEAT("registry:svc:hb:{}:{}", RedisTypeEnum.STRING),
   ;
 
     /** key 模板 */

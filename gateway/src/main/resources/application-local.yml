@@ -88,3 +88,9 @@ game:
       enable: true
       # Groovy脚本存放路径
       groovyPath: /data/groovy
+    # 注册中心
+    registry:
+      # 首次执行对齐任务前的延迟（秒）
+      gateway-align-initial-delay-seconds: 5
+      # 两次对齐任务之间的固定间隔（秒）
+      gateway-align-interval-seconds: 30

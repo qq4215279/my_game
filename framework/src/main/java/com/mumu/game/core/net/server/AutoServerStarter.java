@@ -19,6 +19,13 @@ import org.springframework.stereotype.Component;
 @Component
 @ConditionalOnBean(ServerBootstrap.class)
 public class AutoServerStarter implements SmartLifecycle {
+
+    /**
+     * {@link SmartLifecycle} 启动阶段，值越小越先执行 {@link #start()}（绑定端口）
+     * 其它需在 Netty 监听就绪后执行的组件应使用大于本常量的 phase
+     */
+    public static final int LIFECYCLE_PHASE = 0;
+
     /** 本服信息 */
     @Resource
     private ServerInfo serverInfo;
@@ -81,6 +88,6 @@ public class AutoServerStarter implements SmartLifecycle {
 
     @Override
     public int getPhase() {
-        return 0;
+        return LIFECYCLE_PHASE;
     }
 }
