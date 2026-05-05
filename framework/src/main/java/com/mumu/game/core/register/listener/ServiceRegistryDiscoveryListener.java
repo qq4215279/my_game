@@ -6,27 +6,28 @@
 package com.mumu.game.core.register.listener;
 
 
-import com.mumu.game.core.register.bo.RegisteredServerInfo;
-import com.mumu.game.core.register.ServiceRegistryListener;
-import com.mumu.game.core.register.ServiceRegistryRepository;
-import com.mumu.game.core.register.bo.ServiceRegistrySnapshot;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-
-import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.core.redis.chanel.RedisChannelListener;
-import com.mumu.game.core.redis.constants.RedisChannel;
-import com.mumu.game.core.thread.ScheduledExecutorUtil;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import com.mumu.game.core.autoinit.AutoInitEvent;
+import com.mumu.game.core.log.LogTopic;
+import com.mumu.game.core.redis.chanel.RedisChannelListener;
+import com.mumu.game.core.redis.constants.RedisChannel;
+import com.mumu.game.core.register.ServiceRegistryListener;
+import com.mumu.game.core.register.ServiceRegistryRepository;
+import com.mumu.game.core.register.bo.RegisteredServerInfo;
+import com.mumu.game.core.register.bo.ServiceRegistrySnapshot;
+import com.mumu.game.core.thread.ScheduledExecutorUtil;
 
 /**
  * ServiceRegistryDiscoveryListener
@@ -36,8 +37,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * @version 1.0.0 2026/5/5 15:56
  */
 @Component
-@ConditionalOnProperty(name = "service.registry.discovery-enabled", havingValue = "true")
-public class ServiceRegistryDiscoveryListener implements RedisChannelListener<ServiceRegistryChangeMessage> {
+@ConditionalOnProperty(prefix = "net.client", name = "enable", havingValue = "true")
+public class ServiceRegistryDiscoveryListener implements AutoInitEvent,
+        RedisChannelListener<ServiceRegistryChangeMessage> {
 
     /**
      * 定时比对 Redis 全局版本与本地版本的任务在调度器中的唯一 key
@@ -82,11 +84,15 @@ public class ServiceRegistryDiscoveryListener implements RedisChannelListener<Se
         this.listeners = listeners == null ? List.of() : listeners;
     }
 
+    @Override
+    public void autoInit() {
+        start();
+    }
+
     /**
      * 启动时立即尝试同步一次目录，并注册定时版本轮询任务
      */
-    @PostConstruct
-    public void start() {
+    private void start() {
         // 启动时先对齐一次，避免「已错过订阅消息」期间目录不为空却本地版本为 0
         syncFullIfNeeded();
         // 定时比对 Redis 全局版本与本地版本，作为 Pub/Sub 不可靠场景的兜底
@@ -95,18 +101,20 @@ public class ServiceRegistryDiscoveryListener implements RedisChannelListener<Se
         LogTopic.NET.info("ServiceRegistryDiscoveryListener started", "versionPollSec", versionPollIntervalSeconds);
     }
 
+
     /**
+     * 容器关闭事件
      * 取消已注册的定时任务，避免容器关闭后仍访问 Redis
-     */
-    @PreDestroy
-    public void stop() {
+     * */
+    @Order(10)
+    @EventListener(ContextClosedEvent.class)
+    public void onClosed(ContextClosedEvent event) {
         ScheduledExecutorUtil.cancel(TASK_VERSION_POLL);
         ScheduledExecutorUtil.cancel(TASK_DEBOUNCE);
     }
 
     /**
      * 声明订阅的 Redis 频道，与 {@link com.mumu.game.core.redis.config.RedisConfiguration} 中监听器绑定一致
-     *
      * @return com.mumu.game.core.redis.constants.RedisChannel 注册中心变更频道 {@link RedisChannel#SERVICE_REGISTRY}
      */
     @Override
@@ -131,7 +139,7 @@ public class ServiceRegistryDiscoveryListener implements RedisChannelListener<Se
     }
 
     /**
-     * 若 Redis 全局版本高于本地已处理版本，则拉取全量快照、更新本地版本并依次回调 {@link ServiceRegistryListener#onSnapshotUpdated(com.mumu.game.core.register.bo.ServiceRegistrySnapshot)}
+     * 若 Redis 全局版本高于本地已处理版本，则拉取全量快照、更新本地版本并依次回调
      */
     public void syncFullIfNeeded() {
         try {

@@ -8,6 +8,7 @@ import com.mumu.game.core.net.consts.ServerProtocol;
 import com.mumu.game.core.net.consts.ServiceType;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * ServerInfo
@@ -16,12 +17,15 @@ import lombok.Data;
  * @version 1.0.0 2026/5/2 21:51
  */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Component
 public class ServerInfo {
     @Value("${application.name}")
     private String serverName;
+    @EqualsAndHashCode.Include
     @Value("${net.serverId}")
     private int serverId;
+    @EqualsAndHashCode.Include
     @Value("${net.serviceType}")
     private ServiceType serviceType;
     @Value("${net.version:0}")
@@ -30,8 +34,10 @@ public class ServerInfo {
     private boolean serverEnable;
     @Value("${net.server.protocol:SOCKET}")
     private ServerProtocol protocol;
+    @EqualsAndHashCode.Include
     @Value("${net.server.ip:127.0.0.1}")
     private String host;
+    @EqualsAndHashCode.Include
     @Value("${net.server.port:0}")
     private int port;
     @Value("${net.server.master:false}")

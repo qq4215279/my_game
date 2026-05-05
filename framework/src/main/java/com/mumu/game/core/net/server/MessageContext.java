@@ -6,8 +6,8 @@
 package com.mumu.game.core.net.server;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.mumu.game.core.cmd.enums.Cmd;
 import com.mumu.game.core.cmd.enums.CmdManager;
+import com.mumu.game.core.cmd.enums.ICmd;
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.utils.JProtoBufUtil;
 import com.mumu.game.proto.message.system.message.GameMessageHeader;
@@ -33,19 +33,19 @@ public class MessageContext {
     /** 获取请求消息 */
     @SuppressWarnings("unchecked")
     public <T> T getReqMsg() {
-        Cmd cmd = getCmd();
+        ICmd cmd = getCmd();
         return cmd != null && cmd.getReqMsgClass() != null ? (T) getMsg(cmd.getReqMsgClass()) : null;
     }
 
     /** 获取响应消息 */
     @SuppressWarnings("unchecked")
     public <T> T getResMsg() {
-        Cmd cmd = getCmd();
+        ICmd cmd = getCmd();
         return cmd != null && cmd.getResMsgClass() != null ? (T) getMsg(cmd.getResMsgClass()) : null;
     }
 
     /** 获取消息 */
-    private <T> T getMsg(Class<T> clazz) {
+    public  <T> T getMsg(Class<T> clazz) {
         return JProtoBufUtil.decode(messagePackage.getBody(), clazz);
     }
 
@@ -60,7 +60,7 @@ public class MessageContext {
     }
 
     /** 获取 Cmd */
-    public Cmd getCmd() {
+    public ICmd getCmd() {
         return CmdManager.getCmd(messagePackage.getHeader().getMessageId());
     }
 
@@ -110,7 +110,7 @@ public class MessageContext {
             json.put("session", session.channel().toString());
         }
 
-        Cmd cmd = getCmd();
+        ICmd cmd = getCmd();
         if (cmd != null) {
             json.put("cmd", cmd);
             if (cmd.getReqMsgClass() != null) {

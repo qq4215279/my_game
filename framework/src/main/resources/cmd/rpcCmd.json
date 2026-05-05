@@ -1,0 +1,7 @@
+{
+  "ServerInfoHandshake" : {
+    "messageId" : 342375,
+    "reqMessage" : "ClientServerInfo",
+    "resMessage" : ""
+  }
+}

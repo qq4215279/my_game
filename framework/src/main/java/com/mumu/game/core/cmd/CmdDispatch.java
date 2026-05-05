@@ -6,7 +6,7 @@
 package com.mumu.game.core.cmd;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -16,9 +16,9 @@ import com.mumu.game.core.autoinit.AutoInitEvent;
 import com.mumu.game.core.autoinit.enums.AutoInitModule;
 import com.mumu.game.core.cmd.anno.CmdAction;
 import com.mumu.game.core.cmd.anno.CmdMapping;
-import com.mumu.game.core.cmd.enums.Cmd;
+import com.mumu.game.core.cmd.anno.RpcCmdMapping;
 import com.mumu.game.core.cmd.enums.CmdManager;
-import com.mumu.game.core.game_netty.context.GameMessageContextImpl;
+import com.mumu.game.core.cmd.enums.ICmd;
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.net.server.MessageContext;
 import com.mumu.game.core.utils.ModifierUtil;
@@ -41,7 +41,7 @@ public class CmdDispatch implements AutoInitEvent {
     /** 加载完成 */
     private final AtomicBoolean loaded = new AtomicBoolean();
     /** 加载的 action 集合 */
-    private Map<Cmd, ActionInvocation> messageIdActionMap = Collections.emptyMap();
+    private Map<ICmd, ActionInvocation> messageIdActionMap = new HashMap<>(16);
 
     @Override
     public void autoInit() {
@@ -53,7 +53,7 @@ public class CmdDispatch implements AutoInitEvent {
         Map<String, Object> cmdActionMap = SpringContextUtils.getBeansWithAnnotation(CmdAction.class);
         int before = messageIdActionMap.size();
         for (Object object : cmdActionMap.values()) {
-            scanCmdMapping(messageIdActionMap, object);
+            scanCmdMapping(object);
         }
         this.loaded.set(true);
 
@@ -66,23 +66,38 @@ public class CmdDispatch implements AutoInitEvent {
     }
 
     /** 扫描 @CmdMapping */
-    private void scanCmdMapping(Map<Cmd, ActionInvocation> actionMap, Object object) {
+    private void scanCmdMapping(Object object) {
+        Map<ICmd, ActionInvocation> actionMap = new java.util.HashMap<>();
         for (Method method : object.getClass().getDeclaredMethods()) {
-            CmdMapping mapping = method.getDeclaredAnnotation(CmdMapping.class);
-            if (mapping == null) {
-                continue;
-            }
             assertMethod(method);
 
-            Cmd cmd = mapping.value();
-            Assert.isFalse(actionMap.containsKey(cmd), "扫描到重复的cmd: {}, 正在注册: {}", cmd, method);
+            // 处理 @CmdMapping 注解
+            CmdMapping mapping = method.getDeclaredAnnotation(CmdMapping.class);
+            if (mapping != null) {
+                ICmd cmd = mapping.value();
+                Assert.isFalse(actionMap.containsKey(cmd), "扫描到重复的cmd: {}, 正在注册: {}", cmd, method);
+                Assert.notNull(cmd, "cmd 不能为空, 正在注册: {}", method);
+                actionMap.put(cmd, new ActionInvocation(cmd, object, method));
+            }
 
-            actionMap.put(cmd, new ActionInvocation(cmd, object, method));
+            // 处理 @RpcCmdMapping 注解
+            RpcCmdMapping rpcMapping = method.getDeclaredAnnotation(RpcCmdMapping.class);
+            if (rpcMapping != null) {
+                ICmd cmd = rpcMapping.value();
+                Assert.isFalse(actionMap.containsKey(cmd), "扫描到重复的rpcCmd: {}, 正在注册: {}", cmd, method);
+                Assert.notNull(cmd, "rpcCmd 不能为空, 正在注册: {}", method);
+                actionMap.put(cmd, new ActionInvocation(cmd, object, method));
+            }
         }
+
+        // 将扫描到的映射合并到全局映射表中
+        messageIdActionMap.putAll(actionMap);
     }
 
-    @Deprecated
-    public void invokeMethod(GameMessageContextImpl gameMessageContext) {
+
+     /*
+     @Deprecated
+   public void invokeMethod(GameMessageContextImpl gameMessageContext) {
         // TODO
         long playerId = gameMessageContext.getPlayerId();
         GameMessageHeader header = gameMessageContext.getReqGameMessagePackage().getHeader();
@@ -98,7 +113,7 @@ public class CmdDispatch implements AutoInitEvent {
             return;
         }
         actionInvocation.invokeMethod(gameMessageContext);
-    }
+    } */
 
     /** 断言方法 */
     private void assertMethod(Method method) {
@@ -118,7 +133,7 @@ public class CmdDispatch implements AutoInitEvent {
 
         long playerId = header.getPlayerId();
         Integer messageId = header.getMessageId();
-        Cmd cmd = CmdManager.getCmd(messageId);
+        ICmd cmd = CmdManager.getCmd(messageId);
         if (cmd == null) {
             LogTopic.NET.error("invokeMethod fail", "cmd is null", "playerId", playerId);
             return;
@@ -141,7 +156,7 @@ public class CmdDispatch implements AutoInitEvent {
         return 1;
     }
 
-    public boolean inSelf(Cmd cmd) {
+    public boolean inSelf(ICmd cmd) {
         return messageIdActionMap.containsKey(cmd);
     }
 }

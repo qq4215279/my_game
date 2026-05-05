@@ -7,6 +7,8 @@ package com.mumu.game.core.net.consts;
 
 import com.mumu.game.core.properties.ServerInfo;
 
+import com.mumu.game.proto.message.server.ClientServerBean;
+import com.mumu.game.proto.server.ClientServerInfo;
 import io.netty.util.AttributeKey;
 
 /**
@@ -23,8 +25,8 @@ public interface NetConstants {
     AttributeKey<ServiceType> SESSION_SERVICE_TYPE = AttributeKey.valueOf("connect-service-type");
     /** 连接所属服务ID - serverId */
     AttributeKey<Integer> SESSION_SERVER_ID = AttributeKey.valueOf("connect-server-id");
-    /** 服务器信息 - ServerInfo */
-    AttributeKey<ServerInfo> SESSION_SERVER_INFO = AttributeKey.valueOf("connect-server-info");
+    /** 服务器信息 - ClientServerInfo */
+    AttributeKey<ClientServerBean> SESSION_SERVER_INFO = AttributeKey.valueOf("connect-server-info");
 
     /** 玩家ID标识 - playerId */
     AttributeKey<Long> SESSION_PLAYER_ID = AttributeKey.valueOf("connect-player-id");

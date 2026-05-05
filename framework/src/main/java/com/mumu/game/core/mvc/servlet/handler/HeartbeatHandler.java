@@ -49,7 +49,7 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
         // TODO 拦截心跳请求，并处理
        GameMessagePackage gameMessagePackage = (GameMessagePackage) msg;
        // 心跳协议
-       if (gameMessagePackage.getHeader().getMessageId() == Cmd.HeartbeatMsg.getReqMessageId()) {
+       if (gameMessagePackage.getHeader().getMessageId() == Cmd.HeartbeatMsg.getMessageId()) {
            LogTopic.ACTION.info("收到心跳信息", "channelId", ctx.channel().id().asShortText());
 
            HeartbeatMsgEC resMsg = new HeartbeatMsgEC();
@@ -60,7 +60,7 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
 
            GameMessagePackage packageMsg = new GameMessagePackage();
            // TODO 封装header
-           GameMessageHeader header = Cmd.HeartbeatMsg.buildGameMessageHeader(false);
+           GameMessageHeader header = Cmd.HeartbeatMsg.createGameMessageHeader(false);
            header.setSeq(gameMessagePackage.getHeader().getSeq());
 
            packageMsg.setHeader(header);

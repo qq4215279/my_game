@@ -460,8 +460,8 @@ public class GameChannelPipeline {
             GameMessageHeader header = cn.hutool.core.util.ObjectUtil.cloneByStream(responseResult.getHeader());
             // 重新设置playerId，防止不同channel之间由于使用同一个GameMessagePackage实例，相互覆盖
             header.setPlayerId(pipeline.channel.getPlayerId());
-            header.setErrorCode(responseResult.getErrorCode());
-            header.setMessageId(responseResult.getCmd().getResMessageId());
+            // header.setErrorCode(responseResult.getErrorCode());
+            // header.setMessageId(responseResult.getCmd().getResMessageId());
             // 设置头信息
             gameMessagePackage.setHeader(header);
             // 返回信息

@@ -113,13 +113,13 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
         int messageId = gameMessagePackage.getHeader().getMessageId();
 
         // 如果是认证消息，在这里处理
-        if (messageId == Cmd.ConnectConfirmMsg.getReqMessageId()) {
+        if (messageId == Cmd.ConnectConfirmMsg.getMessageId()) {
             ConnectConfirmMsgCE reqMsg = JProtoBufUtil.decode(gameMessagePackage.getBody(), ConnectConfirmMsgCE.class);
             // 反序列化消息内容
             String token = reqMsg.getToken();
 
             ConnectConfirmMsgEC resMsg = new ConnectConfirmMsgEC();
-            GameMessageHeader header = Cmd.ConnectConfirmMsg.buildGameMessageHeader(false);
+            GameMessageHeader header = Cmd.ConnectConfirmMsg.createGameMessageHeader(false);
 
             // 检测token
             if (StringUtils.isEmpty(token)) {
@@ -198,7 +198,7 @@ public class ConfirmHandler extends ChannelInboundHandlerAdapter {
             if (existIoSession != null) {
                 // 如果检测到同一个账号创建了多个连接，则把旧连接关闭，保留新连接。
 
-                GameMessageHeader header = Cmd.ConnectConfirmMsg.buildGameMessageHeader(false);
+                GameMessageHeader header = Cmd.ConnectConfirmMsg.createGameMessageHeader(false);
                 header.setErrorCode(ErrorCode.FAIL_REPEATED_CONNECT);
 
                 GameMessagePackage returnPackage = new GameMessagePackage();

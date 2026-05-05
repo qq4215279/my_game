@@ -6,16 +6,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * CmdGen
- * Cmd协议messageId生成工具类
+ * Cmd和RpcCmd协议messageId生成工具类
  * 功能：
- * 1. 为Cmd枚举中的每个协议生成唯一的6位数messageId（范围：100000-999999）
+ * 1. 为Cmd和RpcCmd枚举中的每个协议生成唯一的6位数messageId（范围：100000-999999）
  * 2. 支持增量更新：已存在的协议messageId保持不变，只为新增协议生成新ID
- * 3. 将生成的配置保存到framework/src/main/resources/cmd/cmd.json文件
+ * 3. 将生成的配置保存到framework/src/main/resources/cmd/cmd.json和rpcCmd.json文件
+ * 4. 保证两个文件的messageId全局唯一
  *
  * 生成的JSON格式：
  * {
@@ -42,34 +45,52 @@ public class CmdGen {
     }
 
     /**
-     * 生成cmd.json文件
-     * 如果文件已存在，则读取已有配置，只为新增的Cmd枚举生成新的messageId
-     * 确保所有messageId都是唯一的6位数
+     * 生成cmd.json和rpcCmd.json文件
+     * 如果文件已存在，则读取已有配置，只为新增的枚举生成新的messageId
+     * 确保所有messageId在两个文件中都是唯一的6位数
      * JSON格式：{协议名: {messageId: xxx, reqMessage: "xxx", resMessage: "xxx"}}
      * 如果reqMsgClass或resMsgClass为null，则对应字段为空字符串
      *
      * @throws IOException IO异常
      */
     public static void generateMessageIdFile() throws IOException {
-        Map<String, ProtocolInfo> protocolMap = new HashMap<>();
-        Random random = new Random();
-
         String outputDir = "framework/src/main/resources/cmd";
         File dir = new File(outputDir);
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
-        File outputFile = new File(outputDir + "/cmd.json");
+        File cmdFile = new File(outputDir + "/cmd.json");
+        File rpcCmdFile = new File(outputDir + "/rpcCmd.json");
 
-        // 读取已存在的配置文件，保留已有的messageId
-        if (outputFile.exists()) {
+        // 用于追踪所有已使用的messageId，保证全局唯一
+        Set<Integer> usedMessageIds = new HashSet<>();
+
+        // 读取已存在的cmd.json配置
+        Map<String, ProtocolInfo> cmdProtocolMap = new HashMap<>();
+        if (cmdFile.exists()) {
             ObjectMapper readMapper = new ObjectMapper();
-            Map<String, ProtocolInfo> existingMap = readMapper.readValue(outputFile,
+            Map<String, ProtocolInfo> existingMap = readMapper.readValue(cmdFile,
                     new com.fasterxml.jackson.core.type.TypeReference<Map<String, ProtocolInfo>>() {});
-            protocolMap.putAll(existingMap);
-            System.out.println("读取到已存在的配置，共 " + existingMap.size() + " 个协议");
+            cmdProtocolMap.putAll(existingMap);
+            // 收集已使用的messageId
+            existingMap.values().forEach(p -> usedMessageIds.add(p.getMessageId()));
+            System.out.println("读取到已存在的cmd.json配置，共 " + existingMap.size() + " 个协议");
         }
+
+        // 读取已存在的rpcCmd.json配置
+        Map<String, ProtocolInfo> rpcCmdProtocolMap = new HashMap<>();
+        if (rpcCmdFile.exists()) {
+            ObjectMapper readMapper = new ObjectMapper();
+            Map<String, ProtocolInfo> existingMap = readMapper.readValue(rpcCmdFile,
+                    new com.fasterxml.jackson.core.type.TypeReference<Map<String, ProtocolInfo>>() {});
+            rpcCmdProtocolMap.putAll(existingMap);
+            // 收集已使用的messageId
+            existingMap.values().forEach(p -> usedMessageIds.add(p.getMessageId()));
+            System.out.println("读取到已存在的rpcCmd.json配置，共 " + existingMap.size() + " 个协议");
+        }
+
+        Random random = new Random();
 
         // 遍历所有Cmd枚举，为没有messageId的新增协议生成新的ID
         for (Cmd cmd : Cmd.values()) {
@@ -78,28 +99,88 @@ public class CmdGen {
                 continue;
             }
 
-            // 如果该协议已有配置，则跳过（保持原有值不变）
-            if (protocolMap.containsKey(cmd.name())) {
+            // 如果该协议已有配置，则跳过（保持原有值不变），但记录到usedMessageIds
+            if (cmdProtocolMap.containsKey(cmd.name())) {
+                usedMessageIds.add(cmdProtocolMap.get(cmd.name()).getMessageId());
                 continue;
             }
 
             // 生成不重复的6位数随机messageId
-            int messageId = 0;
-            int finalMessageId = messageId;
-            do {
-                messageId = random.nextInt(MAX_ID - MIN_ID + 1) + MIN_ID;
-            } while (protocolMap.values().stream().anyMatch(p -> p.getMessageId() == finalMessageId));
+            int messageId = generateUniqueId(usedMessageIds, random);
 
             // 获取请求和响应消息类名，如果为null则使用空字符串
             String reqMessage = cmd.getReqMsgClass() != null ? cmd.getReqMsgClass().getSimpleName() : "";
             String resMessage = cmd.getResMsgClass() != null ? cmd.getResMsgClass().getSimpleName() : "";
 
             ProtocolInfo protocolInfo = new ProtocolInfo(messageId, reqMessage, resMessage);
-            protocolMap.put(cmd.name(), protocolInfo);
-            System.out.println("新增协议: " + cmd.name() + " -> " + protocolInfo);
+            cmdProtocolMap.put(cmd.name(), protocolInfo);
+            usedMessageIds.add(messageId);
+            System.out.println("新增Cmd协议: " + cmd.name() + " -> " + protocolInfo);
+        }
+
+        // 遍历所有RpcCmd枚举，为没有messageId的新增协议生成新的ID
+        for (RpcCmd rpcCmd : RpcCmd.values()) {
+            // 如果该协议已有配置，则跳过（保持原有值不变），但记录到usedMessageIds
+            if (rpcCmdProtocolMap.containsKey(rpcCmd.name())) {
+                usedMessageIds.add(rpcCmdProtocolMap.get(rpcCmd.name()).getMessageId());
+                continue;
+            }
+
+            // 生成不重复的6位数随机messageId
+            int messageId = generateUniqueId(usedMessageIds, random);
+
+            // 获取请求和响应消息类名，如果为null则使用空字符串
+            String reqMessage = rpcCmd.getReqMsgClass() != null ? rpcCmd.getReqMsgClass().getSimpleName() : "";
+            String resMessage = rpcCmd.getResMsgClass() != null ? rpcCmd.getResMsgClass().getSimpleName() : "";
+
+            ProtocolInfo protocolInfo = new ProtocolInfo(messageId, reqMessage, resMessage);
+            rpcCmdProtocolMap.put(rpcCmd.name(), protocolInfo);
+            usedMessageIds.add(messageId);
+            System.out.println("新增RpcCmd协议: " + rpcCmd.name() + " -> " + protocolInfo);
         }
 
         // 将最终的配置写入JSON文件
+        writeJsonFile(cmdFile, cmdProtocolMap);
+        writeJsonFile(rpcCmdFile, rpcCmdProtocolMap);
+
+        System.out.println("\nMessageId生成完成：");
+        System.out.println("Cmd协议共 " + cmdProtocolMap.size() + " 个");
+        System.out.println("RpcCmd协议共 " + rpcCmdProtocolMap.size() + " 个");
+        System.out.println("总计使用messageId: " + usedMessageIds.size() + " 个");
+        System.out.println("\n文件路径:");
+        System.out.println("  cmd.json: " + cmdFile.getAbsolutePath());
+        System.out.println("  rpcCmd.json: " + rpcCmdFile.getAbsolutePath());
+
+        System.out.println("\n所有协议的MessageId:");
+        System.out.println("=== Cmd ===");
+        cmdProtocolMap.forEach((key, value) -> System.out.println(key + ": " + value));
+        System.out.println("=== RpcCmd ===");
+        rpcCmdProtocolMap.forEach((key, value) -> System.out.println(key + ": " + value));
+    }
+
+    /**
+     * 生成一个唯一的messageId
+     *
+     * @param usedMessageIds 已使用的messageId集合
+     * @param random 随机数生成器
+     * @return 唯一的messageId
+     */
+    private static int generateUniqueId(Set<Integer> usedMessageIds, Random random) {
+        int messageId;
+        do {
+            messageId = random.nextInt(MAX_ID - MIN_ID + 1) + MIN_ID;
+        } while (usedMessageIds.contains(messageId));
+        return messageId;
+    }
+
+    /**
+     * 将协议配置写入JSON文件
+     *
+     * @param file 目标文件
+     * @param protocolMap 协议映射表
+     * @throws IOException IO异常
+     */
+    private static void writeJsonFile(File file, Map<String, ProtocolInfo> protocolMap) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode rootNode = mapper.createObjectNode();
 
@@ -111,12 +192,7 @@ public class CmdGen {
             rootNode.set(key, protocolNode);
         });
 
-        mapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, rootNode);
-
-        System.out.println("\nMessageId生成完成，共 " + protocolMap.size() + " 个协议");
-        System.out.println("文件路径: " + outputFile.getAbsolutePath());
-        System.out.println("\n所有协议的MessageId:");
-        protocolMap.forEach((key, value) -> System.out.println(key + ": " + value));
+        mapper.writerWithDefaultPrettyPrinter().writeValue(file, rootNode);
     }
 
     /**

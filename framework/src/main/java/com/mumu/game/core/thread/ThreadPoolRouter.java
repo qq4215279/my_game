@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.LongAdder;
 
 import com.mumu.game.constants.ThreadConstants;
 import com.mumu.game.core.cmd.enums.Cmd;
+import com.mumu.game.core.cmd.enums.ICmd;
 import com.mumu.game.core.properties.CoreConfig;
 import com.mumu.game.core.net.server.MessageContext;
 import com.mumu.game.core.net.consts.ServiceType;
@@ -49,7 +50,7 @@ public class ThreadPoolRouter {
     }
 
     /** 消息路由 */
-    private void autoExecute(Long key, Cmd cmd, Runnable task) {
+    private void autoExecute(Long key, ICmd cmd, Runnable task) {
         Worker worker = getWorker();
         worker.setCmd(cmd);
         worker.setTask(task);

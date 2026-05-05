@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiConsumer;
 
+import com.mumu.game.proto.message.server.ClientServerBean;
+import com.mumu.game.proto.server.ClientServerInfo;
 import org.jctools.maps.NonBlockingHashMap;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +20,6 @@ import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.net.server.IoSession;
 import com.mumu.game.core.net.consts.NetConstants;
 import com.mumu.game.core.net.consts.ServiceType;
-import com.mumu.game.core.properties.ServerInfo;
 import com.mumu.game.core.utils.SpringContextUtils;
 
 import io.netty.channel.Channel;
@@ -65,6 +66,11 @@ public class SessionManager {
         }
     }
 
+    /**
+     * 添加玩家session
+     * @param playerId 玩家id
+     * @param ioSession session
+     */
     public void addPlayerSession(long playerId, IoSession ioSession) {
         // 数据写入，添加写锁
         this.writeLock(() -> {
@@ -73,6 +79,11 @@ public class SessionManager {
         });
     }
 
+    /**
+     * 移除玩家session
+     * @param playerId 玩家id
+     * @param removedSession 移除的session
+     */
     public void removePlayerSession(long playerId, Channel removedSession) {
         this.writeLock(() -> {
             IoSession existIoSession = playerSessionMap.get(playerId);
@@ -152,23 +163,29 @@ public class SessionManager {
         return serverSessionMap.contains(serviceType, serverId);
     }
 
-    // TODO 进行握手
-    public void addServerSession(IoSession ioSession, ServerInfo serverInfo) {
+    /**
+     * 添加服务器session
+     * @param session session
+     * @param clientServerInfo 服务器信息
+     */
+    public void addServerSession(IoSession session, ClientServerBean clientServerInfo) {
+        ServiceType serviceType = ServiceType.getServiceType(clientServerInfo.getServiceId());
+
         // 标记
-        ioSession.setAttr(NetConstants.SESSION_SERVICE_TYPE, serverInfo.getServiceType());
-        ioSession.setAttr(NetConstants.SESSION_SERVER_ID, serverInfo.getServerId());
-        ioSession.setAttr(NetConstants.SESSION_SERVER_INFO, serverInfo);
+        session.setAttr(NetConstants.SESSION_SERVICE_TYPE, serviceType);
+        session.setAttr(NetConstants.SESSION_SERVER_ID, clientServerInfo.getServerId());
+        session.setAttr(NetConstants.SESSION_SERVER_INFO, clientServerInfo);
 
         // 缓存服务id-session
-        IoSession oldSession = serverSessionMap.get(serverInfo.getServiceType(), serverInfo.getServerId());
-        serverSessionMap.put(serverInfo.getServiceType(), serverInfo.getServerId(), ioSession);
+        IoSession oldSession = serverSessionMap.get(serviceType, clientServerInfo.getServerId());
+        serverSessionMap.put(serviceType, clientServerInfo.getServerId(), session);
         if (oldSession != null) {
-            LogTopic.NET.warn("registerServer session replaced", "serverId", serverInfo.getServerId(), "oldSession", oldSession, "session", ioSession);
+            LogTopic.NET.warn("registerServer session replaced", "serverId", clientServerInfo.getServerId(), "oldSession", oldSession, "session", session);
         }
     }
 
     /** 移除 session */
-    public IoSession removeServerSession(String sessionKey) {
+    public IoSession removeSession(String sessionKey) {
         IoSession session = allSessionMap.remove(sessionKey);
         if (session == null) {
             return null;
@@ -179,6 +196,13 @@ public class SessionManager {
         Integer serverId = session.getAttr(NetConstants.SESSION_SERVER_ID);
         if (serverId != null && serviceType != null) {
             serverSessionMap.remove(serviceType, serverId);
+        }
+
+        // 移除服务器玩家session缓存
+        Long playerId = session.getAttr(NetConstants.SESSION_PLAYER_ID);
+        // 需要判断下关闭的session是否为当前session，避免重登陆时关闭老session后，将新session移除
+        if (playerId != null && playerSessionMap.get(playerId) == session) {
+            playerSessionMap.remove(playerId);
         }
 
         return session;
@@ -201,7 +225,7 @@ public class SessionManager {
 
 
 
-    // ==================>
+    // ==================> 获取session
     /** 玩家数据下行session,即给玩家发消息(Gate服会返回玩家连接,其他服返回玩家所在Gate的连接) */
     public IoSession getOutSession(long playerId) {
         IoSession session = playerSessionMap.get(playerId);

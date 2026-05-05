@@ -5,6 +5,7 @@
 
 package com.mumu.game.core.net.listener;
 
+import com.mumu.game.core.cmd.enums.ICmd;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
@@ -55,8 +56,9 @@ public class GatewayHandlerListener extends AbstractHandlerListener {
     // 收到内部服务器请求，处理或转发给玩家
     private void readInner(MessageContext context) {
         GameMessageHeader header = context.getMessagePackage().getHeader();
-        // 1.1. TODO rpc 请求或响应 => 转发到其他游戏服
+        // 1.1. rpc 请求或响应
         if (header.getMessageType() == MessageTypeEnum.RPC_REQUEST || header.getMessageType() == MessageTypeEnum.RPC_RESPONSE) {
+            MessageSender.send(context);
 
             // 1.2. 返回给玩家客户端
         } else {
@@ -81,8 +83,8 @@ public class GatewayHandlerListener extends AbstractHandlerListener {
     private void readOut(MessageContext context) {
         GameMessageHeader header = context.getMessagePackage().getHeader();
 
-        // 2.1. 转发给其他游戏服
-        Cmd cmd = CmdManager.getCmd(header.getMessageId());
+        // 2.1. 非gateway 协议，转发给其他游戏服
+        ICmd cmd = CmdManager.getCmd(header.getMessageId());
         if (cmd.getServiceType() != ServiceType.GATEWAY) {
             MessageSender.send(context);
             return;

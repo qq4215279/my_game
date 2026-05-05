@@ -19,7 +19,7 @@ public interface AutoConditional {
 
     /** 加载的服务 */
     default Collection<ServiceType> loadService() {
-        return ServiceType.GAME_SERVERS;
+        return ServiceType.PLAYER_ON_GROUPS;
     }
 
     /** 排序（小的优先执行） */

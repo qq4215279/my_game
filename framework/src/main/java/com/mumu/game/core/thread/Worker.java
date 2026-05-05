@@ -4,6 +4,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.LongAdder;
 
 import com.mumu.game.core.cmd.enums.Cmd;
+import com.mumu.game.core.cmd.enums.ICmd;
 import com.mumu.game.core.log.LogTopic;
 
 import lombok.Setter;
@@ -18,7 +19,7 @@ public class Worker implements Runnable {
     @Setter
     Runnable task;
     @Setter
-    Cmd cmd;
+    ICmd cmd;
 
     /** 记录开始时间 */
     private long recordNanoTime;

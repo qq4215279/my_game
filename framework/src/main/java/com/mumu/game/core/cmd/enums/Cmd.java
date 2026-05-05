@@ -31,7 +31,7 @@ import lombok.Getter;
  * @author liuzhen
  * @version 1.0.0 2025/3/30 12:49
  */
-public enum Cmd {
+public enum Cmd implements ICmd {
     /** 空 */
     None(ServiceType.ALL, null, null),
     /** 心跳消息 */
@@ -59,27 +59,4 @@ public enum Cmd {
         this.resMsgClass = resMsgClass;
     }
 
-    /**
-     * 获取请求Cmd对应messageId
-     * @return int
-     */
-    public int getReqMessageId() {
-        return CmdManager.getReqMessageId(this);
-    }
-
-    /**
-     * 获取相应Cmd对应messageId
-     * @return int
-     */
-    public int getResMessageId() {
-        return CmdManager.getResMessageId(this);
-    }
-
-    public GameMessageHeader buildGameMessageHeader(boolean req) {
-        GameMessageHeader header = new GameMessageHeader();
-
-        header.setMessageId(req ? CmdManager.getReqMessageId(this) : CmdManager.getResMessageId(this));
-        header.setMessageType(req ? MessageTypeEnum.REQUEST : MessageTypeEnum.RESPONSE);
-        return header;
-    }
 }

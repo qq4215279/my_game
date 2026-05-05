@@ -96,7 +96,7 @@ public class DispatchServletHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
-        IoSession session = SessionManager.self().removeServerSession(channel.id().toString());
+        IoSession session = SessionManager.self().removeSession(channel.id().toString());
         if (session == null) {
             return;
         }

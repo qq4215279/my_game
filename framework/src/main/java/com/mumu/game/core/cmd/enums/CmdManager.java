@@ -29,13 +29,10 @@ import lombok.Getter;
 @Component
 public class CmdManager {
     @Getter
-    private static Map<Integer, Cmd> messageIdCmdMap = new HashMap<>();
+    private static Map<Integer, ICmd> messageIdCmdMap = new HashMap<>();
 
     @Getter
-    private static Map<Cmd, Integer> cmdReqMessageIdMap = new HashMap<>();
-
-    @Getter
-    private static Map<Cmd, Integer> cmdResMessageIdMap = new HashMap<>();
+    private static Map<ICmd, Integer> cmdReqMessageIdMap = new HashMap<>();
 
     static {
         try {
@@ -46,53 +43,67 @@ public class CmdManager {
     }
 
     /**
-     * 从cmd.json文件加载协议配置
-     * 读取文件中的协议信息，初始化messageId与Cmd的映射关系
+     * 从cmd.json和rpcCmd.json文件加载协议配置
+     * 读取文件中的协议信息，初始化messageId与Cmd/RpcCmd的映射关系
      *
      * @throws Exception 加载异常
      */
     private static void loadCmdConfig() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
-        // 从classpath读取cmd.json文件
-        InputStream inputStream = CmdManager.class.getClassLoader().getResourceAsStream("cmd/cmd.json");
-        if (inputStream == null) {
+        // 加载cmd.json
+        InputStream cmdInputStream = CmdManager.class.getClassLoader().getResourceAsStream("cmd/cmd.json");
+        if (cmdInputStream == null) {
             throw new IllegalStateException("无法找到cmd/cmd.json配置文件");
         }
+        Map<String, ProtocolInfo> cmdProtocolConfigMap = mapper.readValue(cmdInputStream, new TypeReference<>() {});
+        loadProtocolConfig(cmdProtocolConfigMap);
+        System.out.println("Cmd配置加载完成，共加载 " + cmdProtocolConfigMap.size() + " 个协议配置");
 
-        // 解析JSON文件，读取协议配置
-        Map<String, ProtocolInfo> protocolConfigMap = mapper.readValue(inputStream, new TypeReference<>() {});
+        // 加载rpcCmd.json
+        InputStream rpcCmdInputStream = CmdManager.class.getClassLoader().getResourceAsStream("cmd/rpcCmd.json");
+        if (rpcCmdInputStream == null) {
+            throw new IllegalStateException("无法找到cmd/rpcCmd.json配置文件");
+        }
+        Map<String, ProtocolInfo> rpcCmdProtocolConfigMap = mapper.readValue(rpcCmdInputStream, new TypeReference<>() {});
+        loadProtocolConfig(rpcCmdProtocolConfigMap);
+        System.out.println("RpcCmd配置加载完成，共加载 " + rpcCmdProtocolConfigMap.size() + " 个协议配置");
 
-        // 遍历配置，初始化映射表
+        int totalSize = messageIdCmdMap.size();
+        System.out.println("CmdManager初始化完成，共加载 " + totalSize + " 个协议（Cmd + RpcCmd）");
+    }
+
+    /**
+     * 加载协议配置到映射表中
+     * 同时支持Cmd和RpcCmd，统一填充到三个map中
+     *
+     * @param protocolConfigMap 协议配置映射表
+     */
+    private static void loadProtocolConfig(Map<String, ProtocolInfo> protocolConfigMap) {
         for (Map.Entry<String, ProtocolInfo> entry : protocolConfigMap.entrySet()) {
             String cmdName = entry.getKey();
             ProtocolInfo protocolInfo = entry.getValue();
 
             try {
-                // 根据协议名称获取对应的Cmd枚举
-                Cmd cmd = Cmd.valueOf(cmdName);
+                ICmd cmd;
+
+                // 尝试从Cmd枚举获取
+                try {
+                    cmd = Cmd.valueOf(cmdName);
+                } catch (IllegalArgumentException e) {
+                    // 如果Cmd中不存在，尝试从RpcCmd枚举获取
+                    cmd = RpcCmd.valueOf(cmdName);
+                }
 
                 int messageId = protocolInfo.getMessageId();
+                messageIdCmdMap.put(messageId, cmd);
+                cmdReqMessageIdMap.put(cmd, messageId);
 
-                // 初始化请求messageId映射
-                if (protocolInfo.getReqMessage() != null && !protocolInfo.getReqMessage().isEmpty()) {
-                    messageIdCmdMap.put(messageId, cmd);
-                    cmdReqMessageIdMap.put(cmd, messageId);
-                }
-
-                // 初始化响应messageId映射（使用messageId + 1）
-                if (protocolInfo.getResMessage() != null && !protocolInfo.getResMessage().isEmpty()) {
-                    int resMessageId = messageId + 1;
-                    messageIdCmdMap.put(resMessageId, cmd);
-                    cmdResMessageIdMap.put(cmd, resMessageId);
-                }
             } catch (IllegalArgumentException e) {
-                // 如果Cmd枚举中不存在该协议名，记录警告但继续处理其他协议
-                System.err.println("警告: Cmd枚举中不存在协议: " + cmdName);
+                // 如果两个枚举中都不存在该协议名，记录警告但继续处理其他协议
+                System.err.println("警告: Cmd和RpcCmd枚举中都不存在协议: " + cmdName);
             }
         }
-
-        System.out.println("CmdManager初始化完成，共加载 " + protocolConfigMap.size() + " 个协议配置");
     }
 
     /**
@@ -113,7 +124,7 @@ public class CmdManager {
      * @since 2025/3/30 13:37
      * @return com.mumu.framework.core.cmd.enums.Cmd
      */
-    public static Cmd getCmd(int messageId) {
+    public static ICmd getCmd(int messageId) {
         return messageIdCmdMap.get(messageId);
     }
 
@@ -123,17 +134,8 @@ public class CmdManager {
      * @return int
      * @since 2025/3/30 13:37
      */
-    public static int getReqMessageId(Cmd cmd) {
+    public static int getMessageId(ICmd cmd) {
         return cmdReqMessageIdMap.get(cmd);
     }
 
-    /**
-     * 获取相应Cmd对应messageId
-     * @param cmd cmd
-     * @return int
-     * @since 2025/3/30 13:38
-     */
-    public static int getResMessageId(Cmd cmd) {
-        return cmdResMessageIdMap.get(cmd);
-    }
 }

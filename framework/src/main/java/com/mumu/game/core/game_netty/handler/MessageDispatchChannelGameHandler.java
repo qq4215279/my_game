@@ -143,7 +143,8 @@ public class MessageDispatchChannelGameHandler extends AbstractMessageDispatchGa
     public void channelRead(AbstractGameChannelHandlerContext gameChannelHandlerContext, Object msg) throws Exception {
         MessageContext context = (MessageContext)msg;
         GameMessageContextImpl messageContext = new GameMessageContextImpl(context, gameChannelHandlerContext);
-        cmdDispatch.invokeMethod(messageContext);
+        // TODO
+        // cmdDispatch.invokeMethod(messageContext);
     }
 
     @Override

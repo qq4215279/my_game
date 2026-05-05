@@ -11,6 +11,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.mumu.game.core.cmd.enums.Cmd;
+import com.mumu.game.core.cmd.enums.ICmd;
 
 /**
  * CmdMapping
