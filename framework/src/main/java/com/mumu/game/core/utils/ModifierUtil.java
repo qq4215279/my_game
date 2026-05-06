@@ -93,4 +93,22 @@ public class ModifierUtil extends cn.hutool.core.util.ModifierUtil {
             map.put(value, name);
         }
     }
+
+    /**
+     * 检查指定对象是否有指定方法
+     * @param obj 对象
+     * @param methodName 指定方法名
+     * @param parameterTypes 方法参数类型
+     * @return boolean
+     * @since 2025/7/18 18:22
+     */
+    public static boolean hasMethod(Object obj, String methodName, Class<?>... parameterTypes) {
+        Class<?> clazz = obj.getClass();
+        try {
+            clazz.getDeclaredMethod(methodName, parameterTypes);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
 }
