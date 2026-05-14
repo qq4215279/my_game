@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+option java_package = "com.game.proto.mail";
+
+import "item/item.proto";
+
+// 操作邮件
+enum MailOperate {
+  // 获取邮件
+  MAIL_GET = 0;
+  // 读邮件
+  MAIL_READ = 1;
+  // 领邮件奖励
+  MAIL_RECEIVE = 2;
+  // 删除邮件
+  MAIL_DELETE = 3;
+}
+
+// 邮件信息
+message MailBean {
+  // id
+  int64 mailId = 1;
+  // 类型（-1系统邮件）
+  int32 mailType = 2;
+  // 标题
+  string title = 3;
+  // 内容
+  string content = 4;
+  // 创建时间ms
+  int64 createTime = 5;
+  // 过期时间ms
+  int64 expireTime = 6;
+  // 奖励
+  repeated ItemBean rewards = 7;
+  // 状态 -1-已删除 0-未读 1-已读 2-已领取
+  int32 flag = 8;
+  // 是否能删除
+  int32 cannotDel = 9;
+  // 操作人员（服务器使用）
+  string operator = 10;
+}
+
+// 操作邮件请求
+message CWOperateMailMessage {
+  // 操作
+  MailOperate operate = 1;
+  // 操作的邮件ID（不传Id查表示操作全部邮件）
+  int64 mailId = 2;
+}
+
+// 操作邮件响应
+message WCOperateMailMessage {
+  /** 邮件详情 operate: GET */
+  repeated MailBean mails = 1;
+  /** 获得奖励 operate: RECEIVE */
+  repeated ItemBean rewards = 2;
+  /** 邮件数量 operate: GET/DEL */
+  int32 mailCount = 3;
+  /** 邮件容量 operate: GET/DEL */
+  int32 mailCapacity = 4;
+}

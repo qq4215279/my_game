@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+option java_package = "com.game.proto.item";
+
+import "shop/shop.proto";
+
+// 道具bean
+message ItemBean {
+  /** 道具id */
+  int32 id = 1;
+  /** 道具数量 */
+  int64 num = 2;
+  /** 时间【秒级】 */
+  int64 time = 3;
+  /** 过期时间 永久:-1 */
+  int64 expireTime = 4;
+  /** 是否有红点 */
+  bool hasPoint = 5;
+}
+
+// 请求获取玩家所有道具信息列表
+message CWGetPlayerItemListMessage {
+  /** 道具id列表 空获取所有道具 */
+  repeated int32 itemIdList = 1;
+}
+
+// 响应获取玩家所有道具信息列表
+message WCGetPlayerItemListMessage {
+  /** 道具信息 */
+  repeated ItemBean items = 1;
+}
+
+// 道具变化推送
+message OnItemChangeMessage {
+  /** 变化道具信息列表 */
+  repeated ItemBean items = 1;
+}
+
+// 请求获取指定道具类型图鉴信息
+message CWGetItemHandbookListMessage {
+  /** 道具类型 */
+  int32 itemType = 1;
+}
+
+// 响应获取指定道具类型图鉴信息
+message WCGetItemHandbookListMessage {
+  /** 道具图鉴列表 */
+  repeated ItemHandbookBean itemHandbookBeans = 1;
+}
+
+// 道具图鉴
+message ItemHandbookBean {
+  /** 道具id */
+  int32 itemId = 1;
+  /** 商品信息 */
+  GoodsBean goodsBean = 2;
+  /** 参数 */
+  string param = 3;
+  /** 排序 */
+  int32 sort = 4;
+}
+
+// 请求使用道具
+message CWUseItemMessage {
+  /** 道具id */
+  int32 itemId = 1;
+  /** 数量 */
+  int32 num = 2;
+}
+
+// 响应使用道具
+message WCUseItemMessage {
+  /** 使用获得的道具列表 */
+  repeated ItemBean items = 1;
+}
+
+// 同步道具变化到world/game
+message SyncItemChangeMessage {
+  /** 奖励信息 */
+  string rewards = 1;
+  /** 事件 */
+  string action = 2;
+  /** 是否为获得 */
+  bool received = 3;
+  /** 扩展参数 */
+  string extParams = 4;
+}

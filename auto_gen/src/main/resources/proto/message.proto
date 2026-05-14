@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option java_package = "com.game.proto";
+
+import "core/error.proto";
+
+// 协议载体
+message MessageProxy {
+  /** 请求协议 cmd */
+  int32 cmd = 1;
+  /** seq */
+  int32 seq = 2;
+  /** 错误码 */
+  ErrorCode errorCode = 3;
+  /** 具体的业务消息通过protoBuf序列化后的二进制数据 */
+  bytes data = 4;
+  /** 玩家id（内部使用） */
+  int64 playerId = 5;
+  /** 协议类型 */
+  CmdType cmdType = 6;
+}
+
+// 协议类型
+enum CmdType {
+  /** 客户端消息 */
+  CLIENT_REQUEST_TYPE = 0;
+  /** 客户端消息 */
+  CLIENT_RESPONSE_TYPE = 1;
+  /** rpc请求消息 */
+  RPC_REQUEST_TYPE = 2;
+  /** rpc响应消息 */
+  RPC_RESPONSE_TYPE = 3;
+}
