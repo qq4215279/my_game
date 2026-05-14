@@ -1,0 +1,152 @@
+### hello
+GET {{url}}{{world}}/hello
+
+### testMaper
+GET {{url}}{{world}}/testMaper
+
+### rpcTest
+GET {{url}}{{world}}/testRpc?playerId=10000001
+
+### asyncRpcTest 发送异步rpc请求测试
+GET {{url}}{{world}}/asyncRpcTest?playerId=10000001
+
+### rpcTest 发送同步rpc请求测试
+GET {{url}}{{world}}/rpcTest?playerId=10000001
+
+### rpcChainTest rpc链子请求测试
+GET {{url}}{{world}}/rpcChainTest?playerId=10000001
+
+### game服-hello
+GET {{url}}{{game}}/game/result
+
+### result
+GET {{url}}{{world}}/result
+
+### ======================= 数据缓存模型测试 ===============================
+# 测试，Master和 Slave对于 Many类型数据的查询和修改
+# Slave：Chat
+# Maste: Gate
+# 1. Master 和 Slave查询加载缓存
+# 2. Master修改key1，查看Slave是否收到key1变动，
+#    Slave修改key1，查看是否抛出异常拦截；再查询key1，判断是否加载最新缓存
+# 3. Slave修改key2，查看Master是否受到key2变动，并在下次查询使用时加载最新缓存
+#    Master修改key2，查看是否抛出异常拦截；再查询key2，判断是否加载最新缓存
+
+### test Gate update
+GET {{url}}{{gate}}/model/testUpdate?id=1
+
+### test Gate select
+GET {{url}}{{gate}}/model/testSelect
+
+### test chat select
+GET {{url}}{{chat}}/model/testSelect
+
+### test chat update
+GET {{url}}{{chat}}/model/testUpdate?id=1
+
+
+#### MongoDB test =====================================================>
+
+### 插入
+GET {{url}}{{world}}/mongo/insert
+
+### 查询
+GET {{url}}{{world}}/mongo/select
+
+### 更新
+GET {{url}}{{world}}/mongo/update
+
+### 卸载TestManyMongoDO缓存
+GET {{url}}{{world}}/gm/uninstallPlayerModel?playerId=10000001&models=com.game.framework.core.automodel.test.domain.TestManyMongoDO
+###
+GET {{url}}{{world}}/gm/uninstallPlayerModel?playerId=10000002&models=com.game.framework.core.automodel.test.domain.TestManyMongoDO
+
+
+### gm start =======================================================================>
+
+### 查看GM接口列表
+GET {{url}}{{world}}/gm/exeGmCommand?key=help
+
+### 发道具 arg0: 掉落字符串
+GET {{url}}{{world}}/gm/exeGmCommand?key=addItem&playerId=10000370&args=1000,1000000000
+#GET {{url}}{{world}}/gm/exeGmCommand?key=addItem&playerId=10000363&args=5200,5000;17000,5000;31000,1;31001,1;31002,1;31003,1;29001,1;29002,1;29003,1;29004,1;29005,1
+
+### 所有道具  args0: 指定道具数量，默认300000
+GET {{url}}{{world}}/gm/exeGmCommand?key=addAllItem&playerId=10000591&args=1000000000
+
+### baloot指定牌模板  arg0: 模版牌id
+GET {{url}}{{world}}/gm/exeGmCommand?key=addTemplatePokers&playerId=10000001&args=13
+
+### bet小游戏指定牌模板  arg0: 模版牌id
+GET {{url}}{{world}}/gm/exeGmCommand?key=addBetTemplatePokers&playerId=10000370&args=1
+
+### 新开盘
+GET {{url}}{{world}}/gm/exeGmCommand?key=newCircle&playerId=10000001
+
+### 解散booot牌局
+#GET {{url}}{{world}}/gm/exeGmCommand?key=disband&playerId=10001273
+#GET {{url}}{{world}}/gm/exeGmCommand?key=disband&playerId=10000504
+GET {{url}}{{world}}/gm/exeGmCommand?key=disband&playerId=10000001
+
+### 解散所有booot牌局
+GET {{url}}{{world}}/gm/exeGmCommand?key=disbandAll&playerId=10000001
+
+### 设置玩家情绪值  修改属性1-设置玩家情绪值: arg0: emotion; arg1: 数量 | 修改属性2-修改玩家是否是付费用户: arg0: charge; arg1: true/false;
+GET {{url}}{{world}}/gm/exeGmCommand?key=attr&playerId=10000002&args=emotion 150
+
+### 转盘发奖，抽中指定配置奖励  arg0: 功能id; arg1: 配置id
+GET {{url}}{{world}}/gm/exeGmCommand?key=turntableDraw&playerId=10000020&args=90202 6
+
+### 卸载玩家缓存
+GET {{url}}{{world}}/gm/uninstallPlayerModel?playerId=10000001&models=com.game.chat.domain.PlayerChatDO
+### gm end =======================================================================>
+
+### 发送邮件
+# title  标题
+# content  内容
+# rewards  奖励（没有可以不填）
+# expiredDays  过期天数
+# playerIds  发给的玩家,多个逗号分隔（不填表示发送全服的系统邮件）
+GET {{url}}{{world}}/gm/sendMail?title=测试系统邮件66&content=测试25002道具&rewards=25002,10&expiredDays=7
+
+### 删除邮件
+GET {{url}}{{world}}/gm/delSysMail?ids=721432837357720,721432770248856
+
+
+### 发送跑马灯模板
+# type  跑马灯类型（SCROLL_SYSTEM 周期性跑马灯， SCROLL_COMMON 一次性跑马灯）
+# tmpKey  跑马灯模板类型
+# args  模板中的占位符参数
+# order  跑马灯的优先级（大的优先展示）
+# beginTime  跑马灯的开始播放时间 ms
+# endTime  跑马灯的结束播放时间 ms
+# interval  跑马灯的轮播间隔 s
+GET {{url}}{{world}}/gm/sendScroll?type=SCROLL_SYSTEM&tmpKey=scroll_welcome_game&order=1&args=1&beginTime=1741750685000&endTime=1742017310000&interval=60
+
+
+### 发送跑马灯 - 周期性
+# order  跑马灯的优先级（大的优先展示，没有可不传）
+# beginTime  跑马灯的开始播放时间 ms （没有可不传）
+# endTime  跑马灯的结束播放时间 ms（没有可不传）
+# interval  跑马灯的轮播间隔 s（没有可不传）
+# content  跑马灯文本多语言,例如：{"ar":" رمضان كريم ", "zhcn":"测试跑马灯", "en": "hello"}
+GET {{url}}{{world}}/gm/sendScroll?order=1&beginTime=1741750685000&endTime=1747300800000&interval=30&content=%7B%22ar%22%3A%22%20%D8%B1%D9%85%D8%B6%D8%A7%D9%86%20%D9%83%D8%B1%D9%8A%D9%85%20%22%2C%20%22zhcn%22%3A%22%E6%B5%8B%E8%AF%95%E8%B7%91%E9%A9%AC%E7%81%AF%22%2C%20%22en%22%3A%20%22hello%22%7D
+
+
+### 发送跑马灯 - 一次性
+GET {{url}}{{world}}/gm/sendScroll?content=%7B%22ar%22%3A%22%20%D8%B1%D9%85%D8%B6%D8%A7%D9%86%20%D9%83%D8%B1%D9%8A%D9%85%20%22%2C%20%22zhcn%22%3A%22%E6%B5%8B%E8%AF%95%E8%B7%91%E9%A9%AC%E7%81%AF%22%2C%20%22en%22%3A%20%22hello%22%7D
+
+
+### 删除跑马灯
+GET {{url}}{{world}}/gm/delScroll?ids=721435085504664,633043148603544
+
+
+### 发送全服邮件
+GET {{url}}{{world}}/gm/sendMail?
+    title=%D8%A5%D8%B4%D8%B9%D8%A7%D8%B1%20%D9%81%D8%B4%D9%84%20%D8%A7%D9%84%D8%AF%D9%81%D8%B9&
+    content=%D8%A3%D8%B9%D8%B2%D8%A7%D8%A6%D9%8A%20%D9%84%D8%A7%D8%B9%D8%A8%D9%8A%20%D9%87%D9%84%D8%A7%20%D8%A8%D9%84%D9%88%D8%AA%0A%0A%D9%86%D9%88%D8%AF%20%D8%A3%D9%86%20%D9%86%D9%84%D9%81%D8%AA%20%D8%A7%D9%86%D8%AA%D8%A8%D8%A7%D9%87%D9%83%20%D8%A5%D9%84%D9%89%20%D8%A3%D9%86%D9%86%D8%A7%20%D8%AA%D9%84%D9%82%D9%8A%D9%86%D8%A7%20%D9%85%D8%A4%D8%AE%D8%B1%D9%8B%D8%A7%20%D8%A8%D8%B9%D8%B6%20%D8%A7%D9%84%D8%AA%D9%82%D8%A7%D8%B1%D9%8A%D8%B1%20%D9%85%D9%86%20%D8%A7%D9%84%D9%84%D8%A7%D8%B9%D8%A8%D9%8A%D9%86%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D8%AD%D8%AF%D9%88%D8%AB%20%D9%85%D8%B4%D8%A7%D9%83%D9%84%20%D9%81%D9%8A%20%D8%A5%D8%AA%D9%85%D8%A7%D9%85%20%D8%B9%D9%85%D9%84%D9%8A%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B4%D8%B1%D8%A7%D8%A1%20%D8%AF%D8%A7%D8%AE%D9%84%20%D8%A7%D9%84%D9%84%D8%B9%D8%A8%D8%A9%20%D8%B9%D8%A8%D8%B1%20%D9%85%D9%86%D8%B5%D8%AA%D9%8A%20%D8%A2%D8%A8%D9%84%20(App%20Store)%20%D9%88%D8%AC%D9%88%D8%AC%D9%84%20(Google%20Play).%0A%D8%A8%D8%B9%D8%AF%20%D8%A7%D9%84%D8%AA%D8%AD%D9%82%D9%8A%D9%82%20%D9%85%D9%86%20%D9%82%D8%A8%D9%84%20%D9%81%D8%B1%D9%8A%D9%82%D9%86%D8%A7%20%D8%A7%D9%84%D9%81%D9%86%D9%8A%D8%8C%20%D8%AA%D8%A8%D9%8A%D9%86%20%D8%A3%D9%86%20%D9%87%D8%B0%D9%87%20%D8%A7%D9%84%D9%85%D8%B4%D9%83%D9%84%D8%A9%20%D9%82%D8%AF%20%D8%AA%D9%83%D9%88%D9%86%20%D9%85%D8%B1%D8%AA%D8%A8%D8%B7%D8%A9%20%D8%A8%D8%A5%D8%B9%D8%AF%D8%A7%D8%AF%D8%A7%D8%AA%20%D8%A8%D8%B7%D8%A7%D9%82%D8%AA%D9%83%20%D8%A7%D9%84%D8%A8%D9%86%D9%83%D9%8A%D8%A9%20%D8%A3%D9%88%20%D8%AD%D8%A7%D9%84%D8%A9%20%D8%AD%D8%B3%D8%A7%D8%A8%D9%83%20%D8%A7%D9%84%D8%A8%D9%86%D9%83%D9%8A%20.%20%D9%84%D8%B6%D9%85%D8%A7%D9%86%20%D8%AA%D8%AC%D8%B1%D8%A8%D8%A9%20%D8%AF%D9%81%D8%B9%20%D8%B3%D9%84%D8%B3%D8%A9%20%D9%88%D8%A2%D9%85%D9%86%D8%A9%D8%8C%20%D9%8A%D8%B1%D8%AC%D9%89%20%D8%A7%D8%AA%D8%A8%D8%A7%D8%B9%20%D8%A7%D9%84%D8%A5%D8%B1%D8%B4%D8%A7%D8%AF%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AA%D8%A7%D9%84%D9%8A%D8%A9%20%D9%84%D9%84%D8%AA%D8%AD%D9%82%D9%82%20%D9%85%D9%86%20%D8%A7%D9%84%D9%85%D8%B4%D9%83%D9%84%D8%A9%20%D9%88%D8%AD%D9%84%D9%87%D8%A7%20.%0A%0A%D8%A7%D9%84%D8%A3%D8%B3%D8%A8%D8%A7%D8%A8%20%D8%A7%D9%84%D8%B4%D8%A7%D8%A6%D8%B9%D8%A9%20%D9%88%D8%A7%D9%84%D8%AD%D9%84%D9%88%D9%84%3A%0A1.%20%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D8%A8%D9%86%D9%83%D9%8A%D8%A9%20%D8%BA%D9%8A%D8%B1%20%D9%85%D9%81%D8%B9%D9%84%20%D8%B9%D9%84%D9%8A%D9%87%D8%A7%20%D8%AE%D8%AF%D9%85%D8%A9%20%D8%A7%D9%84%D8%AF%D9%81%D8%B9%20%D8%B9%D8%A8%D8%B1%20%D8%A7%D9%84%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA%20%0A%D9%82%D8%AF%20%D8%AA%D9%83%D9%88%D9%86%20%D8%AE%D8%AF%D9%85%D8%A9%20%D8%A7%D9%84%D8%AF%D9%81%D8%B9%20%D8%B9%D8%A8%D8%B1%20%D8%A7%D9%84%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA%20%D8%BA%D9%8A%D8%B1%20%D9%85%D9%81%D8%B9%D9%84%D8%A9%20%D8%B9%D9%84%D9%89%20%D8%A8%D8%B7%D8%A7%D9%82%D8%AA%D9%83%20%D8%A7%D9%84%D8%A8%D9%86%D9%83%D9%8A%D8%A9.%20%D9%8A%D8%B1%D8%AC%D9%89%20%D9%85%D8%AD%D8%A7%D9%88%D9%84%D8%A9%20%D8%AA%D9%81%D8%B9%D9%8A%D9%84%D9%87%D8%A7%20%D9%85%D9%86%20%D8%AE%D9%84%D8%A7%D9%84%20%D8%A7%D8%B9%D8%AF%D8%A7%D8%AF%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AF%D9%81%D8%B9%20%20%D8%A7%D9%88%20%D8%A7%D9%84%D8%AA%D9%88%D8%A7%D8%B5%D9%84%20%D9%85%D8%B9%20%D8%A7%D9%84%D8%A8%D9%86%D9%83%20%20%D9%84%D9%84%D8%AA%D8%A3%D9%83%D8%AF%20%D9%85%D9%86%20%D8%AF%D8%B9%D9%85%20%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D9%82%D8%A9%20%D9%84%D9%87%D8%B0%D9%87%20%D8%A7%D9%84%D8%AE%D8%AF%D9%85%D8%A9%20%D9%88%D8%B7%D9%84%D8%A8%20%D8%AA%D9%81%D8%B9%D9%8A%D9%84%D9%87%D8%A7.%0A2.%20%D8%A5%D9%8A%D9%82%D8%A7%D9%81%20%D8%AE%D8%AF%D9%85%D8%A9%20%D8%A7%D9%84%D8%AF%D9%81%D8%B9%20%D8%B9%D8%A8%D8%B1%20%D8%A7%D9%84%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA%20%D8%B9%D9%84%D9%89%20%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D9%82%D8%A9%20%20%0A%D9%81%D9%8A%20%D8%A8%D8%B9%D8%B6%20%D8%A7%D9%84%D8%A3%D8%AD%D9%8A%D8%A7%D9%86%20%D9%82%D8%AF%20%D9%8A%D8%AA%D9%85%20%D8%A5%D9%8A%D9%82%D8%A7%D9%81%20%D8%AE%D8%AF%D9%85%D8%A9%20%D8%A7%D9%84%D8%AF%D9%81%D8%B9%20%D8%B9%D8%A8%D8%B1%20%D8%A7%D9%84%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA%20%D8%B9%D9%86%20%D8%B7%D8%B1%D9%8A%D9%82%20%D8%A7%D9%84%D8%AE%D8%B7%D8%A3.%20%D9%86%D9%88%D8%B5%D9%8A%20%D9%8A%D8%B1%D8%AC%D9%89%20%D8%A8%D9%85%D8%AD%D8%A7%D9%88%D9%84%D8%A9%20%D8%AA%D9%81%D8%B9%D9%8A%D9%84%D9%87%D8%A7%20%D9%85%D9%86%20%D8%AE%D9%84%D8%A7%D9%84%20%D8%A7%D8%B9%D8%AF%D8%A7%D8%AF%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AF%D9%81%D8%B9%20%D8%A7%D9%88%20%D8%A8%D8%A7%D9%84%D8%A7%D8%AA%D8%B5%D8%A7%D9%84%20%D8%A8%D8%A7%D9%84%D8%A8%D9%86%D9%83%20%D9%84%D8%AA%D8%A3%D9%83%D9%8A%D8%AF%20%D8%AD%D8%A7%D9%84%D8%A9%20%D8%A7%D9%84%D8%AE%D8%AF%D9%85%D8%A9%20%D9%88%D8%A5%D8%B9%D8%A7%D8%AF%D8%A9%20%D8%AA%D9%81%D8%B9%D9%8A%D9%84%D9%87%D8%A7.%0A3.%20%D8%A7%D9%84%D8%B1%D8%B5%D9%8A%D8%AF%20%D8%BA%D9%8A%D8%B1%20%D9%83%D8%A7%D9%81%D9%8D%20%D8%A3%D9%88%20%D8%AA%D8%AC%D8%A7%D9%88%D8%B2%20%D8%A7%D9%84%D8%AD%D8%AF%20%D8%A7%D9%84%D8%A3%D9%82%D8%B5%D9%89%20%D9%84%D9%84%D9%85%D8%B9%D8%A7%D9%85%D9%84%D8%A9%20%20%0A%D8%AA%D8%A3%D9%83%D8%AF%20%D9%85%D9%86%20%D9%88%D8%AC%D9%88%D8%AF%20%D8%B1%D8%B5%D9%8A%D8%AF%20%D9%83%D8%A7%D9%81%D9%8D%20%D9%81%D9%8A%20%D8%A8%D8%B7%D8%A7%D9%82%D8%AA%D9%83%20%D8%A7%D9%84%D8%A8%D9%86%D9%83%D9%8A%D8%A9.%20%D8%A5%D8%B0%D8%A7%20%D9%83%D8%A7%D9%86%20%D8%A7%D9%84%D8%B1%D8%B5%D9%8A%D8%AF%20%D8%BA%D9%8A%D8%B1%20%D9%83%D8%A7%D9%81%D9%8D%D8%8C%20%D9%8A%D9%85%D9%83%D9%86%D9%83%20%D8%AA%D8%AC%D8%B1%D8%A8%D8%A9%20%D8%A7%D8%B3%D8%AA%D8%AE%D8%AF%D8%A7%D9%85%20%D8%A8%D8%B7%D8%A7%D9%82%D8%A9%20%D8%A3%D8%AE%D8%B1%D9%89.%0A%0A%D9%86%D8%B5%D8%A7%D8%A6%D8%AD%20%D8%A5%D8%B6%D8%A7%D9%81%D9%8A%D8%A9%3A%0A-%20%D8%A7%D9%84%D8%B4%D8%A8%D9%83%D8%A9%20%D9%88%D8%A7%D9%84%D8%AC%D9%87%D8%A7%D8%B2%3A%20%D8%AA%D8%A3%D9%83%D8%AF%20%D9%85%D9%86%20%D8%A7%D8%B3%D8%AA%D9%82%D8%B1%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A7%D8%AA%D8%B5%D8%A7%D9%84%20%D8%A8%D8%A7%D9%84%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA%D8%8C%20%D9%88%D8%AD%D8%A7%D9%88%D9%84%20%D8%A5%D8%B9%D8%A7%D8%AF%D8%A9%20%D8%AA%D8%B4%D8%BA%D9%8A%D9%84%20%D8%A7%D9%84%D8%AC%D9%87%D8%A7%D8%B2%20%D8%A3%D9%88%20%D9%85%D8%B3%D8%AD%20%D8%B0%D8%A7%D9%83%D8%B1%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AE%D8%B2%D9%8A%D9%86%20%D8%A7%D9%84%D9%85%D8%A4%D9%82%D8%AA%20%D9%84%D9%84%D8%AA%D8%B7%D8%A8%D9%8A%D9%82.%0A%D8%A5%D8%B0%D8%A7%20%D9%84%D9%85%20%D9%8A%D8%AA%D9%85%20%D8%AD%D9%84%20%D8%A7%D9%84%D9%85%D8%B4%D9%83%D9%84%D8%A9%20%D8%A8%D8%B9%D8%AF%20%D8%A7%D8%AA%D8%A8%D8%A7%D8%B9%20%D9%87%D8%B0%D9%87%20%D8%A7%D9%84%D8%AD%D9%84%D9%88%D9%84%D8%8C%20%D9%84%D8%A7%20%D8%AA%D8%AA%D8%B1%D8%AF%D8%AF%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%AA%D9%88%D8%A7%D8%B5%D9%84%20%D9%85%D8%B9%20%D8%AE%D8%AF%D9%85%D8%A9%20%D8%A7%D9%84%D8%B9%D9%85%D9%84%D8%A7%D8%A1%20%D8%A7%D9%84%D8%AE%D8%A7%D8%B5%D8%A9%20%D8%A8%D9%86%D8%A7%20%D8%A3%D9%88%20%D9%85%D8%B1%D8%A7%D8%B3%D9%84%D8%AA%D9%86%D8%A7%20%D8%B9%D9%84%D9%89%20%D8%B3%D9%86%D8%A7%D8%A8%20%D8%B4%D8%A7%D8%AA%20%D8%B9%D8%A8%D8%B1%D8%A7%D9%84%D8%AD%D8%B3%D8%A7%D8%A8%20Halabaloot%20%D9%84%D9%84%D8%A5%D8%A8%D9%84%D8%A7%D8%BA%20%D8%B9%D9%86%20%D8%A7%D9%84%D9%85%D8%B4%D9%83%D9%84%D8%A9%0A%D9%86%D8%B4%D9%83%D8%B1%D9%83%20%D8%B9%D9%84%D9%89%20%D8%AA%D9%81%D9%87%D9%85%D9%83%D9%85%20%D9%88%D8%AF%D8%B9%D9%85%D9%83%D9%85%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%85%D8%B1!%20%D9%86%D8%AD%D9%86%20%D9%86%D8%B9%D9%85%D9%84%20%D8%AF%D8%A7%D8%A6%D9%85%D9%8B%D8%A7%20%D8%B9%D9%84%D9%89%20%D8%AA%D8%AD%D8%B3%D9%8A%D9%86%20%D8%AA%D8%AC%D8%B1%D8%A8%D8%AA%D9%83%20%D9%81%D9%8A%20%D8%A7%D9%84%D9%84%D8%B9%D8%A8%D8%A9%D8%8C%20%D9%88%D9%86%D8%AA%D9%85%D9%86%D9%89%20%D9%84%D9%83%20%D8%A3%D9%88%D9%82%D8%A7%D8%AA%D9%8B%D8%A7%20%D9%85%D9%85%D8%AA%D8%B9%D8%A9%20%D9%81%D9%8A%20%D9%87%D9%84%D8%A7%20%D8%A8%D9%84%D9%88%D8%AA%20!%0A%0A%D9%81%D8%B1%D9%8A%D9%82%20%D8%AA%D8%B4%D8%BA%D9%8A%D9%84%20%D9%87%D9%84%D8%A7%20%D8%A8%D9%84%D9%88%D8%AA%0A27%20%D8%A3%D8%A8%D8%B1%D9%8A%D9%84%202025&
+    rewards=1000,2000&expiredDays=10&playerId=10000059
+
+
+### 提现rmb
+GET {{url}}{{world}}/voicegift/withdrawRmbByPoint?playerId=10000026&rmb=30&consumeVoicePoint=300

@@ -1,0 +1,174 @@
+#################################################################################################
+########  Groovy接口
+########  @Date: 2024/12/20 11:41
+########  @Author: xu.hai
+#################################################################################################
+
+### 执行本地Groovy脚本
+# groovyFileName 脚本文件名，不含后缀
+# args 脚本参数
+GET {{url}}{{register}}/groovy/loadScript/TestGroovy?args=1,2
+
+
+### 直接执行groovy脚本 - 执行水果机脚本
+POST {{url}}{{center}}/groovy/evaluate?args=1000000,true
+Content-Type: text/plain
+
+import com.game.mini.fruit.util.FruitScritUtil;
+
+
+return FruitScritUtil.forceFruitTestResult(Integer.parseInt(args[0]), Boolean.valueOf(args[1]));
+
+
+### 直接执行groovy脚本 - 清除机器人等级相关数据
+POST {{url}}{{world}}/groovy/evaluate?args=1000000
+Content-Type: text/plain
+
+import com.game.business.item.operator.PlayerPackOperator
+import com.game.business.item.reward.consts.RewardEnum
+import com.game.business.player.manager.PlayerManager
+import com.game.business.rank.enums.RankFunc
+import com.game.business.rank.enums.RankType
+import com.game.framework.core.datasource.DBUtil
+import com.game.framework.core.datasource.consts.DSConstants
+import com.game.framework.core.log.LogTopic
+import com.game.framework.core.redis.RedisUtil
+import com.game.framework.core.utils.SpringContextUtils
+import com.game.framework.net.server.MessageSender
+import com.game.groovy.IGroovyExecutor
+import com.game.player.domain.PlayerGameInfoDO
+import com.game.player.operator.PlayerGameInfoDOOperator
+
+String SQL = "select player_id from player_pack where item_id = 17000 and count >= #{exp} and player_id in (select id from player_base where robot = 1);"
+
+
+
+        // 获取玩家id
+        def allPlayerIds = DBUtil.selectSqlList(DSConstants.DAT, SQL, "exp", 50000)
+        def ids = allPlayerIds.stream().map(m -> (long) m.get("player_id")).filter(Objects::nonNull).toList()
+
+        def playerManager = PlayerManager.self()
+        def playerPackOperator = PlayerPackOperator.self()
+
+        def playerGameInfoDOOperator = SpringContextUtils.getBean(PlayerGameInfoDOOperator.class)
+
+        List<Long> res = new ArrayList<>()
+
+        for (playerId in ids) {
+            def player = playerManager.getPlayer(playerId)
+            // 非机器人
+            if (!player.isRobot()) {
+                continue
+            }
+            res.add(playerId)
+
+            MessageSender.sendRunLater(playerId, () -> {
+                def log = LogTopic.ACTION
+                def conditionName = ThreadConstants.THREAD_PREFIX_PLAYER + CoreConfig.route(ThreadPoolRouter.getRouteId(playerId)) + "-1"
+                log.info("testClearRobotLevelGroovy", "robotId", playerId, "threadName", Thread.currentThread().getName(), "conditionName", conditionName)
+
+                // 1. 清除所有经验
+                def playerExp = playerPackOperator.getPlayerPackDO(playerId, RewardEnum.PLAYER_EXP.getItemId())
+                if (playerExp != null) {
+                    playerExp.setCount(0)
+                    playerPackOperator.update(playerExp)
+                }
+
+                // 2. 清除vip经验 TODO 针对dev
+                def playerVipExp = playerPackOperator.getPlayerPackDO(playerId, RewardEnum.PLAYER_VIP_EXP.getItemId())
+                if (playerVipExp != null) {
+                    playerVipExp.setCount(0)
+                    playerPackOperator.update(playerVipExp)
+                }
+
+                // 3. 清除对局数
+                def list = playerGameInfoDOOperator.getPlayerGameInfoDOList(playerId)
+                for (PlayerGameInfoDO playerGameInfoDO : list) {
+                    playerGameInfoDOOperator.delete(playerId, playerGameInfoDO)
+                }
+
+                // 4. 删除经验榜
+                RedisUtil.zremove(RankFunc.EXP.getRankKey(RankType.TOTAL), playerId);
+
+                // 5. 删除vip经验榜 TODO 针对dev
+                RedisUtil.zremove(RankFunc.VIP.getRankKey(RankType.DAILY), playerId);
+            }, "clearRobotLevelGroovy", playerId)
+        }
+
+        return "total: " + ids.size() + " actual: " + res.size() + " res: " + res
+
+
+
+### 直接执行groovy脚本 - 同步MySQL数据到MongoDB  args 需要同步的DO类。不传则同步所有表(多个逗号分割)
+POST {{url}}{{world}}/groovy/evaluate?args=
+Content-Type: text/plain
+
+import com.game.controller.SyncMongoDataHelper
+import com.game.groovy.IGroovyExecutor
+
+
+return SyncMongoDataHelper.syncModelData2MongoDB(args)
+
+
+
+
+### 直接执行groovy脚本 - 更新金币排行榜
+POST {{url}}{{world}}/groovy/evaluate?args=1000000
+Content-Type: text/plain
+
+import com.game.business.rank.enums.RankFunc
+import com.game.framework.core.utils.RandomUtils
+import com.game.groovy.IGroovyExecutor
+import com.game.business.rank.enums.RankType
+
+      for (playerId in 10000001..< 10000300) {
+            var gold = RandomUtils.rollInt(100, 10000)
+            RankFunc.GOLD.incr(playerId, gold)
+            RankFunc.FRUIT_GOLD.incr(playerId, gold)
+        }
+
+     return RankType.DAILY.getCurrPeriodId()
+
+
+
+
+### 直接执行groovy脚本
+POST {{url}}{{world}}/groovy/evaluate?args=1,2
+Content-Type: text/plain
+
+import com.game.framework.core.log.LogTopic
+import com.game.framework.net.server.MessageSender
+import com.game.groovy.IGroovyExecutor
+
+
+      for (i in 0..<10) {
+            final var aaa = i
+            MessageSender.sendRunLater(aaa, () -> {
+                LogTopic.ACTION.info("testCallBack", "a", aaa, "i", i)
+            }, "testCallBack", aaa)
+        }
+        return ""
+
+
+### 直接执行groovy脚本
+POST {{url}}{{world}}/groovy/evaluate?args=1,2
+Content-Type: text/plain
+
+import com.game.framework.net.server.MessageSender
+import com.game.framework.rpc.RpcManager
+import com.game.framework.rpc.api.world.ExpAdditionRpcFunc
+import com.game.groovy.IGroovyExecutor
+
+    for (int i = 0; i < 100; i++) {
+            long playerId1 = 10000002L;
+            MessageSender.sendRunLater(playerId1, () -> {
+                RpcManager.getProxy(ExpAdditionRpcFunc.class)
+                        .syncGetExpActivityAddition(playerId1, 100);
+            });
+
+            long playerId2 = 10000020L;
+            MessageSender.sendRunLater(playerId2, () -> {
+                RpcManager.getProxy(ExpAdditionRpcFunc.class)
+                        .syncGetExpActivityAddition(playerId2, 200);
+            });
+        }

@@ -1,0 +1,36 @@
+{%- for lime in proto.lines -%}
+{%- if lime.startswith("###") -%}
+{%- set proto = proto.message_dict[lime[3:]] -%}
+{%- if proto.type.find("message") != -1 -%}
+message {{proto.name}} {
+  {%- for field in proto.fields -%}
+  {%- if field.is_map %}
+{{field.notes}}
+  map<{{field.key_field_type}}, {{field.value_field_type}}> {{field.field_name}} = {{field.field_order}};
+  {%- else %}
+{%- if field.field_rule == '' %}
+{{field.notes}}
+        {%- if field.field_type != '' %}
+  {{field.field_type}} {{field.field_name}} = {{field.field_order}};
+        {%- endif -%}
+    {%- else %}
+{{field.notes}}
+  {{field.field_rule}} {{field.field_type}} {{field.field_name}} = {{field.field_order}};
+    {%- endif -%}
+  {%- endif -%}
+  {%- endfor %}
+}
+{% else -%}
+enum {{proto.name}} {
+  {%- for field in proto.fields %}
+{{field.notes}}
+    {%- if field.field_type != '' %}
+  {{field.field_name}} = {{field.field_order - 1}};
+    {%- endif -%}
+  {%- endfor %}
+}
+{% endif %}
+{%- else -%}
+{{lime}}
+{%- endif -%}
+{%- endfor -%}

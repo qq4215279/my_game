@@ -1,0 +1,4619 @@
+syntax = "proto3";
+
+
+
+
+// -------------------------- 活动组件请求 --------------------------
+
+// 活动消息请求
+message CWActivityInfoMessage {
+  /** 功能id */
+  int32 funcId = 1;
+  /** 参数 排行榜功能传入(DAILY WEEK MONTH TOTAL) */
+  string param = 2;
+}
+
+// 活动消息返回
+message WCActivityInfoMessage {
+  /** 任务消息 */
+  ActivityTaskInfo taskInfo = 1;
+  /** 商城 */
+  ActivityShopInfo shopInfo = 2;
+  /** 活跃度消息 */
+  ActivityProgressInfo progressInfo = 3;
+  /** 排行榜消息 */
+  ActivityRankInfo rankInfo = 4;
+  /** 活动装盘抽奖信息 */
+  ActivityTurntableDrawInfo turntableDrawInfo = 5;
+}
+
+
+// -------------------------- 【任务】活动组件 --------------------------
+// 活动任务信息
+message ActivityTaskInfo {
+  /** 活跃度进度奖励bean列表 */
+  repeated TaskBean progressRewardList = 1;
+}
+
+
+
+// -------------------------- 【商城】活动组件 --------------------------
+// 活动任务信息
+message ActivityShopInfo {
+  /** 商品列表信息 */
+  repeated GoodsBean goodsList = 1;
+}
+
+
+
+// -------------------------- 【活跃度】活动组件 --------------------------
+// 活跃度进度消息
+message ActivityProgressInfo {
+  /** 活跃度进度奖励bean列表 */
+  repeated ActivityProgressRewardBean progressRewardList = 1;
+  /** 当前进度 */
+  int32 progress = 2;
+}
+
+// 活跃度进度奖励bean
+message ActivityProgressRewardBean {
+  /** id */
+  int32 id = 1;
+  /** 领取状态: 0: 未领取; 1: 可领取; 2: 已领取 */
+  int32 state = 2;
+  /** 领取条件 */
+  ItemBean consume = 3;
+  /** 奖励 */
+  repeated ItemBean rewards = 4;
+}
+
+// 请求领取活跃度奖励
+message CWGetActivityProgressRewardMessage {
+  /** 功能id */
+  int32 funcId = 1;
+  /** 活跃度奖励ID */
+  int32 progressId = 2;
+}
+
+// 响应领取的活跃度奖励
+message WCGetActivityProgressRewardMessage {
+  /** 奖励列表 */
+  repeated ItemBean rewards = 1;
+}
+
+// 请求记录玩家活跃信息
+message AWRecordPlayerActiveMessage {
+  /** 类型 0: 在线时间; 1: 聊天次数; 2: 游戏对局; 3: 送礼次数 */
+  int32 type = 1;
+  /** 参数 */
+  string param = 2;
+}
+
+
+
+
+// -------------------------- 【排行榜】活动组件 --------------------------
+// 排行榜信息
+message ActivityRankInfo {
+  /** 奖励发送类型： 0: 掉落形式; 1: 百分比形式 */
+  int32 rewardType = 1;
+  /** 掉落 - 排行榜掉落排名奖励 */
+  repeated RankRewardBean rankRewardBeanList = 2;
+  /** 百分比 - 奖励 */
+  ItemBean percentReward = 3;
+  /** 百分比 - 排行榜百分比排名奖励 */
+  repeated RankRewardByPercentBean rankRewardByPercentBeanList = 4;
+}
+
+// 排行榜掉落排名奖励
+message RankRewardBean {
+  /** 排名范围Min */
+  int32 min = 1;
+  /** 排名范围Max */
+  int32 max = 2;
+  /** 奖励列表 */
+  repeated ItemBean rewards = 3;
+}
+
+// 排行榜百分比排名奖励
+message RankRewardByPercentBean {
+  /** 排名范围Min */
+  int32 min = 1;
+  /** 排名范围Max */
+  int32 max = 2;
+  /** 百分比 */
+  int32 percent = 3;
+}
+
+// -------------------------- 【转盘抽奖】活动组件 --------------------------
+// 活动装盘抽奖信息
+message ActivityTurntableDrawInfo {
+  /** 单抽消耗 */
+  ItemBean oneConsume = 1;
+  /** 单抽通用消耗(当消耗道具不足时，使用通用消耗替换默认消耗) */
+  ItemBean oneCommonConsume = 2;
+  /** 10抽消耗 */
+  ItemBean tenConsume = 3;
+  /** 10抽通用消耗(当消耗道具不足时，使用通用消耗替换默认消耗) */
+  ItemBean tenCommonConsume = 4;
+  /** 装盘奖励bean list */
+  repeated TurntableDrawRewardBean turntableDrawRewardBeanList = 5;
+  /** 大奖记录信息 */
+  repeated TurntableDrawRecordBean turntableDrawRecordBeanList = 6;
+}
+
+// 装盘奖励bean
+message TurntableDrawRewardBean {
+  /** id */
+  int32 id = 1;
+  /** 奖励 */
+  repeated ItemBean rewards = 2;
+  /** 是否是大奖 */
+  bool bigReward = 3;
+}
+
+// 装盘抽奖记录bean
+message TurntableDrawRecordBean {
+  /** 玩家名称 */
+  string name = 1;
+  /** 奖励 */
+  repeated ItemBean rewards = 2;
+  /** 中奖时间 */
+  int64 createTime = 3;
+}
+
+// 请求获取玩家转盘抽奖记录信息
+message CWGetTurntableDrawRecordMessage {
+  /** 功能id */
+  int32 funcId = 1;
+}
+
+// 响应获取玩家转盘抽奖记录信息
+message WCGetTurntableDrawRecordMessage {
+  /** 历史抽奖记录信息 */
+  repeated TurntableDrawRecordBean turntableDrawRecordBeanList = 1;
+}
+
+// 请求玩家转盘抽奖
+message CWTurntableDrawMessage {
+  /** 功能id */
+  int32 funcId = 1;
+  /** 抽奖次数 */
+  int32 count = 2;
+}
+
+// 响应玩家转盘抽奖
+message WCTurntableDrawMessage {
+  /** id */
+  int32 id = 1;
+  /** 奖励 */
+  repeated ItemBean rewards = 2;
+}
+
+
+
+// 响应游戏桌子信息
+message BalootTableBean {
+  /** seq */
+  int32 seq = 1;
+  /** 状态: 1: 等待; 2: 发牌; 3: 叫牌; 4: 加倍; 5: 行牌; 6: 行牌墩结算; 7: 行牌盘结算; 8: 最终结算; 9: 最终结算完成; 10: 游戏开始 */
+  int32 state = 2;
+  /** 游戏模式: 0: 未确定; 1: hokum; 2: 2rd hokum; 3: sun; 4: ashkal */
+  int32 mode = 3;
+  /** 游戏倍数: 1: 默认1倍; 2: 2倍; 3: 3倍; 4: 4倍; 5: 5倍(gahwa); */
+  int32 multi = 4;
+  /** 行牌模式: 0: open-默认; 1：close  */
+  int32 playMode = 5;
+  /** 盘数 */
+  int32 circle = 6;
+  /** 1. 叫牌阶段: 叫牌轮次; 2: 行牌阶段: 行牌墩数 */
+  int32 round = 7;
+  /** 发牌员 */
+  int32 dealerSeatId = 8;
+  /** 主宰者 */
+  int32 masterSeatId = 9;
+  /** 加倍者 */
+  int32 multiSeatId = 10;
+  /** 展示牌 未确定: -1 */
+  int32 displayPokerId = 11;
+  /** 展示牌拥有玩家 未确定: -1 */
+  int32 displaySeatId = 12;
+  /** 当前叫牌玩家列表 */
+  repeated BiderBean biderBeans = 13;
+  /** 操作倒计时 */
+  int64 countdown = 14;
+  /** 队伍信息列表 */
+  repeated TeamBean teanbeans = 15;
+  /** 游戏主花色 */
+  int32 mainColorType = 16;
+  /** 游戏倍数 */
+  BalootMultiBean balootMultiBean = 17;
+}
+
+// 桌子玩家信息
+message PokerPlayerBean {
+  /** 是否准备开始游戏 */
+  bool isReady = 1;
+  /** 是否托管 */
+  bool isTrusteeship = 2;
+  /** 玩家所在队伍id */
+  int32 teamId = 3;
+  /** 游戏玩家信息 */
+  PokerBean pokerBean = 4;
+  /** 玩家Project牌型 */
+  repeated ProjectBean projectBeans = 5;
+  /** 玩家baloot牌型 */
+  ProjectBean balootBean = 6;
+}
+
+// 玩家游戏牌
+message PokerBean {
+  /** 剩余手牌 */
+  repeated int32 restPokers = 1;
+  /** 剩余手牌数量 */
+  int32 restCount = 2;
+  /** 获得的分数手牌 */
+  repeated int32 scorePokers = 3;
+  /** 原始手牌 */
+  repeated int32 allPokers = 4;
+  /** 当前墩出牌 */
+  int32 playPoker = 5;
+}
+
+// 玩家Project牌型
+message ProjectBean {
+  /** project类型(0: baloot; 1: sira; 2: 50; 3: 100; 4: 400;) */
+  int32 projcetType = 1;
+  /** projcet分值 */
+  int32 score = 2;
+  /** project手牌 */
+  repeated int32 pokers = 3;
+  /** project倍数 */
+  int32 multi = 4;
+}
+
+// 游戏倍数bean
+message BalootMultiBean {
+  /** 最终倍数 */
+  int32 finalMulti = 1;
+  /** 翻倍倍数 */
+  int32 commonMulti = 2;
+  /** 连赢倍数(连赢盘/连赢墩) */
+  int32 winCountMulti = 3;
+  /** project倍数 */
+  int32 projectMulti = 4;
+  /** 春天倍数 */
+  int32 springMulti = 5;
+}
+
+// 队伍信息
+message TeamBean {
+  /** 队伍id */
+  int32 teamId = 1;
+  /** 队伍名称 */
+  string name = 2;
+  /** 当前局队伍总分 */
+  int32 totalScore = 3;
+  /** 终局是否胜利 */
+  bool isWin = 4;
+  /** 玩家列表 */
+  repeated int64 playerIds = 5;
+  /** 面板信息 */
+  PanelBean panelBean = 6;
+}
+
+/** 面板信息 */
+message PanelBean {
+  /** 春天(连赢8墩) */
+  bool isSpring = 1;
+  /** 赢墩积分 */
+  int32 eats = 2;
+  /** 最后一墩获胜阵营积分 */
+  int32 ground = 3;
+  /** project积分 */
+  int32 project = 4;
+  /** abant积分 */
+  int32 abnat = 5;
+  /** 本盘是否获胜 */
+  bool isWin = 6;
+  /** 本盘赢得积分 */
+  int32 score = 7;
+}
+
+// 叫话玩家
+message BiderBean {
+  /** 当前叫牌玩家 */
+  int32 bidSeatId = 1;
+  /** 玩家命令集 */
+  repeated CmdBean cmdBeans = 2;
+}
+
+// 命令
+message CmdBean {
+  /** 命令 */
+  CommandEnum command = 1;
+  /** 命令参数列表 */
+  repeated string args = 2;
+}
+
+// 命令枚举
+enum CommandEnum {
+  /** 准备开始游戏 */
+  READY = 0;
+  /** pass */
+  PASS = 1;
+  /** wala */
+  WALA = 2;
+  /** sun */
+  SUN = 3;
+  /** hokum */
+  HOKUM = 4;
+  /** 2nd hokum */
+  SECEND_HOKUM = 5;
+  /** ashkal */
+  ASHKAL = 6;
+  /** 加倍 - double */
+  DOUBLE = 7;
+  /** 加倍 - three */
+  THREE = 8;
+  /** 加倍 - four */
+  FOUR = 9;
+  /** 加倍 - Gahwa */
+  GAHWA = 10;
+  /** 主花色 参数为选择的扑克牌类型 */
+  MAIN_COLOR = 11;
+  /** 行牌 参数为扑克牌Id */
+  PLAY = 12;
+  /** 发牌 **/
+  SEND_POKER = 13;
+  /** 发展示牌给玩家 **/
+  SEND_DISPLAY_POKER = 14;
+  /** 玩家墩结算 **/
+  SETTLE_PLAY = 15;
+  /** 玩家盘结算 有参数0: oldExpNum,addExpNum,expAddtion; 参数1: project信息; 参数2: 连赢盘倍率; 参数3: 春天倍率; 参数4: 是否整局比赛结束 **/
+  SETTLE_CIRCLE = 16;
+  /** 游戏最终结算 参数0到参数3: 座位号0到3玩家变化数量;  参数4: 金币上限 -1 表示无上限 **/
+  SETTLE_FINAL = 17;
+  /** 选择project 参数0: project类型(0: baloot; 1: sira; 2: 50; 3: 100; 4: 400;); 参数1: 选择数量(0 1 2) **/
+  PROJECT = 18;
+  /** 确认hokum/2nd hokum 模式 **/
+  CONFIRM_HOKUM = 19;
+  /** 激活project 参数0: json */
+  ACTIVE_PROJECT = 20;
+  /** 托管 参数0: 0: 取消托管; 1: 托管 */
+  TRUSTEESHIP = 21;
+  /** 激活baloot 参数0: json */
+  ACTIVE_BALOOT = 22;
+  /** 摊牌 参数0: json 各玩家手牌信息 */
+  ALL_LOSER = 23;
+  /** 行牌模式 参数0: 行牌模式类型(0: open-正常行牌; 1: close-特殊) */
+  PLAY_MODE = 24;
+  /** 创建新盘 */
+  CREATE_NEW_CIRCLE = 25;
+  /** 打乱座位 参数数组（索引为位置ID，值为玩家ID） */
+  SHUFFLE_SEAT = 26;
+  /** 公开展示牌 **/
+  OPEN_DISPLAY_POKER = 27;
+  /** 使用普通表情  参数0: 普通表情id **/
+  COMMON_EMOTE = 28;
+  /** 使用快捷短语  参数0: 快捷短语id **/
+  QUICK_WORD = 29;
+  /** 使用互动表情  参数0: 互动表情id;  参数1: 被使用玩家id; 参数2: 发送者增加魅力值; 参数3: 接收者增加魅力值; **/
+  INTERACTIVE_EMOTE = 30;
+  /** 客户端展示VS **/
+  SHOW_VS = 31;
+  /** 客户端展示dealer **/
+  SHOW_DEALER = 32;
+  /** 玩家金币变更 参数0: 当前金币数量 **/
+  GOLD_CHANGE = 33;
+  /** 玩家属性变更 参数0: 属性类型: 0-等级变化; 1-vip等级变化; 2-魅力值; 3-给桌内玩家赠送礼物;  参数1: 参数(当前值) **/
+  ATTRIBUTE_CHANGE = 34;
+  /** 比赛玩家盘结算 **/
+  MATCH_SETTLE_CIRCLE = 35;
+}
+
+// 请求执行游戏命令
+message CGBalootExecuteCommandMessage {
+  /** 游戏命令 */
+  CommandEnum command = 1;
+  /** 游戏命令参数 */
+  repeated string args = 2;
+  /** seq */
+  int32 seq = 3;
+}
+
+// 推送玩家游戏中变动消息
+message OnGCPushBalootGameMessage {
+  /** 操作玩家id */
+  int64 lastOpPlayerId = 1;
+  /** 操作命令 */
+  CmdBean cmdBean = 2;
+  /** baloot桌子消息 */
+  BalootTableBean balootInfo = 3;
+}
+
+// Baloot游戏模式
+enum BalootModeEnum {
+  /** 默认空 */
+  NULL = 0;
+  /** 正常模式 */
+  COMMON = 1;
+  /** 一局游戏 */
+  TRIAL = 2;
+}
+
+// 请求创建baloot桌子
+message CWBalootCreateTableMessage {
+  /** 游戏模式 */
+  BalootModeEnum mode = 1;
+  /** 底金 */
+  int64 baseGold = 2;
+  /** 随机座位 */
+  bool rollSeat = 3;
+  /** 允许语聊 */
+  bool voice = 4;
+  /** 密码 */
+  string lock = 5;
+  /** 扑克皮肤Id */
+  int32 pokerSkinId = 6;
+  /** 桌子皮肤Id */
+  int32 tableSkinId = 7;
+}
+
+// 请求baloot自建房列表
+message CGBalootDiyTablesMessage {
+  /** 游戏模式 */
+  BalootModeEnum mode = 1;
+  /** 底金 */
+  int64 baseGold = 2;
+  /** 允许语聊 */
+  bool voice = 3;
+  /** 随机座位 */
+  bool rollSeat = 4;
+  /** 桌子ID */
+  int32 tableId = 5;
+  /** 桌子激活ID（桌子使用时的唯一ID，可用于排序） */
+  int64 activeId = 6;
+}
+
+// 响应baloot自建房列表
+message GCBalootDiyTablesMessage {
+  /** 桌子列表 */
+  repeated GameTableBaseBean tables = 1;
+}
+
+// baloot桌子推送变动来源
+enum BalootDiyTableChangeSourceEnum {
+  /** 桌子列表 */
+  TABLE_LIST = 0;
+  /** 聊天消息分享 */
+  CHAT = 1;
+}
+
+// 推送baloot自建房信息变动
+message OnBalootDiyTableChangeMessage {
+  /** 变动来源 */
+  BalootDiyTableChangeSourceEnum source = 1;
+  /** 桌子激活ID（桌子使用时的唯一ID） */
+  int64 activeId = 2;
+  /** 桌子信息（空表示删除） */
+  GameTableBaseBean table = 3;
+}
+
+// 请求baloot游戏房间信息
+message CGBalootRoomInfosMessage {
+  /** 游戏模式 */
+  BalootModeEnum mode = 1;
+}
+
+// 返回baloot游戏房间信息
+message GCBalootRoomInfosMessage {
+  /** 房间列表 */
+  repeated GameRoomInfoBean rooms = 1;
+}
+
+// 请求baloot自建房桌子基本信息
+message CGBalootDiyTableInfoMessage {
+  /** 桌子激活ID（桌子使用时的唯一ID） */
+  repeated int64 activeIds = 1;
+}
+
+// 响应baloot自建房桌子基本信息
+message GCBalootDiyTableInfoMessage {
+  /** 桌子基本信息 */
+  repeated GameTableBaseBean tables = 1;
+}
+
+// baloot 自建房事件
+enum BalootDiyTableEventEnum {
+  /** 进入玩家 */
+  BALOOT_DIY_TABLE_EVENT_ENTER_PLAYER = 0;
+  /** 更换座位 */
+  BALOOT_DIY_TABLE_EVENT_CHANGE_SEAT = 1;
+  /** 开始游戏 */
+  BALOOT_DIY_TABLE_EVENT_START_GAME = 2;
+  /** 结束游戏 */
+  BALOOT_DIY_TABLE_EVENT_END_GAME = 3;
+  /** 离开玩家 */
+  BALOOT_DIY_TABLE_EVENT_EXIT_PLAYER = 4;
+}
+
+// baloot 自建房事件消息
+message OnGWBalootDiyTableEventMessage {
+  /** 事件 */
+  BalootDiyTableEventEnum event = 1;
+  /** 桌子唯一ID */
+  int64 activeId = 2;
+  /** 桌子信息-桌子解散时为null */
+  BalootDiyTableInfoBean tableInfo = 3;
+}
+
+// baloot 自建房信息
+message BalootDiyTableInfoBean {
+  /** 桌子面板信息 */
+  BalootTableFrameBean tableFrame = 1;
+  /** 玩家信息 */
+  repeated CommonTablePlayerBean players = 2;
+}
+
+// baloot 桌子面板信息
+message BalootTableFrameBean {
+  /** 基本桌子信息 */
+  CommonTableBaseBean tableInfo = 1;
+  /** 桌子额外信息 */
+  BalootTableExtBean extInfo = 2;
+}
+
+// baloot 桌子额外信息
+message BalootTableExtBean {
+  /** 上锁状态 */
+  bool lock = 1;
+  /** 随机座位 */
+  bool rollSeat = 2;
+  /** 金币下限 */
+  int64 goldLowerLimit = 3;
+  /** 金币上限 */
+  int64 goldUpperLimit = 4;
+  /** 房主ID（非自建房为空） */
+  int64 ownerId = 5;
+  /** 底金 */
+  int64 baseGold = 6;
+  /** baloot游戏模式 */
+  BalootModeEnum mode = 7;
+}
+
+
+
+
+
+
+// 客户端请求匹配游戏
+message CWMatchGameMessage {
+  /** 游戏id */
+  int32 gameId = 1;
+  /** 房间id */
+  int32 roomId = 2;
+  /** 是否新玩家第一次匹配 */
+  bool newPlayerFirstMatch = 3;
+}
+
+// 通知客户端匹配游戏成功消息
+message OnGCMatchGameMessage {
+  /** 玩家信息 */
+  repeated GamePlayerBean players = 1;
+}
+
+// 通知客户端进行中的游戏消息
+message OnWCPlayerGamingMessage {
+  /** 游戏id */
+  int32 gameId = 1;
+  /** 房间id */
+  int32 roomId = 2;
+}
+
+// 客户端请求进入游戏
+message CWEnterGameMessage {
+  /** 游戏id */
+  int32 gameId = 1;
+  /** 房间id */
+  int32 roomId = 2;
+  /** 桌子id */
+  int32 tableId = 3;
+  /** 位置id */
+  int32 seatId = 4;
+  /** 桌子密码（若有） */
+  string password = 5;
+}
+
+// 进入游戏响应
+message GCEnterGameMessage {
+  /** 玩家位置 */
+  PlayerSeatBean seat = 1;
+}
+
+// 响应信息同步
+message GCSyncGameMessage {
+  /** 桌子基本信息（含玩家信息） */
+  GameTableBaseBean baseInfo = 1;
+  /** baloot游戏内桌子数据 */
+  BalootTableBean balootInfo = 2;
+  /** 比赛相关数据(若有) */
+  TournamentGameFrameInfo tournamentInfo = 3;
+}
+
+// 推送玩家变动消息
+message OnGCPushPlayerMessage {
+  /** 玩家位置 */
+  int32 seatId = 1;
+  /** 玩家信息 */
+  GamePlayerBean player = 2;
+  /** 玩家事件 */
+  PlayerTableAction playerAction = 3;
+}
+
+/** 玩家桌子事件 */
+enum PlayerTableAction {
+  /** 进入游戏 */
+  ENTER = 0;
+  /** 退出游戏 */
+  EXIT = 1;
+  /** 换桌位 */
+  CHANGE_SEAT = 2;
+  /** 暂时离开 */
+  TEMP_LEAVE = 3;
+}
+
+// 游戏玩家信息
+message GamePlayerBean {
+  /** 玩家基础信息 */
+  PlayerBaseInfoBean baseInfo = 1;
+  /** 玩家位置信息 */
+  PlayerSeatBean seatInfo = 2;
+  /** 桌子玩家信息 */
+  PokerPlayerBean pokerPlayerBean = 3;
+  /** 语音Token信息 */
+  string voiceToken = 4;
+}
+
+// 通用游戏玩家信息
+message CommonTablePlayerBean {
+  /** 玩家基础信息 */
+  PlayerBaseInfoBean baseInfo = 1;
+  /** 玩家位置信息 */
+  PlayerSeatBean seatInfo = 2;
+}
+
+// 玩家位置
+message PlayerSeatBean {
+  /** 玩家id */
+  int64 playerId = 1;
+  /** 游戏id */
+  int32 gameId = 2;
+  /** 房间id */
+  int32 roomId = 3;
+  /** 桌子id */
+  int32 tableId = 4;
+  /** 位置id */
+  int32 seatId = 5;
+}
+
+// 游戏服信息
+message GameInfoBean {
+  /** 游戏Id */
+  int32 gameId = 1;
+  /** 游戏名 */
+  string gameName = 2;
+  /** 游戏房间 */
+  repeated int32 roomIds = 3;
+  /** 大版本号 */
+  int32 major = 4;
+  /** 小版本号 */
+  int32 minor = 5;
+  /** 启动时间 */
+  int64 startTime = 6;
+}
+
+// 游戏房间信息
+message GameRoomInfoBean {
+  /** 房间id */
+  int32 roomId = 1;
+  /** 房间名 */
+  string roomName = 2;
+  /** 金币下限 */
+  int64 goldLowerLimit = 3;
+  /** 金币上限 */
+  int64 goldUpperLimit = 4;
+  /** 底金 */
+  int64 baseGold = 5;
+  /** 火爆程度 */
+  int32 crowdDensity = 6;
+}
+
+
+// 请求剔除玩家离开桌子
+message CGKickPlayerLeftTableMessage {
+  /** 玩家id */
+  int64 playerId = 1;
+}
+
+// 桌子基本信息
+message GameTableBaseBean {
+  /** 桌子玩家信息 */
+  repeated GamePlayerBean player = 1;
+  /** 游戏id */
+  int32 gameId = 2;
+  /** 房间id */
+  int32 roomId = 3;
+  /** 桌子Id */
+  int32 tableId = 4;
+  /** 桌子激活ID（桌子使用时的唯一ID） */
+  int64 activeId = 5;
+  /** 允许语聊 */
+  bool voice = 6;
+  /** 上锁状态 */
+  bool lock = 7;
+  /** 随机座位 */
+  bool rollSeat = 8;
+  /** 金币下限 */
+  int64 goldLowerLimit = 9;
+  /** 金币上限 */
+  int64 goldUpperLimit = 10;
+  /** 扑克皮肤Id */
+  int32 pokerSkinId = 11;
+  /** 桌子皮肤Id */
+  int32 tableSkinId = 12;
+  /** 房主ID（非自建房为空） */
+  int64 ownerId = 13;
+  /** 底金 */
+  int64 baseGold = 14;
+  /** baloot游戏模式 */
+  BalootModeEnum mode = 15;
+  /** 是否游戏中 */
+  bool gaming = 16;
+}
+
+
+// 通用桌子基本信息
+message CommonTableBaseBean {
+  /** 游戏id */
+  int32 gameId = 1;
+  /** 房间id */
+  int32 roomId = 2;
+  /** 桌子Id */
+  int32 tableId = 3;
+  /** 桌子激活ID（桌子使用时的唯一ID） */
+  int64 activeId = 4;
+  /** 允许语聊 */
+  bool voice = 5;
+  /** 扑克皮肤Id */
+  int32 pokerSkinId = 6;
+  /** 桌子皮肤Id */
+  int32 tableSkinId = 7;
+  /** 房间总人数 */
+  int32 totalPlayerCount = 8;
+  /** 是否游戏中 */
+  bool gaming = 9;
+}
+
+
+// 客户端请求更换桌子位置
+message CGChangeTableSeatMessage {
+  /** 位置id */
+  int32 seatId = 1;
+}
+
+// 客户端更换桌子位置返回
+message GCChangeTableSeatMessage {
+  /** 玩家位置 */
+  PlayerSeatBean seat = 1;
+}
+
+// 语音操作
+enum VoiceOperation {
+  /** 关闭语音 */
+  VOICE_CLOSE = 0;
+  /** 开启语音 */
+  VOICE_OPEN = 1;
+}
+
+// 请求操作语音
+message CGOperationVoiceMessage {
+  /** 操作 */
+  VoiceOperation operation = 1;
+}
+
+// 推送语音房状态
+message OnGCVoiceRoomStatusMessage {
+  /** 操作 */
+  VoiceOperation operation = 1;
+  /** 操作为开时，携带此参数 */
+  string voiceToken = 2;
+}
+
+// 请求发送表情消息
+message CGSendEmoteMessage {
+  /** 类型: 0-普通表情; 1-快捷短语; 2-互动表情 */
+  int32 type = 1;
+  /** 配置id */
+  int32 configId = 2;
+  /** 目标玩家id */
+  int32 targetPlayerId = 3;
+}
+
+// 推送表情发送消息
+message OnGCPushEmoteMessage {
+  /** 类型: 0-普通表情; 1-快捷短语; 2-互动表情 */
+  int32 type = 1;
+  /** 配置id */
+  int32 configId = 2;
+  /** 发送玩家id */
+  int64 sendPlayerId = 3;
+  /** 目标玩家id */
+  int64 targetPlayerId = 4;
+  /** 发送方魅力值变化 */
+  int32 senderChangeCharm = 5;
+  /** 接收方魅力值变化 */
+  int32 receiverChangeCharm = 6;
+}
+
+
+
+// 请求发送游戏聊天消息
+message CGSendGameChatMessage {
+  /** 消息类型 */
+  MsgTypeEnum msgType = 1;
+  /** 消息内容 */
+  string msg = 2;
+  /** 额外参数 */
+  bytes param = 3;
+  /** 额外参数2 */
+  string param2 = 4;
+}
+
+// 响应发送游戏聊天消息
+message GCSendGameChatMessage {
+}
+
+// 请求同步游戏聊天消息内容
+message CGSyncGameChatInfoMessage {
+}
+
+// 响应同步游戏聊天消息内容
+message GCSyncGameChatInfoMessage {
+  /** 聊天类型: 1-私聊; 2-全服聊天; 5-project下注小游戏聊天; 6-baloot聊天 */
+  int32 chatType = 1;
+  // 游戏聊天消息bean列表
+  repeated ChatInfoBean gameChatInfoBeanList = 2;
+}
+
+
+// 推送游戏聊天内容
+message OnPushGameChatInfoMessage {
+  /** 最新一条消息 */
+  ChatInfoBean chatInfoBean = 1;
+}
+
+
+
+
+
+
+// 响应游戏桌子信息
+message BetTableBean {
+  /** 第几轮（注：结算时round+1） */
+  int64 round = 1;
+  /** 玩家总数  */
+  int32 playerCount = 2;
+  /** 状态: 0: 开始游戏; 1: 确定房主; 2: 发牌; 3: 下注选择; 4: 公布牌; 5: 结算状态 */
+  int32 state = 3;
+  /** 状态开始时间 */
+  int64 startTime = 4;
+  /** 状态开始时间 */
+  int64 endTime = 5;
+  /** 主花色牌 */
+  int32 mainColorPokerId = 6;
+  /** 庄家注 */
+  PourBean dealerPourBean = 7;
+  /** 闲家注 */
+  repeated PourBean pourBeanList = 8;
+  /** 每日金币榜奖池金币数 */
+  int64 goldRankPoolGoldNum = 9;
+  /** 幸运奖池金币数 */
+  int64 luckPoolGoldNum = 10;
+  /** 历史比赛结果(近20局)  */
+  repeated GameResultBean gameResultBeanList = 11;
+}
+
+// 单局比赛结果
+message GameResultBean {
+  /** 比赛注胜负情况bean tag: 0 1 2 3 */
+  repeated TagResultBean tagResultBeanList = 1;
+}
+
+// 比赛注胜负情况bean
+message TagResultBean {
+  /** 输赢 */
+  bool win = 1;
+  /** 倍数 */
+  int32 multi = 2;
+}
+
+// 注信息bean
+message PourBean {
+  /** 序号 */
+  int32 tag = 1;
+  /** 闲家注输赢 */
+  bool win = 2;
+  /** 牌 */
+  repeated int32 allPokers = 3;
+  /** 倍数 */
+  int32 multi = 4;
+  /** Project牌型 */
+  ProjectBean projectBean = 5;
+  /** 下注总金币 */
+  int64 totalGoldNum = 6;
+  /** 座位对应下注了多少钱 */
+  repeated PlayerIdGoldsBean playerIdGoldsBeanList = 7;
+}
+
+// 玩家下注金币信息bean
+message PlayerIdGoldsBean {
+  /** 玩家id */
+  int64 playerId = 1;
+  /** 座位 */
+  int32 seatId = 2;
+  /** 已下注金币列表 */
+  repeated int32 betGoldList = 3;
+}
+
+// 请求执行bet游戏命令
+message CGBetExecuteCommandMessage {
+  /** 游戏命令 */
+  BetCommandEnum command = 1;
+  /** 游戏命令参数 */
+  repeated string args = 2;
+  /** seq */
+  int32 seq = 3;
+}
+
+// 响应执行bet游戏命令
+message GCBetExecuteCommandMessage {
+}
+
+// 请求获取bet游戏信息同步
+message CGSyncBetGameMessage {
+}
+
+// 响应获取bet游戏信息同步
+message GCSyncBetGameMessage {
+  /** 通用桌子基本信息 */
+  CommonTableBaseBean commonTableBaseBean = 1;
+  /** bet游戏内桌子数据 */
+  BetTableBean betTableBean = 2;
+  /** 结算前 */
+  BetTableAllPlayerBean allPlayerBean = 3;
+  /** 结算状态时，构建新盘全玩家信息 */
+  BetTableAllPlayerBean newCircleAllPlayerBean = 4;
+}
+
+// bet游戏所有玩家信息
+message BetTableAllPlayerBean {
+  /** 庄家游戏玩家信息bean */
+  repeated BetTablePlayerBean dealerPlayerBeanList = 1;
+  /** 下注游戏玩家信息bean(1-7位置) */
+  repeated BetTablePlayerBean betPlayerBeanList = 2;
+  /** 自己信息 */
+  BetTablePlayerBean selfBetPlayerBean = 3;
+  /** 幸运玩家信息 */
+  BetTablePlayerBean lucklyBetPlayerBean = 4;
+  /** 其他所有玩家信息(注：指未在游戏界面上的玩家，只构建betGoldBeanList) */
+  BetTablePlayerBean otherBetPlayerBean = 5;
+  /** 本轮赢钱最多的玩家 */
+  BetTablePlayerBean winMostMoneyBetPlayerBean = 6;
+  /** 触发 project 奖励玩家信息 */
+  BetTablePlayerBean projectRewardBetPlayerBean = 7;
+}
+
+// 推送玩家bet游戏中变动消息
+message OnGCPushBetGameMessage {
+  /** 命令 */
+  BetCommandEnum command = 1;
+  /** 执行命令返回结果bean */
+  BetCommandEnumResultBean commandResultBean = 2;
+  /** bet游戏内桌子数据 */
+  BetTableBean betTableBean = 3;
+  /** 结算状态时，构建新盘全玩家信息 */
+  BetTableAllPlayerBean newCircleAllPlayerBean = 4;
+  /** 推送玩家下注金币bean列表 */
+  repeated PushBetGoldBean pushBetGoldBeanList = 5;
+}
+
+// 执行命令返回结果bean
+message BetCommandEnumResultBean {
+}
+
+// 下注游戏玩家信息bean
+message BetTablePlayerBean {
+  /** 通用桌子玩家信息 */
+  CommonTablePlayerBean commonTablePlayerBean = 1;
+  /** 玩家已下注注金币列表 */
+  repeated BetGoldBean betGoldBeanList = 2;
+  /** 可下注金币列表 */
+  repeated int32 rangeGoldList = 3;
+  /** 本轮玩家输赢金币数 */
+  int32 changeGoldNum = 4;
+}
+
+// 玩家下注金币bean
+message BetGoldBean {
+  /** 注序号 */
+  int32 pourTag = 1;
+  /** 玩家当前注已下注金币 */
+  repeated int32 hasBetGoldList = 2;
+}
+
+// 推送玩家下注金币bean
+message PushBetGoldBean {
+  /** 玩家id */
+  int64 playeId = 1;
+  /** 玩家座位号 */
+  int32 seatId = 2;
+  /** 注序号 */
+  int32 pourTag = 3;
+  /** 玩家当前注已下注金币 */
+  repeated int32 hasBetGoldList = 4;
+}
+
+// 请求获取近20场金币排行玩家信息
+message CGGetBetRecentGoldRankListMessage {
+  /** 开始排名 */
+  int32 start = 1;
+  /** 结束排名 */
+  int32 end = 2;
+  /** 版本号 */
+  int64 version = 3;
+}
+
+// 响应获取近20场金币排行玩家信息
+message GCGetBetRecentGoldRankListMessage {
+  /** 自己信息 */
+  PlayerBetRankBean selfPlayerBetRankBean = 1;
+  /** 幸运玩家信息 */
+  PlayerBetRankBean lucklyPlayerBetRankBean = 2;
+  /** 百万玩家(近20局赢金币最多玩家)信息 */
+  PlayerBetRankBean goldPlayerBetRankBean = 3;
+  /** 玩家列表 */
+  repeated PlayerBetRankBean playerBetRankBeanList = 4;
+  /** 版本号 */
+  int64 version = 5;
+  /** 玩家总数 */
+  int32 playerCount = 6;
+}
+
+// bet小游戏玩家排行信息
+message PlayerBetRankBean {
+  /** 近20场赢的胜场数 */
+  int32 winCount = 1;
+  /** 近20场赢的金币数 */
+  int64 goldChangeNum = 2;
+  /** 排行榜基本信息 */
+  PlayerRankBean playerRankBean = 3;
+}
+
+
+// 命令
+message BetCmdBean {
+  /** 命令 */
+  BetCommandEnum command = 1;
+  /** 命令参数列表 */
+  repeated string args = 2;
+}
+
+// 命令枚举
+enum BetCommandEnum {
+  /** 确认房主 */
+  BET_CHOOSE_DEALER = 0;
+  /** 发牌 */
+  BET_SEND_POKER = 1;
+  /** 下注 arg0: 注tag; arg1: goldNum */
+  BET_BETTING = 2;
+  /** 揭示牌 */
+  BET_OPEN_POKERS = 3;
+  /** 结算 */
+  BET_SETTLE = 4;
+  /** 新开盘 */
+  NEW_CIRCLE = 5;
+  /** 进入下注状态 */
+  ENTER_BETTING_STATE = 6;
+  /** 使用普通表情  参数0: 普通表情id **/
+  BET_COMMON_EMOTE = 7;
+  /** 使用快捷短语  参数0: 快捷短语id **/
+  BET_QUICK_WORD = 8;
+  /** 使用互动表情  参数0: 互动表情id;  参数1: 被使用玩家id; 参数2: 发送者增加魅力值; 参数3: 接收者增加魅力值; **/
+  BET_INTERACTIVE_EMOTE = 9;
+  /** 自动下注 参数0: 注tag:goldNum1,goldNum2;注tag:goldNum1,goldNum2 */
+  BET_AUTO_BETTING = 10;
+}
+
+
+
+
+// 请求获取玩家挑战信息
+message CWGetPlayerChallengeInfoMessage {
+}
+
+// 响应获取玩家挑战信息
+message WCGetPlayerChallengeInfoMessage {
+  /** 第几天 */
+  int32 day = 1;
+  /** 挑战币奖励bean列表 */
+  repeated ChallengeRewardBean challengeRewardBeanList = 2;
+  /** 任务信息bean列表 */
+  repeated TaskBean taskBeanList = 3;
+}
+
+// 挑战币奖励bean
+message ChallengeRewardBean {
+  /** id */
+  int32 id = 1;
+  /** 领取状态: 0: 未领取; 1: 可领取; 2: 已领取 */
+  int32 state = 2;
+  /** 领取条件 */
+  ItemBean consume = 3;
+  /** 奖励 */
+  repeated ItemBean rewards = 4;
+}
+
+// 请求领取限时挑战任务奖励
+message CWGetChallengeRewardMessage {
+  /** id */
+  int32 id = 1;
+}
+
+// 响应领取限时挑战任务奖励
+message WCGetChallengeRewardMessage {
+  /** 奖励 */
+  repeated ItemBean rewards = 1;
+}
+
+
+// 请求创建订单
+message CWCreateOrderMessage {
+  /** 商品id */
+  int32 goodsId = 1;
+  /** 支付类型 */
+  string payType = 2;
+  /** 额外信息 */
+  string extraInfo = 3;
+  /** 购买商品 */
+  int32 extraGoodsId = 4;
+}
+
+// 响应创建订单
+message WCCreateOrderMessage {
+  /** 订单id */
+  string orderId = 1;
+}
+
+// 请求查询订单信息
+message CWGetOrderInfoMessage {
+  /** 订单id */
+  string orderId = 1;
+}
+
+// 响应查询订单信息
+message WCGetOrderInfoMessage {
+  /** 商品id */
+  int32 goodsId = 1;
+  /** 玩家渠道 */
+  string channel = 2;
+  /** 支付类型 */
+  string payType = 3;
+  /** 额外信息 */
+  string extraInfo = 4;
+  /** 购买商品 */
+  int32 extraGoodsId = 5;
+}
+
+// 请求假购
+message CWChargeByFakeMessage {
+  /** 商品id */
+  string orderId = 1;
+}
+
+// 响应假购
+message WCChargeByFakeMessage {
+}
+
+
+
+// 请求发送聊天消息
+message CISendChatMessage {
+  /** 聊天类型: 1-私聊; 2-全服聊天; 5-project下注小游戏聊天 */
+  int32 chatType = 1;
+  /** 消息类型 */
+  MsgTypeEnum msgType = 2;
+  /** 消息内容 */
+  string msg = 3;
+  /** 目标 */
+  int64 to = 4;
+  /** 额外参数 */
+  bytes param = 5;
+  /** 额外参数2 */
+  string param2 = 6;
+}
+
+// 响应发送聊天消息
+message ICSendChatMessage {
+}
+
+// 请求同步聊天消息内容
+message CISyncChatInfoMessage {
+  /** 聊天类型: 1-私聊; 2-全服聊天; */
+  int32 chatType = 1;
+  /** 目标 */
+  int64 to = 2;
+}
+
+// 响应同步聊天消息内容
+message ICSyncChatInfoMessage {
+  // 聊天消息bean列表
+  repeated ChatInfoBean chatInfoBeanList = 1;
+}
+
+// 请求标记最新聊天消息内容已读消息
+message CIMarkChatInfoMessage {
+  /** 聊天类型: 1-私聊; */
+  int32 chatType = 1;
+  /** 目标 */
+  int64 to = 2;
+}
+
+// 响应标记最新聊天消息内容已读消息
+message ICMarkChatInfoMessage {
+}
+
+// 聊天消息bean
+message ChatInfoBean {
+  /** 聊天索引 */
+  int64 position = 1;
+  /** 发送者 */
+  int64 from = 2;
+  /** 接受者 */
+  int64 to = 3;
+  /** 聊天类型: 1-私聊; 2-全服聊天; */
+  int32 chatType = 4;
+  /** 消息类型 */
+  MsgTypeEnum msgType = 5;
+  /** 消息内容 */
+  string msg = 6;
+  /** 额外参数 */
+  bytes param = 7;
+  /** 额外参数2 */
+  string param2 = 8;
+  /** 发送时间 */
+  int64 createTime = 9;
+  /** 发送方基本信息 */
+  ChatorInfoBean senderInfoBean = 10;
+  /** 是否请求过(客户端使用) */
+  bool isRequest = 11;
+  /** 桌子信息(客户端使用) */
+  GameTableBaseBean tableInfoBean = 12;
+}
+
+// 聊天玩家基本信息
+message ChatorInfoBean {
+  /** 发送方名称 */
+  string name = 1;
+  /** 性别 0-男 1-女 */
+  int32 sex = 2;
+  /** 发送方头像 */
+  string head = 3;
+  /** 发送头像框 */
+  int32 headFrame = 4;
+  /** 气泡框 */
+  int32 bubbleFrame = 5;
+  /** 当前等级 */
+  int32 level = 6;
+  /** vip */
+  int32 vip = 7;
+  /** 是否有vip */
+  bool hasVip = 8;
+  /** vip过期时间 */
+  int64 vipExpireTime = 9;
+  /** 玩家是否在线 */
+  bool isOnline = 10;
+  /** 角色信息(语音房使用 VoiceRoleEnum)  */
+  int32 roleIndex = 11;
+}
+
+// 请求获取最近聊天记录列表信息
+message CIGetRecentChatRecordMessage {
+}
+
+// 响应获取最近聊天记录列表信息
+message ICGetRecentChatRecordMessage {
+  /** 最近聊天记录bean 列表 */
+  repeated RecentChatRecordBean recentChatRecordBeanList = 1;
+}
+
+// 最近聊天记录bean
+message RecentChatRecordBean {
+  /** 聊天类型: 1-私聊; */
+  int32 chatType = 1;
+  /** 目标 -1: 默认系统id; 其他: 玩家id */
+  int64 target = 2;
+  /** 目标基本信息 */
+  ChatorInfoBean targetInfoBean = 3;
+  /** 最新一条消息 */
+  ChatInfoBean chatInfoBean = 4;
+  /** 未读消息数量 */
+  int32 unReadCount = 5;
+}
+
+// 请求清除聊天消息
+message CIClearChatInfoMessage {
+  /** 聊天类型: 1-私聊; 2-全服聊天; */
+  int32 chatType = 1;
+  /** 目标 */
+  int64 to = 2;
+  /** 聊天索引 -1表示清除所有记录 */
+  int64 position = 3;
+}
+
+// 响应清除聊天消息
+message ICClearChatInfoMessage {
+}
+
+// TODO 请求撤回聊天消息
+message CIWithdrawChatInfoMessage {
+  /** 聊天类型: 1-私聊; 2-全服聊天; */
+  int32 chatType = 1;
+  /** 目标 */
+  int64 to = 2;
+  /** 聊天索引 */
+  int64 position = 3;
+}
+
+// TODO 响应撤回聊天消息
+message ICWithdrawChatInfoMessage {
+}
+
+// 修改聊天消息额外参数
+message CIUpdateExtChatInfoMessage {
+  /** 聊天类型: 1-私聊; 2-全服聊天; */
+  int32 chatType = 1;
+  /** 目标 */
+  int64 to = 2;
+  /** 聊天索引 */
+  int64 position = 3;
+  /** 额外参数 */
+  bytes param = 4;
+  /** 额外参数2 */
+  string param2 = 5;
+}
+
+// 推送聊天内容
+message OnPushChatInfoMessage {
+  /** 最新一条消息 */
+  ChatInfoBean chatInfoBean = 1;
+}
+
+// 推送撤回消息
+message OnPushWithdrwaMessage {
+  /** 聊天类型: 1-私聊; 2-全服聊天 */
+  int32 chatType = 1;
+  /** 目标 -1: 默认系统id; -2: 好友消息系统id 其他: 玩家id */
+  int64 target = 2;
+  /** 聊天索引 */
+  int64 position = 3;
+}
+
+// 消息类型
+enum MsgTypeEnum {
+  /** 默认聊天文本 */
+  CONTEXT = 0;
+  /** 聊天表情 */
+  EMOTE = 1;
+  /** baloot桌子 */
+  BALOOT = 2;
+  /** 语音 */
+  VOICE = 3;
+  /** 通知提示（没有头像和气泡的tips） */
+  TIPS = 4;
+  /** 神灯玩法 */
+  GENIE_LAMP = 5;
+  /** 系统消息文本 */
+  SYSTEM = 6;
+  /** 欢迎聊天文本 */
+  WELCOME_CONTEXT = 7;
+  /** 公告聊天文本 */
+  NOTICE_CONTEXT = 8;
+  /** 语音房分享 */
+  VOICE_ROOM = 9;
+  /** 语音房礼物 */
+  VOICE_GIFT = 10;
+}
+
+
+// 错误码
+enum ErrorCode {
+  /** 成功 */
+  SUCCESS = 0;
+  /** 失败 */
+  FAIL = 1;
+  /** 非法请求 */
+  ILLEGAL = 2;
+  /** 未知错误 */
+  UNKNOWN = 3;
+  /** 超时 */
+  TIME_OUT = 4;
+  /** 连接异常 */
+  SOCKET_ERROR = 5;
+  /** 连接关闭 */
+  SOCKET_CLOSED = 6;
+  /** token 认证失败 */
+  FAIL_TOKEN = 7;
+  /** 玩家不在线 */
+  FAIL_PLAYER_OFFLINE = 8;
+  /** 未知玩家（玩家不存在） */
+  FAIL_PLAYER_UNKNOWN = 9;
+  /** 未知桌子（桌子不存在） */
+  FAIL_TABLE_UNKNOWN = 10;
+  /** 进入游戏失败 */
+  FAIL_ENTER_GAME = 11;
+  /** 游戏不存在 */
+  FAIL_GAME_UNKNOWN = 12;
+  /** 玩家正在游戏中 */
+  FAIL_PLAYER_IN_GAME = 13;
+  /** 玩家正在匹配中 */
+  FAIL_MATCHING = 14;
+  /** 玩家未在匹配中 */
+  FAIL_UNMATCH = 15;
+  /** 匹配失败 */
+  FAIL_MATCH_ERROR = 16;
+  /** 匹配超时 */
+  FAIL_MATCH_TIMEOUT = 17;
+  /** 玩家不存在 */
+  FAIL_PLAYER_NOT_EXIST = 18;
+  /** 玩家等待操作 */
+  FAIL_PLAYER_NO_BIDER = 19;
+  /** 指令不存在 */
+  FAIL_COMMAND_NOT_EXIST = 20;
+  /** 参数错误 */
+  FAIL_PARAM_ERROR = 21;
+  /** 命令请求超时 */
+  FAIL_REQUEST_COMMAND_TIMEOUT = 22;
+  /** 无法操作当前指令 */
+  FAIL_CAN_NOT_EXE_COMMAND = 23;
+  /** 已确认主花色 */
+  FAIL_CONFIRM_MAIN_COLOR = 24;
+  /** 当前牌不符合出牌规则 */
+  FAIL_UN_CONFORM_RULE_POKER = 25;
+  /** 金币不足（默认使用-道具不足(FAIL_ITEM_NOT_ENOUGH)） */
+  FAIL_PLAYER_GOLD_NOT_ENOUGH = 26;
+  /** 金币溢出 */
+  FAIL_PLAYER_GOLD_OVERFLOW = 27;
+  /** 密码错误 */
+  FAIL_PASSWORD = 28;
+  /** 已达购买上限 */
+  FAIL_BUY_LIMIT = 29;
+  /** 道具不足 */
+  FAIL_ITEM_NOT_ENOUGH = 30;
+  /** 不满足购买条件 */
+  FAIL_CHECK_BUY_CONDITION = 31;
+  /** 商品不存在 */
+  FAIL_GOODS_NOT_EXIST = 32;
+  /** 订单不存在 */
+  FAIL_ORDER_NOT_EXIST = 33;
+  /** CD冷却中 */
+  FAIL_CD_COOLING = 34;
+  /** 未拥有表情包 */
+  FAIL_NOT_EXIST_EMOTE = 35;
+  /** 游戏已结束 */
+  FAIL_GAME_OVER = 36;
+  /** 道具不存在 */
+  FAIL_ITEM_NOT_EXIST = 37;
+  /** 已被禁言 */
+  FAIL_CHAT_SILENCE = 38;
+  /** 消息存在敏感字符 */
+  FAIL_MSG_CONTAINS_SENSITIVE_WORDS = 39;
+  /** 聊天次数已达上限 */
+  FAIL_CHAT_LIMIT = 40;
+  /** 不能添加自己为好友 */
+  FAIL_SELF_NOT_FRIEND = 41;
+  /** 对方在自己黑名单中 */
+  FAIL_TARGET_IN_BLACK_LIST = 42;
+  /** 对方好友数量已达上限 */
+  FAIL_TARGET_FRIEND_NUM_LIMIT = 43;
+  /** 好友数量已达上限 */
+  FAIL_SELF_FRIEND_NUM_LIMIT = 44;
+  /** 好友已存在 */
+  FAIL_FRIEND_EXIST = 45;
+  /** 申请好友CD中 */
+  FAIL_APPLY_FRIEND_CD = 46;
+  /** 对方未申请添加好友 */
+  FAIL_TARGET_NO_APPLY_FRIEND = 47;
+  /** 好友申请列表为空 */
+  FAIL_NO_APPLY_FRIEND = 48;
+  /** 对方不是你的好友 */
+  FAIL_NOT_FRIEND = 49;
+  /** 已达黑名单数量上限 */
+  FAIL_BLACK_SIZE_LINIT = 50;
+  /** 对方不在黑名单列表中 */
+  FAIL_NOT_IN_BLACK_LIST = 51;
+  /** 对方在黑名单列表中 */
+  FAIL_IN_BLACK_LIST = 52;
+  /** 您已被对方加入黑名单 */
+  FAIL_JOIN_TARGET_BLACK_LIST = 53;
+  /** 好友申请已过期 */
+  FAIL_APPLY_OVERDUE = 54;
+  /** 聊天消息不存在 */
+  FAIL_CHAT_INFO_NOT_EXIST = 55;
+  /** 聊天消息撤回超时 */
+  FAIL_CHAT_WITHDRWA_TIMEOUT = 56;
+  /** 已删除聊天消息 */
+  FAIL_HAS_DELETE_CHAT_MSG = 57;
+  /** 已撤回聊天消息 */
+  FAIL_HAS_WITHDRWA_CHAT_MSG = 58;
+  /** 购买指定礼包解锁 */
+  FAIL_BUY_APPOINT_GOODS_UNLOCK = 59;
+  /** 不满足等级条件 */
+  FAIL_LEVEL_NOT_ENOUGH = 60;
+  /** 不满足VIP等级条件 */
+  FAIL_VIP_LEVEL_NOT_ENOUGH = 61;
+  /** 对方拒绝添加好友 */
+  FAIL_REFUSE_JOIN_FRIEND = 62;
+  /** 功能未开放 */
+  FAIL_FUNCTION_NOT_OPOEN = 63;
+  /** 礼物数量不足 */
+  FAIL_GIFT_NOT_ENOUGH = 64;
+  /** 没有绑定账号 */
+  FAIL_NO_BIND_ACCOUNT = 65;
+  /** 任务未完成 */
+  FAIL_TASK_NO_FINISH = 66;
+  /** 已领取任务奖励 */
+  FAIL_HAS_RECEIVE_TASK_REWARD = 67;
+  /** 没有可领取的任务奖励 */
+  FAIL_NO_TASK_REWARD = 68;
+  /** 参数为空 */
+  FAIL_PARAM_EMPTY = 69;
+  /** VIP已过期 */
+  FAIL_VIP_OVERDUE = 70;
+  /** 礼包已过期 */
+  FAIL_GIFT_OVERDUE = 71;
+  /** 已完成标记 */
+  FAIL_FINISH_MARK = 72;
+  /** 当前不是语音房 */
+  FAIL_NOT_VOICE_ROOM = 73;
+  /** 游戏seq不同步 */
+  FAIL_GAME_NO_SYNC_SEQ = 74;
+  /** 今日已签到完成 */
+  FAIL_TODAY_HAS_SIGN = 75;
+  /** 已领取过奖励 */
+  FAIL_HAS_RECEIVE_REWARD = 76;
+  /** 已报名 */
+  FAIL_HAS_JOIN = 77;
+  /** 未报名 */
+  FAIL_UN_JOIN = 78;
+  /** 不是报名阶段 */
+  FAIL_NOT_IN_JOIN_STAGE = 79;
+  /** 公告不存在 */
+  FAIL_NOTICE_NOT_EXIST = 80;
+  /** 玩家正在比赛中 */
+  FAIL_PLAYER_IN_TOURNAMENT = 81;
+  /** 比赛未开始 */
+  FAIL_TOURNAMENT_NOT_MATCHING = 82;
+  /** 比赛被淘汰 */
+  FAIL_TOURNAMENT_KNOCKOUT = 83;
+  /** 不允许登陆 */
+  FAIL_DENY_LOGIN = 84;
+  /** 停服期间 */
+  FAIL_SERVER_CLOSING = 85;
+  /** 任务未开启 */
+  FAIL_TASK_NOT_OPEN = 86;
+  /** 游戏未开始 */
+  FAIL_GAME_UN_START = 87;
+  /** 下注tag选择错误 */
+  FAIL_BETTING_ERROR_TAG = 88;
+  /** 下注金币选择错误 */
+  FAIL_BETTING_ERROR_GOLD = 89;
+  /** 已达金币投注上限 */
+  FAIL_BETTING_GOLD_LIMIT = 90;
+  /** 支付没有绑定账号 */
+  FAIL_CAHRGE_NO_BIND_ACCOUNT = 91;
+  /** 操作权限不足 */
+  FAIL_PERMISSION_DENIED = 92;
+  /** 桌子不存在聊天 */
+  FAIL_TABLE_NOT_EXIST_CHAT = 93;
+  /** 桌子未激活 */
+  FAIL_TABLE_NO_ACTIVE = 94;
+  /** rpc请求超时 */
+  RPC_REQUEST_TIME_OUT = 95;
+  /** rpc请求过期 */
+  RPC_REQUEST_EXPIRED = 96;
+  /** 服务器异常 */
+  FAIL_SERVER_EXCEPTION = 97;
+  /** 验证码错误 */
+  FAIL_VERIFICATION_EXCEPTION = 98;
+  /** 不能加入 */
+  FAIL_CANNOT_JOIN = 99;
+  /** 还未开奖结算 */
+  FAIL_NO_SETTLE = 100;
+  /** 已经开奖结算 */
+  FAIL_HAS_SETTLED = 101;
+  /** 已解散 */
+  FAIL_DISBANDED = 102;
+  /** 礼包不存在 */
+  FAIL_GIFT_NOT_EXIST = 103;
+  /** 未进入房间 */
+  FAIL_NO_ENTER_ROOM = 104;
+  /** 麦克风已被占用 */
+  FAIL_MIC_OCCUPIED = 105;
+  /** 玩家已上麦 */
+  FAIL_HAS_JOIN_MIC = 106;
+  /** 玩家未上麦 */
+  FAIL_NO_JOIN_MIC = 107;
+  /** 未在指定语音房 */
+  FAIL_VOICE_TABLE_ERROR = 108;
+  /** 不存在指定语音房背景 */
+  FAIL_NOT_EXIST_VOICE_SKIN_ID = 109;
+  /** 配置不存在 */
+  FAIL_CONFIG_NOT_EXIST = 110;
+  /** 掉落为空 */
+  FAIL_DROP_EMPTY = 111;
+}
+
+
+
+// 请求获取通用表情列表
+message CWGetCommonEmoteListMessage {
+}
+
+// 响应获取通用表情列表
+message WCGetCommonEmoteListMessage {
+  /** 使用cd */
+  int64 cd = 1;
+  /** 通用表情bean列表 */
+  repeated CommonEmoteBean commonEmoteBeanList = 2;
+}
+
+// 通用表情bean
+message CommonEmoteBean {
+  /** 页签类型 */
+  int32 type = 1;
+  /** 是否解锁 */
+  bool isUnLock = 2;
+  /** 通用表情bean */
+  repeated EmoteBean emoteBeanList = 3;
+}
+
+// 通用表情bean
+message EmoteBean {
+  /** 普通表情id */
+  int32 id = 1;
+  /** 子类型 */
+  int32 subType = 2;
+  /** 排序 */
+  int32 sort = 3;
+  /** 默认免费道具 */
+  repeated ItemBean freeCost = 4;
+  /** 发送表情消耗 */
+  repeated ItemBean cost = 5;
+}
+
+
+// 请求获取快捷短语列表
+message CWGetQuickWordListMessage {
+}
+
+// 响应获取快捷短语列表
+message WCGetQuickWordListMessage {
+  /** 使用cd */
+  int64 cd = 1;
+  /** 通用表情bean列表 */
+  repeated QuickWordBean quickWordBeanList = 2;
+}
+
+// 快捷短语bean
+message QuickWordBean {
+  /** 快捷短语id */
+  int32 id = 1;
+  /** 排序 */
+  int32 sort = 2;
+}
+
+
+// 请求获互动表情列表
+message CWGetInteractiveEmoteListMessage {
+}
+
+// 响应获取互动表情列表
+message WCGetInteractiveEmoteListMessage {
+  /** 使用cd */
+  int64 cd = 1;
+  /** 互动表情bean列表 */
+  repeated InteractiveEmoteBean interactiveEmoteBeanList = 2;
+}
+
+// 互动表情bean
+message InteractiveEmoteBean {
+  /** 互动表情id */
+  int32 id = 1;
+  /** 排序 */
+  int32 sort = 2;
+  /** 互动表情单次消耗 */
+  ItemBean cost = 3;
+}
+
+
+
+// 自动绑定好友请求
+message CIAutoBindFriendMessage {
+  /** 三方来源 */
+  ThirdPartyAccountEnum source = 1;
+  /** 三方ID */
+  repeated string thirdPartyIds = 2;
+}
+
+// 请求好友申请
+message CIApplyMessage {
+  /** 好友id */
+  int64 friendId = 1;
+}
+
+// 响应好友申请
+message ICApplyMessage {
+}
+
+// 请求获取好友申请列表
+message CIGetApplyListMessage {
+}
+
+// 响应获取好友申请列表
+message ICGetApplyListMessage {
+  /** 申请好友信息列表 */
+  repeated ApplyInfoBean applyInfoBeanList = 1;
+}
+
+// 好友申请消息bean
+message ApplyInfoBean {
+  /** 申请好友信息 */
+  PlayerBaseInfoBean playerBaseInfoBean = 1;
+  /** 申请时间 */
+  int64 applyTime = 2;
+}
+
+// 请求接收好友申请
+message CIAcceptApplyMessage {
+  /** 目标玩家id */
+  int64 friendId = 1;
+}
+
+// 响应接收好友申请
+message ICAcceptApplyMessage {
+}
+
+// 请求接收所有好友申请
+message CIAcceptTotalApplyMessage {
+}
+
+// 响应接收所有好友申请
+message ICAcceptTotalApplyMessage {
+}
+
+// 请求拒绝好友申请
+message CIRefuseApplyMessage {
+  /** 目标玩家id */
+  int64 friendId = 1;
+}
+
+// 响应拒绝好友申请
+message ICRefuseApplyMessage {
+}
+
+// 请求清空申请列表
+message CIClearApplyMessage {
+}
+
+// 响应清空申请列表
+message ICClearApplyMessage {
+}
+
+// 请求删除好友
+message CIDeleteFriendMessage {
+  /** 目标玩家id */
+  int64 friendId = 1;
+}
+
+// 响应删除好友
+message ICDeleteFriendMessage {
+}
+
+// 请求加入黑名单
+message CIAddBlackMessage {
+  /** 目标玩家id */
+  int64 targetPlayerId = 1;
+}
+
+// 响应加入黑名单
+message ICAddBlackMessage {
+}
+
+// 请求移除黑名单
+message CIRemoveBlackMessage {
+  /** 目标玩家id */
+  int64 targetPlayerId = 1;
+}
+
+// 响应移除黑名单
+message ICRemoveBlackMessage {
+}
+
+// 请求获取好友列表
+message CIGetFriendListMessage {
+}
+
+// 响应获取好友列表
+message ICGetFriendListMessage {
+  /** 好友信息bean列表 */
+  repeated FriendInfoBean friendInfoBeanList = 1;
+  /** 好友申请记录信息bean */
+  RecentChatRecordBean applyRcordBean = 2;
+}
+
+// 好友信息bean
+message FriendInfoBean {
+  /** 好友基本信息 */
+  PlayerBaseInfoBean baseInfoBean = 1;
+  /** 免打扰 */
+  bool noBother = 2;
+  /** TODO 朋友间点赞关系 */
+  int64 likeRel = 3;
+  /** 备注 */
+  string remark = 4;
+  /** 好友亲密度 */
+  int32 closeness = 5;
+}
+
+// 请求获取黑名单列表
+message CIGetBlackListMessage {
+}
+
+// 响应获取黑名单列表
+message ICGetBlackListMessage {
+  /** 黑名单信息列表 */
+  repeated PlayerBaseInfoBean baseInfoBeanList = 1;
+}
+
+// 请求修改私聊免打扰状态
+message CIUpdateNoBotherMessage {
+  /** 目标玩家id */
+  int64 friendId = 1;
+  /** 开关: 0-关; 1-开启免打扰 */
+  int32 noBother = 2;
+  /** 备注 */
+  string remark = 3;
+}
+
+// 响应修改私聊免打扰状态
+message ICUpdateNoBotherMessage {
+}
+
+// 好友关系状态变化推送消息
+message OnPushFriendStateMessage {
+  /** 状态: 1-被申请中; 2-申请好友通过 */
+  int32 state = 1;
+  /** 好友申请玩家信息 */
+  PlayerBaseInfoBean baseInfoBean = 2;
+}
+
+
+// 请求获取好友推荐列表
+message CIRecommendFriendListMessage {
+}
+
+// 响应获取好友推荐列表
+message ICRecommendFriendListMessage {
+  /** 推荐玩家基本信息 */
+  repeated PlayerBaseInfoBean baseInfoBean = 1;
+}
+
+
+
+// 水果机游戏信息bean
+message FruitMachineBean {
+  /** 第几轮（注：结算时round+1） */
+  int64 round = 1;
+  /** 玩家总数  */
+  int32 playerCount = 2;
+  /** 状态: 0: 开始游戏阶段; 1: 下注阶段; 2: 公布额外加倍阶段; 3: 结算阶段 */
+  int32 state = 3;
+  /** 状态开始时间 */
+  int64 startTime = 4;
+  /** 状态开始时间 */
+  int64 endTime = 5;
+  /** 水果转盘信息 */
+  repeated FruitTurntableBean fruitTurntableBeanList = 6;
+  /** 历史比赛结果(近20局) */
+  repeated FruitResultBean fruitResultBeanList = 7;
+}
+
+// 水果转盘信息
+message FruitTurntableBean {
+  /** index */
+  int32 index = 1;
+  /** 水果类型 */
+  int32 fruitType = 2;
+  /** 倍数 */
+  int32 multi = 3;
+}
+
+// 水果机单局比赛结果
+message FruitResultBean {
+  /** 命中水果数量 */
+  int32 hitIndexCount = 1;
+  /** 额外加倍 注：触发额外加倍有值 */
+  int32 extraMulti = 2;
+  /** 结果 */
+  FruitTurntableBean result = 3;
+}
+
+// 请求执行水果机游戏命令
+message CZFruitExecuteCommandMessage {
+  /** 游戏命令 */
+  FruitCommandEnum command = 1;
+  /** 游戏命令参数 */
+  repeated string args = 2;
+  /** seq */
+  int32 seq = 3;
+}
+
+// 响应执行水果机游戏命令
+message ZCFruitExecuteCommandMessage {
+}
+
+// 推送玩家水果机游戏中变动消息
+message OnZCPushFruitGameMessage {
+  /** 命令 */
+  FruitCommandEnum command = 1;
+  /** 水果机游戏数据 */
+  FruitMachineBean fruitMachineBean = 2;
+  /** 自己信息 */
+  FruitPlayerBean selfFruitPlayerBean = 3;
+  /** 构建近20轮获胜玩家信息（前5） */
+  repeated FruitPlayerBean historyTopFivePBList = 4;
+  /** 推送玩家下注金币bean列表 */
+  repeated PushFruitBettingGoldBean pushFruitBettingGoldBeanList = 5;
+  /** 公布额外加倍信息 */
+  repeated FruitTypeBean extraMultiBeanList = 6;
+  /** 结算信息 */
+  FruitSettleBean fruitSettleBean = 7;
+  /** 同步水果机游戏信息 */
+  SyncFruitGameBean syncFruitGameBean = 8;
+}
+
+// 同步水果机游戏信息
+message SyncFruitGameBean {
+  /** 总下注信息列表 */
+  repeated FruitBettingBean fruitBettingBeanList = 1;
+  /** 上一盘结算信息 */
+  FruitSettleBean lastFruitSettleBean = 2;
+  /** 当前盘结算信息（结算阶段） */
+  FruitSettleBean fruitSettleBean = 3;
+}
+
+// 水果机游戏玩家信息bean
+message FruitPlayerBean {
+  /** 位置id */
+  int32 seatId = 1;
+  /** 玩家简易信息 */
+  PlayerSimpleBean playerSimpleBean = 2;
+  /** 玩家已下注注金币列表 */
+  repeated FruitGoldBean fruitGoldBeanList = 3;
+  /** 可下注金币列表 */
+  repeated int32 rangeGoldList = 4;
+  /** 本轮玩家输赢金币数 */
+  int32 changeGoldNum = 5;
+}
+
+// 玩家下注金币bean
+message FruitGoldBean {
+  /** 下注水果类型 */
+  int32 fruitType = 1;
+  /** 玩家当前注已下注金币 */
+  repeated int32 hasBetGoldList = 2;
+}
+
+// 水果机下注信息
+message FruitBettingBean {
+  /** 水果类型 */
+  int32 fruitType = 1;
+  /** 下注总金币 */
+  int64 totalGoldNum = 2;
+  /** 座位对应下注了多少钱 */
+  repeated PlayerIdGoldsBean playerIdGoldsBeanList = 3;
+}
+
+// 推送玩家下注金币bean
+message PushFruitBettingGoldBean {
+  /** 玩家id */
+  int64 playerId = 1;
+  /** 玩家座位号 */
+  int32 seatId = 2;
+  /** 水果类型 */
+  int32 fruitType = 3;
+  /** 玩家当前注已下注金币 */
+  repeated int32 hasBetGoldList = 4;
+}
+
+// 水果类型bean
+message FruitTypeBean {
+  /** 水果类型 */
+  int32 fruitType = 1;
+  /** 额外加倍 */
+  int32 extraMulti = 2;
+}
+
+// 结算信息bean
+message FruitSettleBean {
+  /** 命中index */
+  repeated int32 hitIndexes = 1;
+  /** 结算状态时，构建当前盘获胜玩家信息（前5） */
+  repeated FruitPlayerBean curRoundTopFivePBList = 2;
+  /** 幸运奖励bean */
+  FruitLuckRewardBean fruitLuckRewardBean = 3;
+  /** 奖池金币总数 */
+  int64 systemPumpGoldNum = 4;
+}
+
+// 幸运奖励bean
+message FruitLuckRewardBean {
+  /** 幸运玩家 */
+  FruitPlayerBean fruitPlayerBean = 1;
+  /** 奖励 */
+  repeated ItemBean reward = 2;
+}
+
+
+// 请求获取近20场水果机金币排行玩家信息
+message CZGetFruitRecentGoldRankListMessage {
+  /** 类型 0: 在线榜; 1: 单局榜 */
+  int32 type = 1;
+  /** 开始排名 */
+  int32 start = 2;
+  /** 结束排名 */
+  int32 end = 3;
+  /** 版本号 */
+  int64 version = 4;
+}
+
+// 响应获取近20场水果机金币排行玩家信息
+message ZCGetFruitRecentGoldRankListMessage {
+  /** 自己信息 */
+  PlayerBetRankBean selfPlayerBetRankBean = 1;
+  /** 玩家列表 */
+  repeated PlayerBetRankBean playerBetRankBeanList = 2;
+  /** 版本号 */
+  int64 version = 3;
+  /** 玩家总数 */
+  int32 playerCount = 4;
+}
+
+
+// 水果机命令枚举
+enum FruitCommandEnum {
+  /** 游戏数据同步(进入) */
+  FRUIT_SYNC = 0;
+  /** 进入下注状态 */
+  FRUIT_ENTER_BETTING_STATE = 1;
+  /** 下注 arg0: fruitType; arg1: goldNum */
+  FRUIT_BETTING = 2;
+  /** 自动下注 参数0: fruitType:goldNum1,goldNum2;fruitType:goldNum1,goldNum2 */
+  FRUIT_AUTO_BETTING = 3;
+  /** 公布额外加倍 */
+  FRUIT_PUBLIC_EXTRA_MULTI = 4;
+  /** 结算 */
+  FRUIT_SETTLE = 5;
+  /** 新开盘 */
+  FRUIT_NEW_CIRCLE = 6;
+  /** 游戏退出 */
+  FRUIT_EXIT = 7;
+}
+
+
+
+// 请求获取功能状态信息列表
+message CWGetFunctionStateListMessage {
+  /** 功能id(0为全部功能) */
+  int32 functionId = 1;
+}
+
+// 响应获取功能状态信息列表
+message WCGetFunctionStateListMessage {
+  /** 功能列表(此功能以及所有子功能) */
+  repeated SingleFunctionInfoBean singleFunctionInfoBeanList = 1;
+}
+
+// 推送功能状态变更消息
+message OnPushFunctionStateListMessage {
+  /**功能id(0为全部功能) */
+  int32 functionId = 1;
+  /** 功能列表(此功能以及所有子功能) */
+  repeated SingleFunctionInfoBean singleFunctionInfoBeanList = 2;
+}
+
+// 功能信息
+message SingleFunctionInfoBean {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 是否开放 */
+  bool hasOpen = 2;
+  /** 是否有红点 */
+  bool hasRedPoint = 3;
+  /** 开放的活动组件ID列表 */
+  repeated int32 activityIds = 4;
+  /** 赛季开始时间，无默认-1 */
+  int64 startTime = 5;
+  /** 赛季结束时间，无默认-1 */
+  int64 endTime = 6;
+  /** 参数。注：只用于记录简单数据，复杂信息走协议！ */
+  string param = 7;
+  /** 功能配置基本信息 */
+  ConfigFunctionInfoBean configFunctionInfoBean = 8;
+}
+
+// 功能配置基本信息
+message ConfigFunctionInfoBean {
+  /** 父功能id */
+  int32 parentId = 1;
+  /** 名称 */
+  string name = 2;
+  /** 描述 */
+  string desc = 3;
+  /** 是否关闭 */
+  bool close = 4;
+  /** 渠道 */
+  string channels = 5;
+  /** 等级条件 */
+  int32 lvLimit = 6;
+  /** vip条件 */
+  int32 vipLimit = 7;
+  /** 是否需要账号绑定 */
+  bool bindAccount = 8;
+  /** 排序 */
+  int32 sort = 9;
+  /** 功能额外信息( type:value;type:value;  已有类型：type-0, value-活动预热时间(单位分钟)  */
+  string extraInfo = 10;
+}
+
+// 请求消除功能红点消息
+message CWClearFuncRedPointMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 参数0 */
+  int32 arg0 = 2;
+  /** 参数1 */
+  string arg1 = 3;
+}
+
+// 响应消除功能红点消息
+message WCClearFuncRedPointMessage {
+}
+
+// 请求获取功能列表By功能类型
+message CWGetFunctionIdListByTypeMessage {
+  /** 功能类型 0: 活动列表 */
+  int32 type = 1;
+  /** 构建配置信息 */
+  bool buildConfig = 2;
+}
+
+// 响应获取功能列表By功能类型
+message WCGetFunctionIdListByTypeMessage {
+  /** 活动功能信息bean列表 */
+  repeated ActivityFunctionInfoBean activityBannerBeanList = 1;
+}
+
+// 请求获取子功能id列表消息
+message CWGetSubFunctionIdListMessage {
+  /** 功能id */
+  int32 functionId = 1;
+}
+
+// 响应获取子功能id列表消息
+message WCGetSubFunctionIdListMessage {
+  /** 活动功能信息bean列表 */
+  repeated ActivityFunctionInfoBean activityBannerBeanList = 1;
+}
+
+// 活动功能信息bean
+message ActivityFunctionInfoBean {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 功能配置基本信息 */
+  ConfigFunctionInfoBean configFunctionInfoBean = 2;
+}
+
+
+// ConfigFunctionInfo配置表变更通知推送
+message OnWCPushConfigFuncUpdateMessage {
+}
+
+
+
+
+// -------------------------- 神灯红包玩法 --------------------------
+
+// 神灯基本信息
+message GenieLampBaseInfo {
+  /** 神灯ID */
+  int64 id = 1;
+  /** 当前人数 */
+  int32 currNum = 2;
+  /** 目标人数 */
+  int32 targetNum = 3;
+  /** 底金 */
+  int64 baseGold = 4;
+  /** 密码房 */
+  bool lock = 5;
+  /** 是否加入 */
+  bool join = 6;
+  /** 解散时间ms */
+  int64 closingTime = 7;
+  /** 开奖时间ms（未开始未空） */
+  int64 openTime = 8;
+}
+
+
+// 请求神灯基本信息
+message CZGenieLampListMessage {
+  /** 要查看的神灯ID（不传查看全部） */
+  repeated int64 ids = 1;
+}
+
+// 返回神灯基本信息
+message ZCGenieLampListMessage {
+  /** 神灯列表面板信息 */
+  repeated GenieLampBaseInfo infos = 1;
+}
+
+// 请求房主创建神灯
+message CZGenieLampCreateMessage {
+  /** 人数（索引） */
+  int32 numIdx = 1;
+  /** 底金（索引） */
+  int32 baseGoldIdx = 2;
+  /** 密码（若有） */
+  string pwd = 3;
+}
+
+// 返回房主创建神灯
+message ZCGenieLampCreateMessage {
+  /** 神灯基本信息 */
+  GenieLampBaseInfo info = 1;
+  /** 加入玩家信息 */
+  repeated PlayerSimpleBean players = 2;
+}
+
+// 请求指定神灯面板信息（未加入的神灯需要二次弹窗报名，已加入的直接进入）
+message CZGenieLampFrameMessage {
+  /** 神灯ID */
+  int64 id = 1;
+  /** 密码（未加入的神灯需要密码，已加入的直接进） */
+  string pwd = 2;
+}
+
+// 返回指定神灯面板信息
+message ZCGenieLampFrameMessage {
+  /** 神灯基本信息 */
+  GenieLampBaseInfo info = 1;
+  /** 加入玩家信息 */
+  repeated PlayerSimpleBean players = 2;
+}
+
+// 推送神灯面板变动信息
+message OnZCGenieLampFrameChangeMessage {
+  /** 神灯ID */
+  int64 id = 1;
+  /** 当前人数 */
+  int32 currNum = 2;
+  /** 加入玩家信息 */
+  PlayerSimpleBean joinPlayer = 3;
+}
+
+// 推送神灯奖励列表
+message OnZCGenieLampRewardInfoMessage {
+  /** 神灯ID */
+  int64 id = 1;
+  /** 玩家奖励信息列表 */
+  repeated GenieLampPlayerReward playerRewards = 2;
+}
+
+// 请求神灯奖励列表
+message CZGenieLampRewardInfoMessage {
+  /** 神灯ID */
+  int64 id = 1;
+}
+
+// 返回神灯奖励列表
+message ZCGenieLampRewardInfoMessage {
+  /** 神灯ID */
+  int64 id = 1;
+  /** 玩家奖励信息列表 */
+  repeated GenieLampPlayerReward playerRewards = 2;
+}
+
+// 玩家奖励信息
+message GenieLampPlayerReward {
+  /** 加入玩家信息 */
+  PlayerSimpleBean player = 1;
+  /** 开奖结果 */
+  int64 openGold = 2;
+}
+
+// 返回神灯历史列表
+message ZCGenieLampHistoryListMessage {
+  /** 神灯历史列表 */
+  repeated GenieLampHistory historyList = 1;
+}
+
+// 神灯历史信息
+message GenieLampHistory {
+  /** 神灯ID */
+  int64 id = 1;
+  /** 开奖时间ms */
+  int64 openTime = 2;
+  /** 底金 */
+  int64 baseGold = 3;
+  /** 开奖结果 */
+  int64 openGold = 4;
+}
+
+
+
+// 请求获取自己赠送礼物记录列表
+message CWGetPlayerSendGiftListMessage {
+  /** 槽位(从0开始) */
+  int32 position = 1;
+  /** 总数 */
+  int32 count = 2;
+}
+
+// 响应获取自己赠送礼物记录列表
+message WCGetPlayerSendGiftListMessage {
+  /** 发送礼物总数 */
+  int64 sendNum = 1;
+  /** 接收礼物总数 */
+  int64 receiveNum = 2;
+  /** 赠送礼物bean列表 */
+  repeated GiftRecordBean giftRecordBeanList = 3;
+  /** 总数 */
+  int32 count = 4;
+}
+
+// 请求获取接收礼物记录列表
+message CWGetPlayerReceiveGiftListMessage {
+  /** 目标玩家id */
+  int64 targetPlayerId = 1;
+  /** 槽位(从0开始) */
+  int32 position = 2;
+  /** 总数 */
+  int32 count = 3;
+}
+
+// 响应获取接收礼物记录列表
+message WCGetPlayerReceiveGiftListMessage {
+  /** 赠送礼物bean列表 */
+  repeated GiftRecordBean giftRecordBeanList = 1;
+  /** 礼物图鉴基本信息bean列表 */
+  repeated GiftBaseBean giftBaseBeanList = 2;
+  /** 总数 */
+  int32 count = 3;
+}
+
+// 礼物图鉴基本信息bean
+message GiftBaseBean {
+  /** 礼物id */
+  int32 giftId = 1;
+  /** 赠送获得 */
+  ItemBean giftItemBean = 2;
+  /** 排序 */
+  int32 sort = 3;
+}
+
+// 礼物bean
+message GiftRecordBean {
+  /** 目标玩家基本信息 */
+  PlayerBaseInfoBean playerBaseInfoBean = 1;
+  /** 礼物bean */
+  ItemBean giftItemBean = 2;
+  /** 发送时间 */
+  int64 sendTime = 3;
+  /** 赠送数量 */
+  int64 num = 4;
+}
+
+// 请求获取目标玩家背包礼物信息
+message CWGetTargetGiftBagListMessage {
+  /** 目标玩家id */
+  int64 targetPlayerId = 1;
+}
+
+// 响应获取目标玩家背包礼物信息
+message WCGetTargetGiftBagListMessage {
+  /** 目标玩家背包礼物bean信息列表 */
+  repeated TargetGiftBagBean targetGiftBagBeanList = 1;
+}
+
+// 目标玩家背包礼物bean信息
+message TargetGiftBagBean {
+  /** 礼物bean */
+  ItemBean giftBean = 1;
+  /** 排序 */
+  int32 sort = 2;
+}
+
+// 请求获取礼物图鉴列表信息
+message CWGetGiftHandBookListMessage {
+}
+
+// 响应获取礼物图鉴列表信息
+message WCGetGiftHandBookListMessage {
+  /** 礼物图鉴bean列表 */
+  repeated GiftHandbookBean giftHandbookBeanList = 1;
+}
+
+// 礼物图鉴bean
+message GiftHandbookBean {
+  /** 礼物id */
+  int32 giftId = 1;
+  /** 礼物名称 */
+  string name = 2;
+  /** 赠送消耗 */
+  repeated ItemBean cost = 3;
+  /** 赠送获得 */
+  ItemBean giftItemBean = 4;
+  /** 兑换奖励bean */
+  ItemBean exchangeRewardsBean = 5;
+  /** 排序 */
+  int32 sort = 6;
+}
+
+// 请求发送礼物消息
+message CWSendGiftMessage {
+  /** 接受礼物玩家id */
+  int64 targetPlayerId = 1;
+  /** 礼物id */
+  int32 giftId = 2;
+  /** 赠送数量 */
+  int32 num = 3;
+}
+
+// 响应发送礼物消息
+message WCSendGiftMessage {
+}
+
+// 请求获取出售礼物列表消息
+message CWGetSellGiftListMessage {
+}
+
+// 响应获取出售礼物列表消息
+message WCGetSellGiftInfoMessage {
+  /** 出售礼物bean信息列表 */
+  repeated SellGiftBean sellGiftBeanList = 1;
+}
+
+// 出售礼物bean信息
+message SellGiftBean {
+  /** 礼物bean */
+  ItemBean giftBean = 1;
+  /** 兑换奖励bean */
+  ItemBean exchangeRewardsBean = 2;
+  /** 排序 */
+  int32 sort = 3;
+}
+
+// 请求出售礼物消息
+message CWSellGiftMessage {
+  /** 礼物id */
+  int32 giftId = 1;
+  /** 赠送数量 */
+  int32 num = 2;
+}
+
+// 响应出售礼物消息
+message WCSellGiftMessage {
+  /** 奖励 */
+  repeated ItemBean rewards = 1;
+}
+
+// 推送发送礼物消息
+message OnPushSendGiftMessage {
+  /** 发送方玩家信息 */
+  PlayerBaseInfoBean senderBaseInfoBean = 1;
+  /** 发送方魅力值变化 */
+  int32 senderChangeCharm = 2;
+  /** 接收方玩家信息 */
+  PlayerBaseInfoBean receiverBaseInfoBean = 3;
+  /** 接收方魅力值变化 */
+  int32 receiverChangeCharm = 4;
+  /** 赠送获得 */
+  ItemBean giftItemBean = 5;
+  /** 赠送数量 */
+  int32 num = 6;
+}
+
+
+
+// 请求执行gm命令
+message CWExecuteGmCmdMessage {
+  /** gm命令 */
+  string key = 1;
+  /** gm命令参数 */
+  repeated string args = 2;
+}
+
+// 响应执行gm命令
+message WCExecuteGmCmdMessage {
+  /** res */
+  string res = 1;
+}
+
+// 请求game服执行gm命令
+message WGExecuteGmCmdMessage {
+  /** gm命令 */
+  string key = 1;
+  /** gm命令参数 */
+  repeated string args = 2;
+}
+
+// game服响应执行gm命令
+message GWExecuteGmCmdMessage {
+  /** res */
+  string res = 1;
+}
+
+
+
+// 请求获取玩家互动列表
+message CWGetPlayerInterationListMessage {
+}
+
+// 响应获取玩家互动列表
+message WCGetPlayerInterationListMessage {
+  /** 玩家互动信息bean列表 */
+  repeated PlayerInterationBean playerInterationBeanList = 1;
+}
+
+// 玩家互动信息bean
+message PlayerInterationBean {
+  /** 目标玩家id */
+  int64 targetPlayerId = 1;
+  /** 目标玩家基本信息 */
+  PlayerBaseInfoBean playerBaseInfoBean = 2;
+  /** 互动类型(0: 一起游戏; 1: 好友邀请; 2: 发送礼物) */
+  int32 type = 3;
+  /** 上一次互动时间 */
+  int64 lastInterationTime = 4;
+}
+
+
+// 请求增加玩家互动消息
+message AWAddPlayerInterationMessage {
+  /** 目标玩家列表 */
+  repeated int64 targetPlayerIdList = 1;
+  /** 互动类型(0: 一起游戏; 1: 好友邀请; 2: 发送礼物) */
+  int32 type = 2;
+}
+
+
+
+// 道具bean
+message ItemBean {
+  /** 道具id */
+  int32 id = 1;
+  /** 道具数量 */
+  int64 num = 2;
+  /** 时间【秒级】 */
+  int64 time = 3;
+  /** 过期时间 永久:-1 */
+  int64 expireTime = 4;
+  /** 是否有红点 */
+  bool hasPoint = 5;
+}
+
+// 请求获取玩家所有道具信息列表
+message CWGetPlayerItemListMessage {
+  /** 道具id列表 空获取所有道具 */
+  repeated int32 itemIdList = 1;
+}
+
+// 响应获取玩家所有道具信息列表
+message WCGetPlayerItemListMessage {
+  /** 道具信息 */
+  repeated ItemBean items = 1;
+}
+
+// 道具变化推送
+message OnItemChangeMessage {
+  /** 变化道具信息列表 */
+  repeated ItemBean items = 1;
+}
+
+// 请求获取指定道具类型图鉴信息
+message CWGetItemHandbookListMessage {
+  /** 道具类型 */
+  int32 itemType = 1;
+}
+
+// 响应获取指定道具类型图鉴信息
+message WCGetItemHandbookListMessage {
+  /** 道具图鉴列表 */
+  repeated ItemHandbookBean itemHandbookBeans = 1;
+}
+
+// 道具图鉴
+message ItemHandbookBean {
+  /** 道具id */
+  int32 itemId = 1;
+  /** 商品信息 */
+  GoodsBean goodsBean = 2;
+  /** 参数 */
+  string param = 3;
+  /** 排序 */
+  int32 sort = 4;
+}
+
+// 请求使用道具
+message CWUseItemMessage {
+  /** 道具id */
+  int32 itemId = 1;
+  /** 数量 */
+  int32 num = 2;
+}
+
+// 响应使用道具
+message WCUseItemMessage {
+  /** 使用获得的道具列表 */
+  repeated ItemBean items = 1;
+}
+
+// 同步道具变化到world/game
+message SyncItemChangeMessage {
+  /** 奖励信息 */
+  string rewards = 1;
+  /** 事件 */
+  string action = 2;
+  /** 是否为获得 */
+  bool received = 3;
+  /** 扩展参数 */
+  string extParams = 4;
+}
+
+
+
+/** 玩家账号信息 */
+message AccountBean {
+  /** 玩家唯一ID */
+  int64 id = 1;
+  /** 昵称 */
+  string name = 2;
+  /** 头像 */
+  string head = 3;
+  /** 注册的渠道号 */
+  string channel = 4;
+  /** 登陆的渠道号 */
+  string loginChannel = 5;
+  /** 绑定的三方平台状态（ThirdPartyAccountEnum 的索引作为bit下标，1表示已绑定） */
+  int32 accountBindStatus = 6;
+}
+
+// 登陆请求
+message ReqLoginMessage {
+  /** token */
+  string token = 1;
+  /** 国际化语言(ar: 阿拉伯语; zhcn: 中文简体; eng: 英文; jap: 日语;  不传默认ar) */
+  string languageCode = 2;
+  /** 登录渠道 */
+  string channel = 3;
+}
+
+// 登陆响应
+message ResLoginMessage {
+  /** 玩家信息 */
+  PlayerBaseInfoBean clientPlayerInfo = 1;
+  /** 系统时间 */
+  int64 systemTime = 2;
+  /** 游戏服信息 */
+  repeated GameInfoBean games = 3;
+  /** 创号奖励 */
+  repeated ItemBean playerCreationRewards = 4;
+  /** 玩家进行中的游戏id（0 不存在） */
+  int32 gameId = 5;
+  /** 玩家进行中的房间id（0 不存在） */
+  int32 roomId = 6;
+  /** 玩家新手引导类型 0-老引导 1-新引导 */
+  int32 guideType = 7;
+  /** 是否付费用户 */
+  bool charged = 8;
+  /** 绑定奖励 */
+  repeated ItemBean bindRewards = 9;
+}
+
+// 登出响应
+message ResLogoutMessage {
+  /** 退出原因 */
+  ExitReason reason = 1;
+}
+
+/** 服务器推送玩家下线消息 */
+message OnECLogoutMessage {
+  /** 退出原因 */
+  ExitReason reason = 1;
+}
+
+/** 停服通知 */
+message OnClosingServerNoticeMessage {
+  /** 停服内容 */
+  string content = 1;
+}
+
+/** 退出原因 */
+enum ExitReason {
+  /** 正常退出 */
+  NORMAL = 0;
+  /** 会话关闭 */
+  SESSION_CLOSE = 1;
+  /** 重复登陆，顶号 */
+  REPEAT_LOGIN = 2;
+  /** 踢出 */
+  KICK = 3;
+  /** 踢到大厅 */
+  KICK_TO_WORLD = 4;
+  /** 连接超时关闭 */
+  READER_IDLE_CLOSE = 5;
+  /** 服务器异常 */
+  SERVER_ERROR = 6;
+  /** 停服踢出 */
+  KICK_SERVER_CLOSING = 7;
+  /** 踢出语音房 */
+  KICK_VOICE = 8;
+}
+
+
+
+// 操作邮件
+enum MailOperate {
+  // 获取邮件
+  MAIL_GET = 0;
+  // 读邮件
+  MAIL_READ = 1;
+  // 领邮件奖励
+  MAIL_RECEIVE = 2;
+  // 删除邮件
+  MAIL_DELETE = 3;
+}
+
+// 邮件信息
+message MailBean {
+  // id
+  int64 mailId = 1;
+  // 类型（-1系统邮件）
+  int32 mailType = 2;
+  // 标题
+  string title = 3;
+  // 内容
+  string content = 4;
+  // 创建时间ms
+  int64 createTime = 5;
+  // 过期时间ms
+  int64 expireTime = 6;
+  // 奖励
+  repeated ItemBean rewards = 7;
+  // 状态 -1-已删除 0-未读 1-已读 2-已领取
+  int32 flag = 8;
+  // 是否能删除
+  int32 cannotDel = 9;
+  // 操作人员（服务器使用）
+  string operator = 10;
+}
+
+// 操作邮件请求
+message CWOperateMailMessage {
+  // 操作
+  MailOperate operate = 1;
+  // 操作的邮件ID（不传Id查表示操作全部邮件）
+  int64 mailId = 2;
+}
+
+// 操作邮件响应
+message WCOperateMailMessage {
+  /** 邮件详情 operate: GET */
+  repeated MailBean mails = 1;
+  /** 获得奖励 operate: RECEIVE */
+  repeated ItemBean rewards = 2;
+  /** 邮件数量 operate: GET/DEL */
+  int32 mailCount = 3;
+  /** 邮件容量 operate: GET/DEL */
+  int32 mailCapacity = 4;
+}
+
+
+
+// 协议载体
+message MessageProxy {
+  /** 请求协议 cmd */
+  int32 cmd = 1;
+  /** seq */
+  int32 seq = 2;
+  /** 错误码 */
+  ErrorCode errorCode = 3;
+  /** 具体的业务消息通过protoBuf序列化后的二进制数据 */
+  bytes data = 4;
+  /** 玩家id（内部使用） */
+  int64 playerId = 5;
+  /** 协议类型 */
+  CmdType cmdType = 6;
+}
+
+// 协议类型
+enum CmdType {
+  /** 客户端消息 */
+  CLIENT_REQUEST_TYPE = 0;
+  /** 客户端消息 */
+  CLIENT_RESPONSE_TYPE = 1;
+  /** rpc请求消息 */
+  RPC_REQUEST_TYPE = 2;
+  /** rpc响应消息 */
+  RPC_RESPONSE_TYPE = 3;
+}
+
+
+// 实体缓存数据包集合，用于在服务间传递缓存数据
+message PackEntitiesBean {
+  /** 打包的实体数据 */
+  repeated PackEntityBean entities = 1;
+}
+
+// 实体缓存的数据包，对应 IDataEntity 的数据
+message PackEntityBean {
+  /** 操作类型 */
+  string modifyType = 1;
+  /** 实体数据类型 */
+  string entityType = 2;
+  /** 实体数据 */
+  bytes data = 3;
+}
+
+// 实体缓存修改通知
+message OnModelChangeMessage {
+  /** 触发通知的服务器id */
+  int32 serverId = 1;
+  /** 变动的实体数据类型 */
+  string entityType = 2;
+  /** 变动的实体数据玩家 */
+  repeated ModelChangeBean changeBeans = 3;
+}
+
+// 实体缓存变动数据
+message ModelChangeBean {
+  /** 变动的实体数据玩家 */
+  int64 playerId = 1;
+  /** 新增修改的实体数据key */
+  repeated string modifyDadaKeys = 2;
+  /** 删除的实体数据key */
+  repeated string delDadaKeys = 3;
+}
+
+
+
+// 广播消息
+message BroadcastMessage {
+  /** 请求协议 cmd */
+  int32 cmd = 1;
+  /** 具体的业务消息通过protoBuf序列化后的二进制数据 */
+  bytes msg = 2;
+  /** 错误码 */
+  ErrorCode errorCode = 3;
+  /** 包含的玩家集 */
+  repeated int64 includeIds = 4;
+  /** 排除的玩家集 */
+  repeated int64 excludeIds = 5;
+  /** 包含的渠道集 */
+  repeated string includeChannels = 6;
+  /** 排除的渠道集 */
+  repeated string excludeChannels = 7;
+}
+
+
+// 推送跑马灯消息
+message OnACScrollMessage {
+  /** 跑马灯列表 */
+  repeated ScrollBean scrolls = 1;
+}
+
+/** 跑马灯类型 */
+enum ScrollType {
+  /** 周期循环 */
+  SCROLL_SYSTEM = 0;
+  /** 一次性 */
+  SCROLL_COMMON = 1;
+}
+
+// 跑马灯信息
+message ScrollBean {
+  /** 消息ID */
+  int64 id = 1;
+  /** 类型 */
+  ScrollType type = 2;
+  /** 文本模板Key */
+  string tmpKey = 3;
+  /** 参数（可选） */
+  repeated string args = 4;
+  /** 优先级 */
+  int32 order = 5;
+  /** 播放开始时间ms（周期循环类型才有） */
+  int64 beginTime = 6;
+  /** 播放结束时间ms（周期循环类型才有） */
+  int64 endTime = 7;
+  /** 轮播间隔s（周期循环类型才有） */
+  int32 interval = 8;
+}
+
+
+
+// 请求获取游戏公告列表消息
+message CWGetNoticeListMessage {
+}
+
+// 响应获取游戏公告列表消息
+message WCGetNoticeListMessage {
+  /** 公告信息bean列表 */
+  repeated NoticeInfoBean noticeInfoBeanList = 1;
+}
+
+// 请求获取游戏公告消息
+message CWGetNoticeInfoMessage {
+  /** 公告id */
+  int32 noticeId = 1;
+}
+
+// 响应获取游戏公告消息
+message WCGetNoticeInfoMessage {
+  /** 公告信息bean */
+  NoticeInfoBean noticeInfoBean = 1;
+}
+
+// 推送游戏公告消息
+message OnWCPushNoticeInfoMessage {
+  /** 公告信息bean */
+  NoticeInfoBean noticeInfoBean = 1;
+}
+
+// 公告信息bean
+message NoticeInfoBean {
+  /** 公告id */
+  int32 noticeId = 1;
+  /** 公告类型: 0: 活动公告; 1: 系统公告 */
+  int32 type = 2;
+  /** 公告标题 */
+  string title = 3;
+  /** 公告内容 */
+  string content = 4;
+  /** 图标 */
+  string icon = 5;
+  /** 排序 */
+  int32 sort = 6;
+  /** 是否有红点 */
+  bool hasPoint = 7;
+}
+
+
+
+// 请求获取玩家活跃信息
+message CWGetPlayerActivePointInfoMessage {
+}
+
+// 响应获取玩家活跃信息
+message WCGetPlayerActivePointInfoMessage {
+  /** 活跃度奖励信息 */
+  repeated TaskActiveBean activeBean = 1;
+  /** 玩家活跃度 */
+  int32 active = 2;
+}
+
+// 活跃度信息
+message TaskActiveBean {
+  /** 活跃度要求 */
+  int32 active = 1;
+  /** 达成奖励 */
+  repeated ItemBean rewards = 2;
+  /** 是否领取 */
+  bool status = 3;
+}
+
+
+// 请求领取任务活跃度奖励
+message CWGetTaskActiveRewardMessage {
+  /** 活跃度礼包 */
+  int32 active = 1;
+}
+
+// 响应领取任务活跃度奖励
+message WCGetTaskActiveRewardMessage {
+  /** 奖励 */
+  repeated ItemBean rewards = 1;
+}
+
+
+
+// 请求标记完成新手引导
+message CWMarkFinishGuideMessage {
+}
+
+// 响应标记完成新手引导
+message WCMarkFinishGuideMessage {
+}
+
+
+// 请求获取新手累计签到信息
+message CWGetSignInfoMessage {
+}
+
+// 响应获取新手累计签到信息
+message WCGetSignInfoMessage {
+  /** 今天能否签到 */
+  bool canSign = 1;
+  /** 签到信息bean列表 */
+  repeated SignInfoBean signInfoBeanList = 2;
+}
+
+// 签到信息bean
+message SignInfoBean {
+  /** 第几天 */
+  int32 day = 1;
+  /** 是否签到 */
+  bool hasSign = 2;
+  /** 普通签到奖励 */
+  repeated ItemBean rewards = 3;
+  /** 累计签到奖励 */
+  repeated ItemBean accumulateRewards = 4;
+  /** 是否领取累计签到奖励 */
+  bool receiveAccumulateReward = 5;
+}
+
+// 请求领取累计签到奖励
+message CWGetSignRewardMessage {
+  /** 第几天 */
+  int32 day = 1;
+  /** 领取奖励类型 */
+  SingRewardEnun singRewardEnun = 2;
+}
+
+// 响应领取累计签到奖励
+message WCGetSignRewardMessage {
+  /** 累计签到奖励 */
+  repeated ItemBean rewards = 1;
+}
+
+// 领取奖励类型
+enum SingRewardEnun {
+  /** 签到奖励 */
+  SIGN_REWARD_SIGN = 0;
+  /** 累计奖励 */
+  SIGN_REWARD_ACCUMULATE = 1;
+  /** 一键领取 */
+  SIGN_REWARD_ALL = 2;
+}
+
+
+
+// 三方账号绑定类型
+enum ThirdPartyAccountEnum {
+  /** 游客 */
+  GUEST = 0;
+  /** fb */
+  FACEBOOK = 1;
+  /** 苹果 */
+  APPLE = 2;
+  /** 谷歌 */
+  GOOGLE = 3;
+  /** 华为 */
+  HUAWEI = 4;
+  /** 邮箱 */
+  EMAIL = 5;
+  /** 电话 */
+  TELEPHONE = 6;
+}
+
+// 请求绑定账号
+message CWBindAccountMessage {
+  /** token */
+  string token = 1;
+}
+
+// 返回绑定账号状态
+message WCBindAccountMessage {
+  /** 绑定的三方平台状态（ThirdPartyAccountEnum 的索引作为bit下标，1表示已绑定） */
+  int32 accountBindStatus = 1;
+  /** 绑定平台的奖励 */
+  repeated ItemBean rewards = 2;
+}
+
+/** 推送玩家基本信息变动消息 */
+message OnWCChangePlayerBaseInfoMessage {
+  /** 玩家信息 */
+  PlayerBaseInfoBean playerInfo = 1;
+}
+
+// 请求玩家个人信息
+message CWGetPlayerInfoMessage {
+  /** 玩家id */
+  int64 id = 1;
+}
+
+// 响应玩家个人信息
+message WCGetPlayerInfoMessage {
+  /** 玩家信息 */
+  PlayerBaseInfoBean playerInfo = 1;
+  /** 玩家战绩信息 */
+  repeated PlayerGameInfoBean playerGameInfo = 2;
+  /** 玩家礼包信息 */
+  PlayerGiftInfoBean playerGiftInfo = 3;
+  /** 礼物图鉴基本信息bean列表 */
+  repeated GiftBaseBean giftBaseBeanList = 4;
+}
+
+// 玩家信息
+message PlayerBaseInfoBean {
+  /** 玩家id */
+  int64 id = 1;
+  /** 玩家昵称 */
+  string nick = 2;
+  /** 性别 0-男 1-女 */
+  int32 sex = 3;
+  /** 玩家头像 */
+  string head = 4;
+  /** 玩家头像框 */
+  int32 headFrame = 5;
+  /** 个人信息面板皮肤 */
+  int32 panelSkin = 6;
+  /** 牌背皮肤 */
+  int32 pokerSkin = 7;
+  /** 桌背皮肤 */
+  int32 tableSkin = 8;
+  /** 气泡框 */
+  int32 bubbleFrame = 9;
+  /** 当前等级 */
+  int32 level = 10;
+  /** 当前等级已获得总经验 */
+  int32 curExp = 11;
+  /** 升级需要总经验 */
+  int32 needExp = 12;
+  /** vip等级 */
+  int32 vip = 13;
+  /** 是否有vip */
+  bool hasVip = 14;
+  /** vip过期时间 */
+  int64 vipExpireTime = 15;
+  /** 当前等级已获得经验 */
+  int32 curVipExp = 16;
+  /** 升级需要经验 */
+  int32 needVipExp = 17;
+  /** 金币 */
+  int64 gold = 18;
+  /** 钻石（自己） */
+  int64 diamond = 19;
+  /** 玩家是否在线 */
+  bool isOnline = 20;
+  /** 是否是好友关系 */
+  bool isFriend = 21;
+  /** 绑定的三方平台状态（ThirdPartyAccountEnum 的索引作为bit下标，1表示已绑定） */
+  int32 accountBindStatus = 22;
+  /** 魅力值 */
+  int64 charm = 23;
+}
+
+// 玩家简易信息
+message PlayerSimpleBean {
+  /** 玩家id */
+  int64 id = 1;
+  /** 玩家昵称 */
+  string nick = 2;
+  /** 玩家头像 */
+  string head = 3;
+  /** 玩家头像框 */
+  int32 headFrame = 4;
+  /** 当前等级 */
+  int32 level = 5;
+  /** vip等级 */
+  int32 vip = 6;
+  /** 是否有vip */
+  bool hasVip = 7;
+}
+
+// 玩家战绩信息
+message PlayerGameInfoBean {
+  /** 游戏Id */
+  int32 gameId = 1;
+  /** 总场 */
+  int32 totalNum = 2;
+  /** 胜场 */
+  int32 winNum = 3;
+}
+
+// TODO 玩家礼包信息
+message PlayerGiftInfoBean {
+}
+
+
+// 请求修改玩家个人信息
+message CWUpdatePlayerInfoMessage {
+  /** 昵称 */
+  string nick = 1;
+  /** 性别 */
+  int32 sex = 2;
+  /** 头像 */
+  string head = 3;
+  /** 头像框 */
+  int32 headFrame = 4;
+  /** 个人信息面板皮肤 */
+  int32 panelSkin = 5;
+  /** 牌背皮肤 */
+  int32 pokerSkin = 6;
+  /** 桌背皮肤 */
+  int32 tableSkin = 7;
+  /** 气泡框 */
+  int32 bubbleFrame = 8;
+}
+
+// 响应修改玩家个人信息
+message WCUpdatePlayerInfoMessage {
+}
+
+// 玩家升级推送
+message OnPushUpgradeRewardMessage {
+  /** 升级前等级 */
+  int32 originLevel = 1;
+  /** 升级后等级 */
+  int32 curLevel = 2;
+  /** 升级后总经验 */
+  int32 curExp = 3;
+  /** 升下一级需要总经验 */
+  int32 needExp = 4;
+  /** 升级总奖励 */
+  repeated ItemBean rewards = 5;
+}
+
+// 批量获取玩家简单信息集
+message CWGetPlayerSimpleBeansMessage {
+  /** 玩家ids */
+  repeated int64 playerIds = 1;
+}
+
+// 返回玩家简单信息集
+message WCGetPlayerSimpleBeansMessage {
+  /** 玩家ids */
+  repeated PlayerSimpleBean beans = 1;
+}
+
+
+
+// 请求获取vip信息列表
+message CWGetVipInfoListMessage {
+}
+
+// 响应获取vip信息列表
+message WCGetVipInfoListMessage {
+  /** vip加成bean列表 */
+  repeated VipBonusBean vipBonusBeanList = 1;
+}
+
+// vip加成bean
+message VipBonusBean {
+  /** vip等级 */
+  int32 level = 1;
+  /** 描述 */
+  string desc = 2;
+  /** 升级奖励 */
+  repeated ItemBean rewards = 3;
+  /** 玩家等级经验加成（万分比） */
+  int32 expAddition = 4;
+  /** 每日金币赠送上限 */
+  int64 donateGoldLimit = 5;
+  /** 每日金币赠送费用（万分比） */
+  int32 donateCostRatio = 6;
+  /** 每日麦克风次数 */
+  int32 microphoneTimes = 7;
+  /** 破产救助次数 */
+  int32 bankruptHelpTimes = 8;
+  /** 额外好友上限 */
+  int32 friendLimit = 9;
+  /** 额外相册数量上限 */
+  int32 photoLimit = 10;
+  /** 欢迎特效 */
+  bool welcome = 11;
+  /** 加速时间（单位小时） */
+  int32 accelerationTime = 12;
+  /** 折扣与特惠 */
+  double discount = 13;
+  /** vip商品信息 */
+  GoodsBean goodsBean = 14;
+}
+
+// 请求获取玩家vip卡信息
+message CWGetPlayerVipCardInfoMessage {
+}
+
+// 响应获取玩家vip信息
+message WCGetPlayerVipCardInfoMessage {
+  /** 当前vip卡天数(过期为0) */
+  int32 curVipDay = 1;
+  /** vip卡bean列表 */
+  repeated VipCardBean vipCardBeanList = 2;
+}
+
+// vip卡bean
+message VipCardBean {
+  /** 天数 */
+  int32 vipDay = 1;
+  /** 商品id(购买则激活对应vip天数) */
+  int32 goodsId = 2;
+  /** 商品类型(可解锁购买的商品类型) */
+  repeated int32 unlockShopTypes = 3;
+}
+
+// 玩家vip升级推送
+message OnPushVipUpgradeRewardMessage {
+  /** 升级前等级 */
+  int32 originLevel = 1;
+  /** 升级后等级 */
+  int32 curLevel = 2;
+  /** 升级后经验 */
+  int32 curExp = 3;
+  /** 升下一级需要经验 */
+  int32 needExp = 4;
+  /** 升级总奖励 */
+  repeated ItemBean rewards = 5;
+}
+
+
+// 请求领取免费vip月卡奖励
+message CWGetVipFreeRewardMessage {
+}
+
+// 响应领取免费vip月卡奖励
+message WCGetVipFreeRewardMessage {
+  /** 奖励列表 */
+  repeated ItemBean rewards = 1;
+}
+
+
+
+/** 榜单类型 */
+enum RankTypeEnum {
+  /** 日榜 */
+  DAILY = 0;
+  /** 周榜 */
+  WEEK = 1;
+  /** 月榜 */
+  MONTH = 2;
+  /** 总榜 */
+  TOTAL = 3;
+}
+
+// 玩家排行榜信息
+message PlayerRankBean {
+  /** 玩家id */
+  int64 id = 1;
+  /** 排名 */
+  int32 rank = 2;
+  /** 分值 */
+  int64 score = 3;
+  /** 玩家昵称 */
+  string nick = 4;
+  /** 玩家头像 */
+  string head = 5;
+  /** 玩家头像框 */
+  int32 headFrame = 6;
+  /** 当前等级 */
+  int32 level = 7;
+  /** vip等级 */
+  int32 vip = 8;
+  /** 是否有vip */
+  bool hasVip = 9;
+  /** vip过期时间 */
+  int64 vipExpireTime = 10;
+}
+
+// 玩家简易排行榜信息
+message PlayerSimpleRankBean {
+  /** 玩家id */
+  int64 id = 1;
+  /** 排名 */
+  int32 rank = 2;
+  /** 分值 */
+  int64 score = 3;
+  /** 玩家昵称 */
+  string nick = 4;
+}
+
+// 获取榜单信息
+message CWGetRankInfosMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 榜单类型 */
+  RankTypeEnum type = 2;
+  /** 第几期榜单（0：本期，-1：上一期） */
+  int32 period = 3;
+  /** 榜单翻页索引(即本页的最后一个排名值) */
+  int32 offset = 4;
+  /** 版本号 */
+  int32 version = 5;
+}
+
+// 返回榜单信息
+message WCGetRankInfosMessage {
+  /** 排行榜信息 */
+  repeated PlayerRankBean rankBeans = 1;
+  /** 自己的信息 */
+  PlayerRankBean own = 2;
+  /** 版本号 */
+  int32 version = 3;
+}
+
+// 玩家榜单变更推送（针对baloot金币榜）
+message OnZCPushNearRankMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 榜单类型 */
+  RankTypeEnum type = 2;
+  /** 玩家周边排名 */
+  repeated PlayerSimpleRankBean nearRankList = 3;
+}
+
+// 玩家排行榜积分信息
+message RankScoreBean {
+  /** id */
+  int64 id = 1;
+  /** 排名 */
+  int32 rank = 2;
+  /** 分值 */
+  int64 score = 3;
+}
+
+// 获取榜单积分排名信息
+message CWGetRankScoreMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 榜单类型 */
+  RankTypeEnum type = 2;
+  /** 第几期榜单（0：本期，-1：上一期） */
+  int32 period = 3;
+  /** 额外参数 */
+  repeated string params = 4;
+}
+
+// 返回榜单积分排名信息
+message WCGetRankScoreMessage {
+  /** 排行榜信息 */
+  repeated RankScoreBean rankBeans = 1;
+  /** 自己的信息 */
+  RankScoreBean own = 2;
+}
+
+
+
+// RPC数据包定义
+message RpcPackageMessage {
+  /** 目标玩家ID */
+  int64 playerId = 1;
+  /** 传输模式 0-C2S 1-S2C */
+  int32 mode = 2;
+  /** 服务提供方启动时间 */
+  int64 bootTime = 3;
+  /** 服务提供方的序列号 */
+  int64 sequence = 4;
+  /** 服务提供方类签名 */
+  string provider = 5;
+  /** 服务提供方方法签名 */
+  string api = 6;
+  /** 数据 */
+  bytes data = 7;
+}
+
+
+/** ping-pong响应 */
+message ECPongMessage {
+  /** 服务器时间 */
+  int64 systemTime = 1;
+}
+
+/** 操作类型 */
+enum ClientDBOperationType {
+  /** 查询 */
+  SELECT = 0;
+  /** 更新 */
+  UPDATE = 1;
+  /** 删除 */
+  DELETE = 2;
+}
+
+/** 客户端请求数据操作 */
+message CEClientDBMessage {
+  /** 操作类型 */
+  ClientDBOperationType operationType = 1;
+  /** 唯一key（varchar30） */
+  repeated string keys = 2;
+  /** 值（varchar200）UPDATE时传递 */
+  repeated string values = 3;
+}
+
+/** 服务器返回数据操作结果 */
+message ECClientDBMessage {
+  /** key-value,更新删除操作会返回旧值 */
+  map<string, string> map = 1;
+}
+
+/** 请求获取配置版本号 */
+message CEConfigVersionMessage {
+  /** 配置名 */
+  repeated string keys = 1;
+}
+
+/** 响应配置版本号 */
+message ECConfigVersionMessage {
+  /** key-配置名 value-版本号 */
+  map<string, string> map = 1;
+}
+
+/** 推送配置版本号 */
+message OnECConfigVersionMessage {
+  /** key-配置名 value-版本号 */
+  map<string, string> map = 1;
+}
+
+/** 请求获取常量配置 */
+message CEClientParamConfigMessage {
+  /** 配置名 */
+  repeated string keys = 1;
+}
+
+/** 响应常量配置 */
+message ECClientParamConfigMessage {
+  /** key-配置名 value-值 */
+  map<string, string> map = 1;
+}
+
+
+
+// 金币回购礼包
+message GoldReturnBean {
+  /** 拍脸时间 ms */
+  int64 popFaceTime = 1;
+  /** 持续时间 ms */
+  int64 delayTime = 2;
+  /** 损失金币 */
+  int64 lossGold = 3;
+  /** 已购买次数 */
+  int32 buyCount = 4;
+  /** 限制购买次数 */
+  int32 limitCount = 5;
+  /** 折扣 */
+  string discount = 6;
+}
+
+// 推送高额金币回购礼包信息
+message OnWCGoldReturnMessage {
+  /** 商品信息 */
+  GoodsBean goodsBean = 1;
+  /** 延迟时间 */
+  int32 delayTime = 2;
+}
+
+
+
+// 请求商品列表信息
+message CWGetShopGoodsMessage {
+  /** 功能id */
+  int32 functionId = 1;
+}
+
+// 响应商品列表信息
+message WCGetShopGoodsMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 商品列表信息 */
+  repeated GoodsBean goodsList = 2;
+}
+
+
+// 请求商品列表信息ByType
+message CWGetShopGoodsByTypeMessage {
+  /** 商品类型 */
+  int32 type = 1;
+}
+
+// 响应商品列表信息ByType
+message WCGetShopGoodsByTypeMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 商品列表信息 */
+  repeated GoodsBean goodsList = 2;
+}
+
+// 请求商品信息
+message CWGetShopGoodsByGoodsIdMessage {
+  /** 商品id */
+  int32 goodsId = 1;
+}
+
+// 响应商品信息
+message WCGetShopGoodsByGoodsIdMessage {
+  /** 商品信息 */
+  GoodsBean goodsBean = 1;
+}
+
+
+// 商品信息
+message GoodsBean {
+  /** 商品id */
+  int32 goodsId = 1;
+  /** 商品基本信息 */
+  CommonGoodsBean commonGoods = 2;
+  /** 拍脸礼包信息 */
+  PopFaceBean popFaceBean = 3;
+}
+
+// 商品基本信息
+message CommonGoodsBean {
+  /** 商品类型 */
+  int32 goodsType = 1;
+  /** 商品名称 */
+  string name = 2;
+  /** 商品描述 */
+  string desc = 3;
+  /** 商品价格 */
+  ItemBean price = 4;
+  /** 商品原价 */
+  ItemBean originPrice = 5;
+  /** 折扣 */
+  int32 discount = 6;
+  /** 商品获得 */
+  repeated ItemBean rewards = 7;
+  /** 商品获得 */
+  repeated ItemBean extraRewards = 8;
+  /** 商品原获得 */
+  repeated ItemBean originRewards = 9;
+  /** 限购类型: 0:无限购; 1: 每日限购; 2: 每周限购; 3: 每月限购; 4: 终生限购; 5: 赛季限购 */
+  int32 limitType = 10;
+  /** 限购数量: 限购次数, -1表示无限购。 */
+  int32 limitCount = 11;
+  /** 本次限购的购买次数 */
+  int32 alreadyBuyTimes = 12;
+  /** 商品排序 */
+  int32 sort = 13;
+  /** 商品图标 */
+  string icon = 14;
+  /** 角标 */
+  string tag = 15;
+  /** 平台id */
+  string platform = 16;
+  /** 限定渠道 */
+  string channel = 17;
+  /** param */
+  string param = 18;
+  /** 开始购买时间 */
+  int64 startBuyTime = 19;
+  /** 截止购买时间 */
+  int64 endBuyTime = 20;
+}
+
+// 拍脸礼包
+message PopFaceBean {
+  /** 拍脸时间 */
+  int64 popFaceTime = 1;
+  /** 持续时间(毫秒值) */
+  int64 delayTime = 2;
+  /** 是否有红点 */
+  bool hasPoint = 3;
+}
+
+// 请求购买商品
+message CWBuyShopGoodsMessage {
+  /** 商品id */
+  int32 goodsId = 1;
+}
+
+// 响应购买商品
+message WCBuyShopGoodsMessage {
+  /** 商品获得 */
+  int32 goodsId = 1;
+  /** 商品获得 */
+  repeated ItemBean rewards = 2;
+  /** 道具不足弹窗礼包列表 */
+  repeated GoodsBean popGoodsList = 3;
+  /** 冻结道具总数量 */
+  int64 freezeItemNum = 4;
+  /** 弹窗礼包原因列表 */
+  repeated PopGoodsReason popGoodsReasonList = 5;
+}
+
+// 请求发送推送弹窗礼包
+message AWSendOnPushPopGoodsMessage {
+  /** 弹窗礼包id列表 */
+  repeated int32 goodsIdList = 1;
+  /** 弹窗礼包id */
+  int64 targetPlayerId = 2;
+  /** 冻结道具总数量 */
+  int64 freezeItemNum = 3;
+  /** 弹窗礼包原因列表 */
+  repeated PopGoodsReason popGoodsReasonList = 4;
+}
+
+// 推送弹窗礼包
+message OnPushPopGoodsMessage {
+  /** 道具不足弹窗礼包 */
+  repeated GoodsBean popGoodsList = 1;
+  /** 冻结道具总数量 */
+  int64 freezeItemNum = 2;
+  /** 弹窗礼包原因列表 */
+  repeated PopGoodsReason popGoodsReasonList = 3;
+  /** 额外参数 */
+  string param = 4;
+}
+
+// 弹窗礼包原因
+enum PopGoodsReason {
+  /** 普通 */
+  POP_REASON_COMMON = 0;
+  /** baloot对局冻结 */
+  POP_REASON_BALOOT = 1;
+  /** 弹脸礼包 */
+  POP_REASON_POP_FACE = 2;
+}
+
+
+
+
+// 请求获取主线任务信息（定制化开发）
+message CWGetMainTaskInfoMessage {
+  /** 任务类型 */
+  int32 taskType = 1;
+}
+
+// 响应获取主线任务信息（定制化开发）
+message WCGetMainTaskInfoMessage {
+  /** 主任务bean信息 */
+  TaskBean mainTaskBean = 1;
+}
+
+
+// 推送主线任务变更（定制化开发）
+message OnWCPushMainTaskMessage {
+  /** 主任务bean信息 */
+  TaskBean mainTaskBean = 1;
+}
+
+
+
+// 请求玩家任务列表信息消息
+message CWGetPlayerTaskListMessage {
+  /** 功能id */
+  int32 functionId = 1;
+}
+
+// 响应玩家任务列表信息消息
+message WCGetPlayerTaskListMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 任务信息bean列表 */
+  repeated TaskBean taskBeanList = 2;
+}
+
+
+// 请求玩家任务列表ByTaskType消息
+message CWGetPlayerTaskListByTypeMessage {
+  /** 任务类型 */
+  int32 taskType = 1;
+}
+
+// 响应玩家任务列表ByTaskType消息
+message WCGetPlayerTaskListByTypeMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 任务信息bean列表 */
+  repeated TaskBean taskBeanList = 2;
+}
+
+// 任务信息bean
+message TaskBean {
+  /** 任务基本信息 */
+  BaseTaskBean baseTaskBean = 1;
+}
+
+// 任务基本信息
+message BaseTaskBean {
+  /** 任务类型 */
+  int32 taskType = 1;
+  /** 任务id */
+  int32 taskId = 2;
+  /** 任务重置类型(0: 终生不重置; 1: 每天重置; 2: 每周重置; 3: 每月重置; 4: 赛季重置) */
+  int32 resetType = 3;
+  /** 任务描述 */
+  string desc = 4;
+  /** 目标数量 */
+  int64 targetNum = 5;
+  /** 奖励 */
+  repeated ItemBean rewards = 6;
+  /** 跳转标识 */
+  string guide = 7;
+  /** 任务图标 */
+  string icon = 8;
+  /** 当前任务进度 */
+  int64 currProgress = 9;
+  /** 任务状态(0: 已完成(未领取); 1:未完成; 2: 已领取; 3:未解锁) */
+  int32 state = 10;
+}
+
+message GetTaskRewardBean {
+  /** 任务类型 */
+  int32 taskType = 1;
+  /** 任务id列表（不传领或-1，领取全部） */
+  repeated int32 taskIds = 2;
+}
+
+// 请求领取玩家任务奖励消息
+message CWGetPlayerTaskRewardMessage {
+  /** 任务领奖 */
+  repeated GetTaskRewardBean tasks = 1;
+}
+
+// 响应领取玩家任务奖励消息
+message WCGetPlayerTaskRewardMessage {
+  /** 奖励 */
+  repeated ItemBean rewards = 1;
+  /** 玩家活跃度 */
+  int32 active = 2;
+}
+
+// 请求日常任务列表（定制化开发接口）
+message CWTaskTableMessage {
+}
+
+// 响应日常任务列表（定制化开发接口）
+message WCTaskTableMessage {
+  /** 任务基本信息列表 */
+  repeated BaseTaskBean baseTaskBeanList = 1;
+  /** 活跃度奖励信息 */
+  repeated TaskActiveBean activeBean = 2;
+  /** 玩家活跃度 */
+  int32 active = 3;
+}
+
+// 请求领取任务奖励（定制化开发接口）
+message CWGetTaskRewardMessage {
+}
+
+// 响应领取任务奖励（定制化开发接口）
+message WCGetTaskRewardMessage {
+  /** 奖励 */
+  repeated ItemBean rewards = 1;
+  /** 玩家活跃度 */
+  int32 active = 2;
+}
+
+
+
+
+// 比赛类型
+enum TournamentType {
+  /** 班车赛 */
+  TOURNAMENT_SHUTTLE = 0;
+  /** 定时赛 */
+  TOURNAMENT_TIME = 1;
+}
+
+// 比赛阶段
+enum TournamentStageEnum {
+  /** 展示挂牌阶段 */
+  TOURNAMENT_SHOW = 0;
+  /** 报名阶段 */
+  TOURNAMENT_APPLY = 1;
+  /** 准备阶段 */
+  TOURNAMENT_PREPARE = 2;
+  /** 比赛阶段-开始匹配阶段 */
+  TOURNAMENT_MATCH_START = 3;
+  /** 比赛阶段-等待完成阶段 */
+  TOURNAMENT_MATCH_WAIT = 4;
+  /** 比赛阶段-结算晋级阶段（结算后重新回到开始匹配阶段） */
+  TOURNAMENT_MATCH_SETTLE = 5;
+  /** 结束阶段 */
+  TOURNAMENT_END = 6;
+}
+
+// 比赛阶段的进程配置信息
+message TournamentMatchProgressInfo {
+  /** 进程名（预赛、淘汰赛、决赛等） */
+  string name = 1;
+  /** 每次晋级需要打的轮数（如：1、1、2） */
+  repeated int32 roundList = 2;
+  /** 每次晋级的列表（如：32、24、16） */
+  repeated int32 advanceList = 3;
+  /** 积分衰退系数（服务器使用） */
+  double rate = 4;
+}
+
+// 比赛面板信息
+message TournamentFrameInfo {
+  /** 比赛类型 */
+  TournamentType type = 1;
+  /** 比赛ID */
+  int32 id = 2;
+  /** 比赛名 */
+  string name = 3;
+  /** 皮肤 */
+  string skin = 4;
+  /** 报名费 */
+  repeated ItemBean cost = 5;
+  /** 是否报名（未报名或被淘汰时，均为false） */
+  bool join = 6;
+  /** 比赛当前阶段 */
+  TournamentStageEnum stage = 7;
+  /** 开赛人数（班车赛） */
+  int32 num = 8;
+  /** 参数人数（定时赛） */
+  int32 joinNum = 9;
+  /** 比赛开始时间（定时赛） */
+  int64 startTime = 10;
+  /** 可报名时间偏移量 ms 0-无（定时赛） */
+  int64 applyTimeOffset = 11;
+  /** 等待时间偏移量 ms 0-无（定时赛） */
+  int64 readyTimeOffset = 12;
+  /** 是否被淘汰（定时赛被淘汰，且比赛仍在进行中，返回true） */
+  bool knockout = 13;
+}
+
+// 比赛奖励配置
+message TournamentRewardBean {
+  /** 排名下限 */
+  int32 rankMin = 1;
+  /** 排名上限 */
+  int32 rankMax = 2;
+  /** 奖励 */
+  repeated ItemBean rewards = 3;
+  /** 奖励串（服务器使用） */
+  string rewardStr = 4;
+}
+
+// 比赛历史信息
+message TournamentHistoryBean {
+  /** 排名 */
+  int32 rank = 1;
+  /** 时间 */
+  int64 time = 2;
+}
+
+// 获取比赛列表
+message CZTournamentFrameListMessage {
+  /** 比赛类型 */
+  TournamentType type = 1;
+}
+
+// 返回比赛列表
+message ZCTournamentFrameListMessage {
+  /** 比赛面板信息 */
+  repeated TournamentFrameInfo frameInfo = 1;
+}
+
+// 返回比赛列表
+message ZCMyTournamentFrameListMessage {
+  /** 比赛面板信息 */
+  repeated TournamentFrameInfo frameInfo = 1;
+}
+
+// 获取比赛详细
+message CZTournamentFrameDetailMessage {
+  /** 比赛ID */
+  int32 id = 1;
+  /** 是否需要配置信息 */
+  bool needConfig = 2;
+}
+
+// 返回比赛详细
+message ZCTournamentFrameDetailMessage {
+  /** 比赛排名奖励 */
+  repeated TournamentRewardBean rewards = 1;
+  /** 比赛历史记录 */
+  repeated TournamentHistoryBean history = 2;
+  /** 比赛最佳历史 */
+  TournamentHistoryBean bestHistory = 3;
+  /** 参数人数 */
+  int32 joinNum = 4;
+  /** 是否报名 */
+  bool join = 5;
+}
+
+
+// 加入比赛
+message CZJoinTournamentMessage {
+  /** 比赛ID */
+  int32 id = 1;
+}
+
+// 退出比赛
+message CZUnJoinTournamentMessage {
+  /** 比赛ID */
+  int32 id = 1;
+}
+
+// 比赛通知客户端匹配游戏成功
+message OnGCTournamentMatchGameMessage {
+  /** 匹配的玩家id */
+  repeated int64 playerIds = 1;
+}
+
+// 比赛状态切换通知
+message OnZCTournamentStageChangeMessage {
+  /** 比赛ID */
+  int32 id = 1;
+  /** 比赛当前阶段 */
+  TournamentStageEnum stage = 2;
+  /** 比赛名 */
+  string name = 3;
+}
+
+// 比赛阶段-结算信息（一轮比赛结束，玩家晋级或淘汰信息）
+message OnZCTournamentSettleMessage {
+  /** 比赛ID */
+  int32 id = 1;
+  /** 比赛类型 */
+  TournamentType type = 2;
+  /** 比赛当前阶段 */
+  TournamentStageEnum stage = 3;
+  /** 比赛排名 */
+  int32 rank = 4;
+  /** 比赛积分 */
+  int32 score = 5;
+  /** 转换后的积分 */
+  int32 transScore = 6;
+  /** 是否晋级 */
+  bool advance = 7;
+  /** 奖励（淘汰玩家若有） */
+  repeated ItemBean rewards = 8;
+}
+
+
+// 比赛阶段-玩家积分信息
+message TournamentGamePlayerScoreInfo {
+  /** 玩家id */
+  int64 playerId = 1;
+  /** 比赛排名 */
+  int32 rank = 2;
+  /** 当前积分 */
+  int32 score = 3;
+}
+
+// 比赛阶段-游戏中的面板信息（一局比赛打完返回，游戏同步协议返回）
+message TournamentGameFrameInfo {
+  /** 比赛ID */
+  int32 id = 1;
+  /** 当前进度信息 */
+  repeated TournamentMatchProgressInfo progressInfo = 2;
+  /** 当前进程索引 */
+  int32 progressIdx = 3;
+  /** 当前晋级索引 */
+  int32 advanceIdx = 4;
+  /** 当前盘数 */
+  int32 currRound = 5;
+  /** 玩家积分信息 */
+  repeated TournamentGamePlayerScoreInfo playerInfos = 6;
+  /** 参与人数 */
+  int32 playerNum = 7;
+  /** 比赛类型 */
+  TournamentType type = 8;
+}
+
+
+// 比赛阶段-推送比赛剩余等待人数
+message OnZCTournamentMatchWaitNumMessage {
+  /** 比赛ID */
+  int32 id = 1;
+  /** 剩余等待人数 */
+  int32 waitNum = 2;
+}
+
+// 已报名的比赛信息
+message TournamentApplyBean {
+  /** 比赛ID */
+  int32 id = 1;
+  /** 比赛名 */
+  string name = 2;
+  /** 比赛开始时间 */
+  int64 startTime = 3;
+}
+
+// 推送已报名未开赛的比赛信息
+message OnZCTournamentApplyMessage {
+  /** 报名的比赛 */
+  repeated TournamentApplyBean applyBeans = 1;
+}
+
+// 推送进行中的比赛ID
+message OnZCTournamentMatchingMessage {
+  /** 比赛ID */
+  int32 id = 1;
+  /** 比赛名 */
+  string name = 2;
+}
+
+// 返回进行中的比赛ID
+message ZCTournamentMatchingMessage {
+  /** gameId */
+  int32 gameId = 1;
+  /** roomId */
+  int32 roomId = 2;
+  /** 比赛ID */
+  int32 id = 3;
+  /** 比赛名 */
+  string name = 4;
+}
+
+// 比赛阶段-请求进行中的比赛信息
+message CZTournamentMatchStageInfoMessage {
+  /** 比赛ID */
+  int32 id = 1;
+}
+
+// 比赛阶段-响应获取进行中的比赛信息
+message ZCTournamentMatchStageInfoMessage {
+  /** 比赛类型 */
+  TournamentType type = 1;
+  /** 比赛当前阶段 */
+  TournamentStageEnum stage = 2;
+  /** 剩余等待人数 */
+  int32 waitNum = 3;
+  /** 准备阶段-结束时间（ms） */
+  int64 prepareTime = 4;
+  /** 准备阶段-初始积分 */
+  int32 initScore = 5;
+  /** 比赛阶段-进行中的面板信息 */
+  TournamentGameFrameInfo frameInfo = 6;
+}
+
+
+
+
+
+// 请求获取冲级活动信息
+message CWGetUpgradeActivityInfoMessage {
+}
+
+// 响应获取冲级活动信息
+message WCGetUpgradeActivityInfoMessage {
+  /** 玩家当前等级 */
+  int32 level = 1;
+  /** 升级奖励列表 */
+  repeated UpgradeActivityInfoBean upgradeActivityInfoBeanList = 2;
+}
+
+// 冲级活动奖励bean
+message UpgradeActivityInfoBean {
+  /** id */
+  int32 id = 1;
+  /** 等级条件 */
+  int32 needLevel = 2;
+  /** 是否领取奖励 */
+  bool hasReward = 3;
+  /** 奖励列表 */
+  repeated ItemBean rewards = 4;
+  /** 是否是大奖 */
+  bool specialReward = 5;
+}
+
+// 请求领取冲级活动奖励
+message CWGetUpgradeActivityRewardMessage {
+  /** id -1表示领取所有 */
+  int32 id = 1;
+}
+
+// 响应领取冲级活动奖励
+message WCGetUpgradeActivityRewardMessage {
+  /** 奖励列表 */
+  repeated ItemBean rewards = 1;
+}
+
+
+
+/** 语音房类型 */
+enum VoiceTypeEnum {
+  /** 交友 */
+  VOICE_TYPE_FRIENDS = 0;
+  /** 聊天 */
+  VOICE_TYPE_CHAT = 1;
+  /** 唱歌 */
+  VOICE_TYPE_SINGING = 2;
+  /** 游戏 */
+  VOICE_TYPE_GAME = 3;
+}
+
+/** 语音房玩家角色 */
+enum VoiceRoleEnum {
+  /** 房主 */
+  VOICE_ROLE_OWNER = 0;
+  /** 管理员 */
+  VOICE_ROLE_ADMIN = 1;
+  /** 成员 */
+  VOICE_ROLE_MEMBER = 2;
+  /** 游客 */
+  VOICE_ROLE_GUEST = 3;
+}
+
+/** 语音房基本信息 */
+message VoiceListTableBean {
+  /** 房间ID */
+  VoiceTableBean baseTable = 1;
+  /** 我喜欢的房间 */
+  bool myLike = 2;
+  /** 我关注的房间 */
+  bool myFollow = 3;
+}
+
+/** 语音房简单信息 */
+message VoiceTableSimpleBean {
+  /** 房间ID */
+  int32 id = 1;
+  /** 房间名 */
+  string name = 2;
+  /** 房间logo */
+  string logo = 3;
+  /** 国家 */
+  string country = 4;
+}
+
+/** 语音房基本信息 */
+message VoiceTableBean {
+  /** 房间ID */
+  int32 id = 1;
+  /** 房主ID */
+  int64 ownerId = 2;
+  /** 房间名 */
+  string name = 3;
+  /** 房间logo */
+  string logo = 4;
+  /** 房间简介 */
+  string desc = 5;
+  /** 国家 */
+  string country = 6;
+  /** 房间类型 */
+  VoiceTypeEnum type = 7;
+  /** 房间人数 */
+  int32 onlineNum = 8;
+  /** 喜欢人数（仅自己可见） */
+  int32 likeNum = 9;
+  /** 座位类型 0-5人 1-10人 */
+  int32 seatType = 10;
+  /** 房间皮肤 */
+  string skinId = 11;
+}
+
+/** 语音房玩家信息 */
+message VoicePlayerBean {
+  /** 玩家ID */
+  int64 playerId = 1;
+  /** 玩家昵称 */
+  string nick = 2;
+  /** 性别 0-男 1-女 */
+  int32 sex = 3;
+  /** 玩家头像 */
+  string head = 4;
+  /** 玩家头像框 */
+  int32 headFrame = 5;
+  /** 玩家语音房头像框 */
+  ItemBean voiceHeadFrame = 6;
+  /** 语音房玩家角色 */
+  VoiceRoleEnum role = 7;
+  /** 我喜欢的房间 */
+  bool myLike = 8;
+  /** 我关注的房间 */
+  bool myFollow = 9;
+  /** 玩家token */
+  string voiceToken = 10;
+  /** 是否被禁言 */
+  bool muteMic = 11;
+  /** 静音的玩家（仅自己不听这些人说话） */
+  repeated int64 skipMicPlayerIds = 12;
+  /** 是否静音所有玩家 */
+  bool skipAll = 13;
+}
+
+/** 语音房列表类型 */
+enum VoiceListTypeEnum {
+  /** 全局的 */
+  VOICE_LIST_GLOBAL = 0;
+  /** 最近的 */
+  VOICE_LIST_RECENT = 1;
+  /** 喜欢的 */
+  VOICE_LIST_LIKE = 2;
+  /** 关注的 */
+  VOICE_LIST_FOLLOW = 3;
+  /** 自己的 */
+  VOICE_LIST_OWNER = 4;
+  /** ID搜索 - param：目标voiceId */
+  VOICE_LIST_SEARCH = 5;
+  /** 他人房间 - param：目标playerId */
+  VOICE_LIST_TARGET = 6;
+}
+
+// 请求获取语音房列表
+message CZVoiceListMessage {
+  /** 列表类型 */
+  VoiceListTypeEnum listType = 1;
+  /** 当前查询的偏移量 */
+  int32 offset = 2;
+  /** 参数 当查询他人房间时传入他人房间id */
+  string param = 3;
+}
+
+// 响应获取语音房列表
+message ZCVoiceListMessage {
+  /** 列表语音房信息 */
+  repeated VoiceListTableBean tables = 1;
+}
+
+// 请求创建语音房
+message CZVoiceCreateMessage {
+  /** 房间名 */
+  string name = 1;
+  /** 房间logo */
+  string logo = 2;
+  /** 房间简介 */
+  string desc = 3;
+  /** 房间背景 */
+  string skinId = 4;
+  /** 房间类型 */
+  VoiceTypeEnum type = 5;
+}
+
+// 响应创建语音房
+message ZCVoiceCreateMessage {
+  /** 列表语音房信息 */
+  VoiceListTableBean tables = 1;
+}
+
+// 语音房命令枚举
+enum VoiceCommandEnum {
+  /** 喜欢房间-无arg，无推送 */
+  VOICE_COMMAND_LIKE = 0;
+  /** 取消喜欢房间-无arg，无推送 */
+  VOICE_COMMAND_UN_LIKE = 1;
+  /** 语音房数据同步(进入) */
+  VOICE_COMMAND_SYNC = 2;
+  /** 语音房数据同步(推送他人) */
+  VOICE_COMMAND_SYNCED = 3;
+  /** 语音房退出 */
+  VOICE_COMMAND_EXIT = 4;
+  /** 申请麦克风 arg0: seatId */
+  VOICE_COMMAND_APPLY_MIKE = 5;
+  /** 接受申请麦克风 TODO next version */
+  VOICE_COMMAND_ACCEPT_APPLY_MIKE = 6;
+  /** 邀请加入麦克风 arg0: seatId; arg1: targetPlayerId TODO next version */
+  VOICE_COMMAND_INVITE_MIKE = 7;
+  /** 接受邀请加入麦克风 TODO next version */
+  VOICE_COMMAND_ACCEPT_INVITE_MIKE = 8;
+  /** 将玩家踢出麦克风 arg0: seatId */
+  VOICE_COMMAND_KICK_MIKE = 9;
+  /** 玩家离开麦克风 */
+  VOICE_COMMAND_LEAVE_MIKE = 10;
+  /** 自己换麦克风 arg0: toSeatId */
+  VOICE_COMMAND_CHANGE_MIKE = 11;
+  /** 帮其他人交换麦克风(需要权限) arg0: fromSeatId; arg1: toSeatId */
+  VOICE_COMMAND_CHANGE_OTHER_MIKE = 12;
+  /** 锁住麦克风(无法申请上麦) arg0: seatId */
+  VOICE_COMMAND_LOCK_MIKE = 13;
+  /** 静音玩家(自己听不见) arg0: targetPlayerId */
+  VOICE_COMMAND_SKIP_MIKE = 14;
+  /** 静音所有玩家(自己听不见) */
+  VOICE_COMMAND_SKIP_ALL = 15;
+  /** 禁言玩家(大家听不见) arg0: targetPlayerId */
+  VOICE_COMMAND_MUTE_PLAYER_MIKE = 16;
+  /** 刷新语音token */
+  VOICE_COMMAND_REFRESH_TOKEN = 17;
+  /** 房间设置 */
+  VOICE_COMMAND_SETTING = 18;
+  /** 踢出玩家 arg0: targetPlayerId */
+  VOICE_COMMAND_KICK_PLAYER = 19;
+  /** 查看在线玩家列表 arg0: offset */
+  VOICE_COMMAND_PLAYER_LIST = 20;
+  /** 发送礼物 arg0: 礼物id; arg1: 类型(大于0: 指定玩家发送; -1: 给所有人发送礼物; -2: 给上麦玩家发送); arg2: 发送礼物数量; */
+  VOICE_COMMAND_SEND_GIFT = 21;
+}
+
+// 请求执行语音房命令
+message CZVoiceExecuteCommandMessage {
+  /** 语音房ID */
+  int32 voiceId = 1;
+  /** 语音房命令 */
+  VoiceCommandEnum command = 2;
+  /** 语音房命令参数 */
+  repeated string args = 3;
+}
+
+// 推送语音房信息
+message OnZCVoiceInfoMessage {
+  /** 操作命令 */
+  VoiceCommandEnum command = 1;
+  /** 房间信息 */
+  VoiceTableBean table = 2;
+  /** 麦信息列表 */
+  repeated VoiceMicBean micList = 3;
+  /** 首页展示玩家信息(只显示前4个) */
+  repeated VoicePlayerBean showList = 4;
+  /** 在线列表玩家信息(分页的在线列表数据) */
+  repeated VoicePlayerBean playerList = 5;
+  /** 自己信息 */
+  VoicePlayerBean self = 6;
+  /** 收到影响的玩家ID */
+  int64 affectedPlayerId = 7;
+  /** 发送语音房礼物信息bean */
+  VoiceGiftRecordBean sendVoiceGiftBean = 8;
+  /** 昨日送礼榜Top10玩家 */
+  repeated int64 playerTop10 = 9;
+  /** 房间积分 */
+  int64 score = 10;
+}
+
+// 语音房麦克风信息bean
+message VoiceMicBean {
+  /** 座位号 */
+  int32 seatId = 1;
+  /** 状态: 0: 正常; -1: 锁住 */
+  int32 state = 2;
+  /** 上麦玩家 未上麦为null */
+  VoicePlayerBean seatPlayer = 3;
+}
+
+
+// 请求获取语音房简单信息集
+message CZGetVoiceTableSimpleBeansMessage {
+  /** 语音房ids */
+  repeated int32 voiceIds = 1;
+}
+
+// 返回语音房简单信息集
+message ZCGetVoiceTableSimpleBeansMessage {
+  /** 语音房ids */
+  repeated VoiceTableSimpleBean beans = 1;
+}
+
+
+
+// 请求获取玩家语音房礼物信息列表
+message CZGetPlayerVoiceGiftListMessage {
+  /** 类型: -1: 所有列表; 0: 赠送列表; 1: 接收列表 */
+  int32 type = 1;
+  /** 槽位(从0开始) */
+  int32 position = 2;
+  /** 总数 */
+  int32 count = 3;
+}
+
+// 响应获取玩家语音房礼物信息列表
+message ZCGetPlayerVoiceGiftListMessage {
+  /** 发送礼物总数 */
+  int64 sendNum = 1;
+  /** 接收礼物总数 */
+  int64 receiveNum = 2;
+  /** 礼物bean列表 */
+  repeated VoiceGiftRecordBean giftRecordBeanList = 3;
+  /** 总数 */
+  int32 count = 4;
+}
+
+// 礼物bean
+message VoiceGiftRecordBean {
+  /** 操作类型: 0-主动发送; 1: 被动接收 */
+  int32 type = 1;
+  /** 赠送礼物玩家基本信息 */
+  PlayerSimpleBean senderInfoBean = 2;
+  /** 接收礼物玩家基本信息 */
+  PlayerSimpleBean receiverInfoBean = 3;
+  /** 礼物bean */
+  ItemBean giftItemBean = 4;
+  /** 发送时间 */
+  int64 sendTime = 5;
+  /** 赠送数量 */
+  int64 num = 6;
+  /** 房间id */
+  int32 voiceId = 7;
+  /** 类型(大于0: 指定玩家发送; -1: 给所有人发送礼物; -2: 给上麦玩家发送); */
+  int64 receiveWay = 8;
+}
+
+
+// 请求获取玩家语音房积分信息列表
+message CZGetPlayerVoicePointListMessage {
+  /** 类型: -1-所有列表; 0-礼物获得; 1: 房间获得; 2: 商城使用消耗; 3: 提现消耗 */
+  int32 type = 1;
+  /** 槽位(从0开始) */
+  int32 position = 2;
+  /** 总数 */
+  int32 count = 3;
+}
+
+// 响应获取玩家语音房积分信息列表
+message ZCGetPlayerVoicePointListMessage {
+  /** 提现总数 */
+  int64 withdrawRmb = 1;
+  /** 今日收益信息bean */
+  VoicePointProfitBean dailyProfitBean = 2;
+  /** 本周收益信息bean */
+  VoicePointProfitBean weeklyProfitBean = 3;
+  /** 本月收益信息bean */
+  VoicePointProfitBean monthProfitBean = 4;
+  /** 礼物积分记录信息bean列表 */
+  repeated VoicePointRecordBean voicePointRecordBeanList = 5;
+  /** 总数 */
+  int32 count = 6;
+}
+
+// 礼物积分记录信息bean
+message VoicePointRecordBean {
+  /** 类型: 0-礼物获得; 1: 房间获得; 2: 商城使用消耗; 3: 提现消耗 */
+  int32 type = 1;
+  /** 变化值*/
+  int64 change = 2;
+  /** 操作时间 */
+  int64 createTime = 3;
+  /** 赠送礼物玩家基本信息 */
+  PlayerSimpleBean senderInfoBean = 4;
+  /** 礼物bean */
+  ItemBean giftItemBean = 5;
+  /** 房间id */
+  int32 voiceId = 6;
+  /** 商城兑换道具信息 */
+  repeated ItemBean convertRewards = 7;
+  /** 额外参数信息 */
+  string param = 8;
+}
+
+// 礼物积分收益信息bean
+message VoicePointProfitBean {
+  /** 个人收益 */
+  int64 personAdd = 1;
+  /** 房间收益 */
+  int64 roomAdd = 2;
+  /** 使用 */
+  int64 cost = 3;
+  /** 增长值 */
+  double compareRatio = 4;
+}
+
+// 请求获取语音房礼物图鉴列表信息
+message CZGetVoiceGiftHandBookListMessage {
+}
+
+// 响应获取语音房礼物图鉴列表信息
+message ZCGetVoiceGiftHandBookListMessage {
+  /** 语音房礼物图鉴bean列表 */
+  repeated VoiceGiftHandbookBean giftHandbookBeanList = 1;
+}
+
+// 语音房礼物图鉴bean
+message VoiceGiftHandbookBean {
+  /** 礼物id */
+  int32 giftId = 1;
+  /** 礼物名称 */
+  string name = 2;
+  /** 赠送通用消耗 */
+  repeated ItemBean cost = 3;
+  /** 赠送获得 */
+  ItemBean giftItemBean = 4;
+  /** 页签 */
+  int32 tab = 5;
+  /** 子类型 */
+  int32 subType = 6;
+  /** 排序 */
+  int32 sort = 7;
+}

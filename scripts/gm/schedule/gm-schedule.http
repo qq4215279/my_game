@@ -1,0 +1,35 @@
+#################################################################################################
+########  定时任务接口
+########  @Date: 2024/11/29 11:41
+########  @Author: xu.hai
+#################################################################################################
+
+### 获取全部任务详情
+### GET {{url}}{{world}}/schedule/tasks
+GET {{url}}{{center}}/schedule/tasks
+
+### 获取任务详情
+# test_class 任务key
+GET {{url}}{{world}}/schedule/task/test_class
+
+### 更新任务触发时间
+# key 任务key
+# cron 更新的cron表达式
+# 执行成功返回任务详情，失败返回false
+GET {{url}}{{world}}/schedule/updateCron?key=LOG_PLAYER_ONLINE&cron=*/30 * * * * ?
+
+### 执行任务
+# key 任务key
+GET {{url}}{{world}}/schedule/exec?key=RANK_REFRESH
+
+### 取消任务
+# key 任务key
+GET {{url}}{{world}}/schedule/cancel?key=test_class
+
+### 任务恢复激活（针对取消状态的任务才能回复激活）
+# key 任务key
+GET {{url}}{{world}}/schedule/resume?key=test_class
+
+### 删除任务
+# key 任务key
+GET {{url}}{{world}}/schedule/remove?key=test_class

@@ -1,0 +1,67 @@
+#################################################################################################
+########  登陆相关
+########  @Date: 2024/12/02 11:41
+########  @Author: xu.hai
+#################################################################################################
+
+### 用户登录，获取token
+POST {{url}}{{account}}/account/login
+Content-Type: application/json
+
+{
+  "loginType": "EMAIL",
+  "thirdId": "xxx@qq.com",
+  "deviceId": "xh003",
+  "code": "750104",
+  "channel": "test",
+  "nickName": "مرحبا"
+}
+
+############# 老结构体
+#{
+#  "guest": true,
+#  "channel": "test",
+#  "deviceId": "xh00102",
+#  "nickName": "مرحبا"
+#}
+
+### 根据token，获取用户
+GET {{url}}{{account}}/account/checkToken?token=f028c5dc-d57e-4838-8793-6b598f1ee8de
+
+
+### 用户绑定三方登陆
+POST {{url}}{{account}}/account/bindThirdAccount
+Content-Type: application/json
+
+{
+  "token": "8fdf6731468e41b893e017ca75f71da4",
+  "loginType": "GOOGLE",
+  "thirdId": "GOOGLE-666666",
+  "nickName": "مرحبا",
+  "head": "https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=122096733932622537&height=200&width=200&ext=1735205845&hash=Abae06G-HTUZoPrzQbZbvuL_"
+}
+
+
+### 废弃 - 用户绑定facebook
+POST {{url}}{{account}}/account/bindFacebook
+Content-Type: application/json
+
+{
+  "token": "b8580fdfea284666b132b1f59595dc67",
+  "facebookId": "facebookIdhhhhh",
+  "nickName": "مرحبا",
+  "head": "https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=122096733932622537&height=200&width=200&ext=1735205845&hash=Abae06G-HTUZoPrzQbZbvuL_"
+}
+
+
+### 用户注销
+GET {{url}}{{account}}/account/deactivateAccount/0d7b7470e8d248bc8680a1c7a4efeda8
+
+
+### 根据三方ID获取账号ID
+GET {{url}}{{account}}/account/getIdByThirdPartyId?source=FACEBOOK&
+    thirdPartyIds=smx001,smx002,smx003,test1
+
+
+### 发送验证码
+GET {{url}}{{account}}/account/verificationCode?loginType=EMAIL&thirdId=491646958@qq.com

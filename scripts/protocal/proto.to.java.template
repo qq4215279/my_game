@@ -1,0 +1,39 @@
+package {{package}};
+
+{% for im in imports -%}
+import {{im}};
+{% endfor %}
+
+/**
+ * {{message.name}}
+ *{{message.notes}}
+ * @author Auto-generated
+ * @version 1.0.0 2024/9/9 10:00
+ */
+@ProtobufClass
+{%- if clazz_type_name.find('class') != -1 %}
+@Data
+{%- endif %}
+public {{clazz_type_name}} {{message.name}} {
+{%- if message.type == "message" -%}
+{% for field in message.fields %}
+{%- if field.is_map %}
+{{field.notes}}
+  private java.util.Map<{{field.java_key_field_type}}, {{field.java_value_field_type}}> {{field.field_name}} = new java.util.HashMap<>();
+{%- else %}
+{%- if field.field_rule.find('repeated') == -1 %}
+{{field.notes}}
+  private {{field.java_field_type}} {{field.field_name}};
+{%- else %}
+{{field.notes}}
+  private java.util.List<{{field.java_field_type}}> {{field.field_name}} = new java.util.ArrayList<>();
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+{%- else -%}
+{% for field in message.fields %}
+{{field.notes}}
+  {{field.field_name}},
+{%- endfor -%}
+{% endif %}
+}

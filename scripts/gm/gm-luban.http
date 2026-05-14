@@ -1,0 +1,20 @@
+### 鲁班本地加载(调用此接口，程序会重新加载本地json配置)
+#curl --request POST  --url http://10.198.30.30:8888/admin/luban/cmd --header 'content-type: application/x-www-form-urlencoded' --data v='{"cmdKey":"reload","cmdData":{"configNameArray":["ConfigBbbb"]}}'
+GET {{url}}{{luban-world}}/admin/luban/cmd
+content-type: application/x-www-form-urlencoded
+
+{"cmdKey":"reload","cmdData":{"configNameArray":["ConfigSurpriseBossRefresh"]}}
+
+
+### 重新从远程下载到本地，然后重新通知加载本地模块：
+# ?v=%7B"cmdKey":"syncReload","cmdData":%7B"configNameArray":["ConfigFishType"],"groupNameArray":["zt_fish_common_fish"]%7D%7D
+GET {{url}}{{luban-world}}/admin/luban/cmd
+#GET {{url}}{{luban-game}}/admin/luban/cmd
+content-type: application/x-www-form-urlencoded
+
+{"cmdKey":"syncReload","cmdData":{"configNameArray":["ConfigFunction","ConfigFunctionList",
+"ConfigShopType", "ConfigShopTab", "ConfigPayID", "ConfigShop", "ConfigGlobalChat", "ConfigPeriodActivity",
+"ConfigActivityTurntableDraw", "ConfigBalootParams", "ConfigFruitParams", "ConfigFruitType", "ConfigFruitGrid",
+"ConfigFruitRankReward", "ConfigFruitGoldRange", "ConfigActionType", "ConfigTask", "ConfigTaskType", "ConfigTaskTab", "ConfigPopFaceGoods"],
+
+"groupNameArray":["shop", "baloot_game", "chat", "activity_period", "component", "function", "fruit", "task"]}}
