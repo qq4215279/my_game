@@ -4,10 +4,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-import com.game.framework.core.consts.CoreConstants;
-
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.NumberUtil;
+import com.mumu.game.constants.CoreConstants;
 
 /**
  * MathUtil 计算工具类

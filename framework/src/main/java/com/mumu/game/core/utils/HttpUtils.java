@@ -4,13 +4,12 @@ import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.BiConsumer;
 
-import com.game.framework.core.consts.ThreadConstants;
-import com.game.framework.core.log.LogTopic;
-import com.game.framework.core.thread.ThreadSwitchWrapper;
-import com.game.http.core.HttpResult;
-import com.game.util.JsonUtil;
 
 import cn.hutool.http.HttpUtil;
+import com.mumu.game.constants.ThreadConstants;
+import com.mumu.game.core.log.LogTopic;
+import com.mumu.game.http.HttpResult;
+import com.mumu.game.utils.JsonUtil;
 
 /** http请求工具类 @Date: 2024/8/12 20:21 @Author: xu.hai */
 public class HttpUtils {
@@ -20,8 +19,9 @@ public class HttpUtils {
   /** 异步 Get请求 */
   public static void asyncGet(
       String url, Map<String, Object> paramMap, BiConsumer<String, Exception> consumer) {
-    executor.execute(ThreadSwitchWrapper.wrap(() -> get(url, paramMap, consumer)));
+    executor.execute(() -> get(url, paramMap, consumer));
   }
+
 
   /** 同步 Get请求 */
   public static void get(
@@ -44,7 +44,7 @@ public class HttpUtils {
 
   public static void asyncGetHttpResult(
       String url, Map<String, Object> paramMap, BiConsumer<HttpResult, Exception> consumer) {
-    executor.execute(ThreadSwitchWrapper.wrap(() -> getHttpResult(url, paramMap, consumer)));
+    executor.execute(() -> getHttpResult(url, paramMap, consumer));
   }
 
   public static void getHttpResult(
