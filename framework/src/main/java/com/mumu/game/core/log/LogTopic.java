@@ -184,6 +184,15 @@ public enum LogTopic {
     }
 
     /** 获取堆栈信息日志 */
+    /**
+     * 目的：获取线程的调用堆栈信息
+     * 输入：一个线程对象
+     * 输出：堆栈跟踪字符串（String）
+     * 场景：记录代码执行路径，用于调试和追踪调用来源 
+     * @return java.lang.String
+     * @author liuzhen
+     * @date 2026/5/26 16:38
+     */
     public static String getStackTrace() {
         return getStackTrace(Thread.currentThread());
     }

@@ -16,5 +16,35 @@ public interface LogAction {
     String ACTIVITY_TASK = "activityTask";
     /**  */
     String JVM_LOCK = "jvmLock";
+    /** GM模块 */
+    String GM = "GM";
+    /** rpc */
+    String RPC = "easyRpc";
+    /** 请求rpc */
+    String REQUEST_RPC = "requestRpc";
+    /** 网络日志 */
+    String NET = "serverNet";
 
+    /** 版本号处理 */
+    String VERSION = "version";
+
+    /** model初始化 */
+    String MODEL_INIT = "modelInit";
+    /** model加载 */
+    String MODEL_LOAD = "modelLoad";
+    /** model存储 */
+    String MODEL_SAVE = "modelSave";
+    /** model卸载 */
+    String MODEL_UNINSTALL = "modelUninstall";
+    /** model打包（打包后，可能直接持久化，可能发送给master持久化） */
+    String MODEL_PACKAGE = "modelPackage";
+
+    /** 道具变动 */
+    String ITEM_CHANGE = "itemChange";
+    /** 道具变动事件 */
+    String ITEM_CHANGE_EVENT = "itemChangeEvent";
+
+
+    /**  */
+    String RANK = "rank";
 }

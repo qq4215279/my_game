@@ -38,5 +38,5 @@ public enum CurrencyAction {
     FAKE_CHARGE,
     /** 充值 */
     CHARGE,
-    ;
+    DROP;
 }
