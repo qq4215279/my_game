@@ -6,12 +6,12 @@
 package com.mumu.game.core.log;
 
 /**
- * CurrencyAction
- * 货币流通事件，用于日志
+ * DropAction
+ * 掉落事件，用于日志
  * @author liuzhen
  * @version 1.0.0 2025/3/16 15:08
  */
-public enum CurrencyAction {
+public enum DropAction {
     /** 绑定账号 */
     BIND_ACCOUNT,
     /** 购买商品 */

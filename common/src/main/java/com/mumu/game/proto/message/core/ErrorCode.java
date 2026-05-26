@@ -197,4 +197,7 @@ public enum ErrorCode {
     FAIL_TASK_NOT_OPEN,
     /** 游戏未开始 */
     FAIL_GAME_UN_START,
+    /** 掉落为空 */
+    FAIL_DROP_EMPTY,
+
 }
