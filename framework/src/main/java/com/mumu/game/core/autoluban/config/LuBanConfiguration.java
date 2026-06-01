@@ -16,7 +16,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mumu.game.core.log.LogTopic;
-import com.mumu.game.luban.cfg.CfgTables;
+import com.mumu.game.luban.config.LubanTables;
 
 /**
  * LuBanConfiguration
@@ -30,13 +30,13 @@ public class LuBanConfiguration {
     private static final LogTopic log = LogTopic.ACTION;
 
     @Bean
-    public CfgTables cfgTables() {
+    public LubanTables cfgTables() {
         try {
             log.info("开始加载LuBan配置表...");
-            CfgTables.IJsonLoader jsonLoader = createJsonLoader();
-            CfgTables cfgTables = new CfgTables(jsonLoader);
+            LubanTables.IJsonLoader jsonLoader = createJsonLoader();
+            LubanTables lubanTables = new LubanTables(jsonLoader);
             log.info("LuBan配置表加载成功");
-            return cfgTables;
+            return lubanTables;
         } catch (IOException e) {
             log.error("LuBan配置表加载失败，请确保已运行Luban工具生成配置表文件到 auto_gen/src/main/resources/luban/output/ 目录", e);
             throw new RuntimeException("LuBan配置表加载失败: " + e.getMessage(), e);
@@ -49,7 +49,7 @@ public class LuBanConfiguration {
      *
      * @return IJsonLoader实例
      */
-    private CfgTables.IJsonLoader createJsonLoader() {
+    private LubanTables.IJsonLoader createJsonLoader() {
         ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         Map<String, JsonElement> jsonCache = new HashMap<>();
 

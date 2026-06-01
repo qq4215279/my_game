@@ -7,22 +7,23 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-package com.mumu.game.luban.cfg;
+package com.mumu.game.luban.config;
 
+import luban.*;
 import com.google.gson.JsonElement;
 
-public final class CfgTables
+public final class LubanTables
 {
 
     public  interface  IJsonLoader {
         JsonElement load(String file) throws java.io.IOException;
     }
 
-    private final com.mumu.game.luban.cfg.demo.TbItem _tbitem;
-    public com.mumu.game.luban.cfg.demo.TbItem getTbItem() { return _tbitem; }
+    private final com.mumu.game.luban.config.demo.TbItem2 _tbitem2;
+    public com.mumu.game.luban.config.demo.TbItem2 getTbItem2() { return _tbitem2; }
 
-    public CfgTables(IJsonLoader loader) throws java.io.IOException {
-        _tbitem = new com.mumu.game.luban.cfg.demo.TbItem(loader.load("demo_tbitem")); 
+    public LubanTables(IJsonLoader loader) throws java.io.IOException {
+        _tbitem2 = new com.mumu.game.luban.config.demo.TbItem2(loader.load("demo_tbitem2")); 
     }
 }
 

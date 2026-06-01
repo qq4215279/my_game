@@ -62,8 +62,8 @@ if not exist "%WORKSPACE%\output\json" (
     echo [EXISTS] output\json
 )
 
-if not exist "%WORKSPACE%\..\..\java\com\mumu\game\luban\cfg" (
-    mkdir "%WORKSPACE%\..\..\java\com\mumu\game\luban\cfg"
+if not exist "%WORKSPACE%\..\..\java\com\mumu\game\luban\config" (
+    mkdir "%WORKSPACE%\..\..\java\com\mumu\game\luban\config"
     echo [CREATE] java\com\mumu\game\luban\cfg
 ) else (
     echo [EXISTS] java\com\mumu\game\luban\cfg
@@ -81,7 +81,7 @@ dotnet "%LUBAN_DLL%" ^
     -c java-json ^
     -d json ^
     --conf "%CONF_ROOT%\luban.conf" ^
-    -x outputCodeDir="%WORKSPACE%\..\..\java\com\mumu\game\luban\cfg" ^
+    -x outputCodeDir="%WORKSPACE%\..\..\java\com\mumu\game\luban\config" ^
     -x outputDataDir="%WORKSPACE%\output\json"
 
 @REM Check execution result
@@ -90,7 +90,7 @@ if %errorlevel% equ 0 (
     echo ========================================
     echo   Generation SUCCESS!
     echo ========================================
-    echo Code output: %WORKSPACE%\..\..\java\com\mumu\game\luban\cfg
+    echo Code output: %WORKSPACE%\..\..\java\com\mumu\game\luban\config
     echo Data output: %WORKSPACE%\output\json
 ) else (
     echo.

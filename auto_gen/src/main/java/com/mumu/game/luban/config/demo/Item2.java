@@ -7,21 +7,23 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-package com.mumu.game.luban.cfg.demo;
+package com.mumu.game.luban.config.demo;
 
 import com.mumu.game.luban.base.AbstractBean;
+import luban.*;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 
-public final class Item extends AbstractBean {
-    public Item(JsonObject _buf) { 
+public final class Item2 extends AbstractBean {
+    public Item2(JsonObject _buf) { 
         id = _buf.get("id").getAsInt();
         name = _buf.get("name").getAsString();
         count = _buf.get("count").getAsInt();
     }
 
-    public static Item deserialize(JsonObject _buf) {
-            return new com.mumu.game.luban.cfg.demo.Item(_buf);
+    public static Item2 deserialize(JsonObject _buf) {
+            return new com.mumu.game.luban.config.demo.Item2(_buf);
     }
 
     /**
@@ -37,7 +39,7 @@ public final class Item extends AbstractBean {
      */
     public final int count;
 
-    public static final int __ID__ = 749625438;
+    public static final int __ID__ = 1763552148;
     
     @Override
     public int getTypeId() { return __ID__; }

@@ -7,9 +7,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-package com.mumu.game.luban.cfg.bean;
+package com.mumu.game.luban.config.bean;
 
-import com.mumu.game.luban.base.AbstractBean;
+import luban.*;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 
@@ -22,7 +23,7 @@ public final class Vector4 extends AbstractBean {
     }
 
     public static Vector4 deserialize(JsonObject _buf) {
-            return new com.mumu.game.luban.cfg.bean.Vector4(_buf);
+            return new com.mumu.game.luban.config.bean.Vector4(_buf);
     }
 
     public final float x;
