@@ -7,28 +7,26 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-package com.mumu.game.luban.config.bean;
+package com.mumu.game.luban.config.test;
 
 import com.google.gson.JsonObject;
 import com.mumu.game.luban.base.AbstractBean;
 
 
-public final class Vector3 extends AbstractBean {
-    public Vector3(JsonObject _buf) {
-        x = _buf.get("x").getAsFloat();
-        y = _buf.get("y").getAsFloat();
-        z = _buf.get("z").getAsFloat();
+public final class DateTimeRange extends AbstractBean {
+    public DateTimeRange(JsonObject _buf) {
+        startTime = _buf.get("start_time").getAsLong();
+        endTime = _buf.get("end_time").getAsLong();
     }
 
-    public static Vector3 deserialize(JsonObject _buf) {
-        return new com.mumu.game.luban.config.bean.Vector3(_buf);
+    public static DateTimeRange deserialize(JsonObject _buf) {
+        return new com.mumu.game.luban.config.test.DateTimeRange(_buf);
     }
 
-    public final float x;
-    public final float y;
-    public final float z;
+    public final long startTime;
+    public final long endTime;
 
-    public static final int __ID__ = 390615794;
+    public static final int __ID__ = 495315430;
 
     @Override
     public int getTypeId() { return __ID__; }
@@ -36,9 +34,8 @@ public final class Vector3 extends AbstractBean {
     @Override
     public java.lang.String toString() {
         return "{ "
-        + "x:" + x + ","
-        + "y:" + y + ","
-        + "z:" + z + ","
+        + "startTime:" + startTime + ","
+        + "endTime:" + endTime + ","
         + "}";
     }
 }

@@ -1,0 +1,209 @@
+<module name="test">
+
+    <enum name="DemoEnum">
+        <var name="NONE" value="0"/>
+        <var name="A" alias="aa" value="1"/>
+        <var name="B" alias="bb"/>
+        <var name="C" alias="cc" value="4"/>
+        <var name="D" alias="dd"/>
+		<var name="Any"/>
+    </enum>
+    
+    <enum name="DemoFlag" flags="1">
+        <var name="A" value="1"/>
+        <var name="B" value="2"/>
+        <var name="C" value="4"/>
+        <var name="D" value="8"/>
+    </enum>
+    
+    <bean name="DemoType1">
+        <var name="x1" type="int"/>
+    </bean>
+    
+    <bean name="DemoDynamic"> 多态数据结构
+        <var name="x1" type="int"/>
+        
+        <bean name="DemoD2" alias="测试别名">
+            <var name="x2" type="int"/>
+        </bean>
+        
+        <bean name="DemoD3">
+            <var name="x3" type="int"/>
+            <bean name="DemoE1">
+                <var name="x4" type="int"/>
+            </bean>
+        </bean>
+        <bean name="DemoD5">
+            <var name="time" type="DateTimeRange"/>
+        </bean>
+    </bean>
+    
+    <bean name="DemoE2" valueType="1">
+        <var name="y1" type="int?"/>
+        <var name="y2" type="bool"/>
+    </bean>
+    
+    <bean name="DemoExplicitType">
+        <var name="x1" type="uint8"/>
+        <var name="x2" type="int16"/>
+        <var name="x3" type="int32"/>
+        <var name="x4" type="int64"/>
+        <var name="x5" type="float32"/>
+        <var name="x6" type="float64"/>
+        <var name="x7" type="bigint"/>
+    </bean>
+    
+    <bean name="DemoType2" tags="d=5#a=3">
+        <var name="x4" type="int#range=[1,100]"/>
+        <var name="x1" type="bool#kind=cat#type=sss"  tags="aa=10#bb=23"/>
+        <var name="x2" type="byte#kind=mouse#name=yyy" tags="aa#dd=32"/>
+        <var name="x3" type="short"/>
+        <var name="x5" type="long" />
+        <var name="x6" type="float"/>
+        <var name="x7" type="double"/>
+        <var name="x8_0" type="short"/>
+        <var name="x8" type="int"/>
+        <var name="x9" type="long"/>
+        
+        <var name="x10" type="string#res=demo"/>
+        <var name="x12" type="DemoType1"/>
+        <var name="x13" type="DemoEnum#sep=,"/>
+        <var name="x14" type="DemoDynamic#sep=,"/>多态数据结构
+        
+        <var name="s1" type="text"/>
+        
+        <var name="t1" type="datetime"/>
+
+        <var name="k1" type="array,int"/>
+        <var name="k2" type="list,int"/>
+        <var name="k5" type="set,int"/>
+        <var name="k8" type="(map#sep=,),int#ref=test.TbFullTypes,int#ref=test.TbFullTypes"/>
+        <var name="k9" type="(list#sep=;),DemoE2#sep=,"/>
+        <var name="k15" type="(array#sep=;),DemoDynamic#sep=,"/> 
+    </bean>
+    
+    <table name="TbFullTypes" index="x4" value="DemoType2" input="test/full_type.xlsx"/> 最常见的普通 key-value表
+    
+    <bean name="DateTimeRange" sep=";">
+        <var name="start_time" type="datetime"/>
+        <var name="end_time" type="datetime"/>
+    </bean>
+    
+    <bean name="DemoSingletonType">
+        <var name="id" type="int"/>
+        <var name="name" type="text"/>
+        <var name="date" type="DemoDynamic"/>
+    </bean>
+    
+    <table name="TbSingleton" mode="one" value="DemoSingletonType" input="test/table_one.xlsx"/> 单例表，只有一个记录
+    
+    <bean name="NotIndexList">
+        <var name="x" type="int"/>
+        <var name="y" type="int"/>
+    </bean>
+    <table name="TbNotIndexList" value="NotIndexList" mode="list" input="not_index@test/list.xlsx"/>
+    
+    <bean name="MultiUnionIndexList">
+        <var name="id1" type="int"/>
+        <var name="id2" type="long"/>
+        <var name="id3" type="string"/>
+        <var name="num" type="int"/>
+        <var name="desc" type="string"/>
+    </bean>
+    <!--  index="id1,id2,id3" index="id1+id2+id3" index="id1&id2&id3" 都可以表达是 (id1,id2,id3) 联合唯一索引 -->
+    <table name="TbMultiUnionIndexList" value="MultiUnionIndexList" mode="list" index="id1+id2+id3" input="multi_union_index@test/list.xlsx"/>
+    
+    <bean name="MultiIndexList">
+        <var name="id1" type="int"/>
+        <var name="id2" type="long"/>
+        <var name="id3" type="string"/>
+        <var name="num" type="int"/>
+        <var name="desc" type="string"/>
+    </bean>
+    <!-- index="id1|id2|id3" 表示这3个key分别都是唯一索引 -->
+    <table name="TbMultiIndexList" value="MultiIndexList" mode="list" index="id1,id2,id3" input="multi_index@test/list.xlsx"/>
+    
+    <bean name="MultiRowType1">
+        <var name="id" type="int"/>
+        <var name="x" type="int"/>
+    </bean>
+    
+    <bean name="MultiRowType2">
+        <var name="id" type="int"/>
+        <var name="x" type="int"/>
+        <var name="y" type="float"/>
+    </bean>
+    
+    <bean name="MultiRowType3">
+        <var name="id" type="int"/>
+        <var name="items" type="list,MultiRowType1"/>
+    </bean>
+    
+
+    
+    
+    <bean name="ExcelFromJson">
+        <var name="x4" type="int" />
+        <var name="x1" type="bool"/>
+        <var name="x5" type="long" />
+        <var name="x6" type="float"/>
+        <var name="s1" type="string"/>
+        <var name="s2" type="text"/>
+        <var name="t1" type="datetime"/>
+        
+        <var name="x12" type="DemoType1"/>
+        <var name="x13" type="DemoEnum"/>
+        <var name="x14" type="DemoDynamic"/>多态数据结构
+
+        <var name="k1" type="array,int"/>
+        <var name="k8" type="map,int,int"/>
+        <var name="k9" type="list,DemoE2"/>
+        <var name="k15" type="array,DemoDynamic"/> 
+    </bean>
+    <table name="TbExcelFromJson" value="ExcelFromJson" input="test/excel_jsons"/>
+
+
+    <bean name="Path">
+        <var name="id" type="int"/>
+        <var name="res" type="string#path=unity"/>
+    </bean>
+    <table name="TbPath" value="Path" input="test/path.xlsx"/>
+
+
+
+    <bean name="TestMapper">
+        <var name="id" type="int"/>
+        <var name="audio_type" type="AudioType2"/>
+        <var name="v2" type="bean.Vector2"/>
+    </bean>
+    <table name="TbTestMapper" value="TestMapper" input="test/type_mapper.xlsx"/>
+    
+    <!-- 定义常量 -->
+    <constalias name="ITEM0" value="1001"/>
+    <constalias name="ITEM1" value="1002"/>
+    <constalias name="FLOAT1" value="1.5"/>
+    <constalias name="FLOAT2" value="2.5"/>
+    
+    <bean name="TestConstAlias">
+        <var name="id" type="int"/>
+        <var name="x1" type="int"/>
+        <var name="x2" type="long"/>
+        <var name="x3" type="float"/>
+        <var name="x4" type="double"/>
+    </bean>
+    <table name="TbTestConstAlias" value="TestConstAlias" input="test/test_constalias.xlsx"/>
+
+    <enum name="AudioType2">
+        <var name="UNKNOWN" value="0"/>
+        <var name="ACC" value="1"/>
+        <var name="AIFF" value="2"/>
+    </enum>
+    
+    <module name="login">
+        支持在一个定义文件中 定义多个模块。 一般来说一个定义文件中一个模块比较好，但有些情况下为了方便可以定义多个。
+        <bean name="RoleInfo" parent="test.DemoD3">
+            <var name="role_id" type="long"/>
+        </bean>
+    </module>
+    
+</module>

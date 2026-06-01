@@ -7,28 +7,25 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-package com.mumu.game.luban.config.bean;
+package com.mumu.game.luban.config.test.login;
 
 import com.google.gson.JsonObject;
 import com.mumu.game.luban.base.AbstractBean;
 
 
-public final class Vector3 extends AbstractBean {
-    public Vector3(JsonObject _buf) {
-        x = _buf.get("x").getAsFloat();
-        y = _buf.get("y").getAsFloat();
-        z = _buf.get("z").getAsFloat();
+public final class RoleInfo extends com.mumu.game.luban.config.test.DemoD3 {
+    public RoleInfo(JsonObject _buf) {
+        super(_buf);
+        roleId = _buf.get("role_id").getAsLong();
     }
 
-    public static Vector3 deserialize(JsonObject _buf) {
-        return new com.mumu.game.luban.config.bean.Vector3(_buf);
+    public static RoleInfo deserialize(JsonObject _buf) {
+        return new com.mumu.game.luban.config.test.login.RoleInfo(_buf);
     }
 
-    public final float x;
-    public final float y;
-    public final float z;
+    public final long roleId;
 
-    public static final int __ID__ = 390615794;
+    public static final int __ID__ = -989153243;
 
     @Override
     public int getTypeId() { return __ID__; }
@@ -36,9 +33,9 @@ public final class Vector3 extends AbstractBean {
     @Override
     public java.lang.String toString() {
         return "{ "
-        + "x:" + x + ","
-        + "y:" + y + ","
-        + "z:" + z + ","
+        + "x1:" + x1 + ","
+        + "x3:" + x3 + ","
+        + "roleId:" + roleId + ","
         + "}";
     }
 }

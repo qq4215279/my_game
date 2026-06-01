@@ -7,28 +7,32 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-package com.mumu.game.luban.config.bean;
+package com.mumu.game.luban.config.item;
 
 import com.google.gson.JsonObject;
 import com.mumu.game.luban.base.AbstractBean;
 
 
-public final class Vector3 extends AbstractBean {
-    public Vector3(JsonObject _buf) {
-        x = _buf.get("x").getAsFloat();
-        y = _buf.get("y").getAsFloat();
-        z = _buf.get("z").getAsFloat();
+public final class ItemContail extends AbstractBean {
+    public ItemContail(JsonObject _buf) {
+        id = _buf.get("id").getAsInt();
+        type = _buf.get("type").getAsInt();
     }
 
-    public static Vector3 deserialize(JsonObject _buf) {
-        return new com.mumu.game.luban.config.bean.Vector3(_buf);
+    public static ItemContail deserialize(JsonObject _buf) {
+        return new com.mumu.game.luban.config.item.ItemContail(_buf);
     }
 
-    public final float x;
-    public final float y;
-    public final float z;
+    /**
+     * id
+     */
+    public final int id;
+    /**
+     * 类型
+     */
+    public final int type;
 
-    public static final int __ID__ = 390615794;
+    public static final int __ID__ = -993784892;
 
     @Override
     public int getTypeId() { return __ID__; }
@@ -36,9 +40,8 @@ public final class Vector3 extends AbstractBean {
     @Override
     public java.lang.String toString() {
         return "{ "
-        + "x:" + x + ","
-        + "y:" + y + ","
-        + "z:" + z + ","
+        + "id:" + id + ","
+        + "type:" + type + ","
         + "}";
     }
 }

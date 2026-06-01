@@ -9,31 +9,30 @@
 
 package com.mumu.game.luban.config.bean;
 
-import luban.*;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mumu.game.luban.base.AbstractBean;
 
 
 public final class Vector2 extends AbstractBean {
-    public Vector2(JsonObject _buf) { 
+    public Vector2(JsonObject _buf) {
         x = _buf.get("x").getAsFloat();
         y = _buf.get("y").getAsFloat();
     }
 
     public static Vector2 deserialize(JsonObject _buf) {
-            return new com.mumu.game.luban.config.bean.Vector2(_buf);
+        return new com.mumu.game.luban.config.bean.Vector2(_buf);
     }
 
     public final float x;
     public final float y;
 
     public static final int __ID__ = 390615793;
-    
+
     @Override
     public int getTypeId() { return __ID__; }
 
     @Override
-    public String toString() {
+    public java.lang.String toString() {
         return "{ "
         + "x:" + x + ","
         + "y:" + y + ","

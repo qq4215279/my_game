@@ -1,104 +1,89 @@
-@echo off
-@REM ========================================
-@REM Luban Config Generator Script
-@REM Generate Java code and JSON data from Excel
-@REM ========================================
-
+﻿@echo off
+chcp 65001 >nul
+setlocal EnableExtensions
 title Luban Config Generator
 
-echo ========================================
-echo   Luban Config Generator
-echo ========================================
+:: ============================================================
+::  Luban 配置一键生成脚本
+::
+::  流程：
+::    1. gen_tables.py  扫描 Datas，自动生成 __tables__.xlsx
+::    2. Luban          通过 customTemplates 生成 Java 代码 + JSON 数据
+::
+::  环境要求：
+::    - .NET SDK 6+
+::    - Python 3 + openpyxl
+::
+::  用法：在 luban 目录下双击运行，或 cmd 执行 gen.bat
+:: ============================================================
+
+:: 路径配置（假设脚本位于 luban 目录）
+set "ROOT=."
+set "LUBAN_DLL=%ROOT%\Tools\Luban\Luban.dll"
+set "TEMPLATES=%ROOT%\customTemplates"
+set "JAVA_OUT=%ROOT%\..\..\java\com\mumu\game\luban\config"
+set "JSON_OUT=%ROOT%\output\json"
+
+echo.
+echo ========== Luban Config Generator ==========
+echo 工作目录: %CD%
 echo.
 
-@REM Set working directory
-set WORKSPACE=.
-echo [1/5] Working directory: %CD%
-echo.
+:: 前置检查
+call :require_exist "%LUBAN_DLL%" "Luban.dll"
+call :require_exist "%TEMPLATES%\java-json\bean.sbn" "customTemplates"
+call :require_cmd dotnet ".NET SDK"
+call :require_cmd python "Python"
 
-@REM Luban tool path
-set LUBAN_DLL=%WORKSPACE%\Tools\Luban\Luban.dll
-echo [2/5] Checking Luban.dll...
-if not exist "%LUBAN_DLL%" (
-    echo [ERROR] Luban.dll not found: %LUBAN_DLL%
-    echo Please confirm Luban.dll exists in Tools\Luban directory
-    pause
-    exit /b 1
-)
-echo [OK] Luban.dll exists
-echo.
+:: [1/2] 扫描 Excel，自动生成 __tables__.xlsx
+echo [1/2] 生成 __tables__.xlsx ...
+python "%ROOT%\gen_tables.py"
+if errorlevel 1 goto :fail
 
-@REM Check dotnet installation
-echo [3/5] Checking dotnet environment...
-where dotnet >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [ERROR] dotnet command not found!
-    echo Please install .NET SDK 6.0 or higher
-    echo Download: https://dotnet.microsoft.com/download
-    pause
-    exit /b 1
-)
-echo [OK] dotnet installed
-dotnet --version
-echo.
+:: [2/2] Luban 生成
+::   -t server              服务端目标
+::   -c java-json            Gson 版 Java
+::   -d json                 JSON 数据
+::   tableImporter.name=none 跳过 # 自动导入，用 __tables__.xlsx
+::   customTemplateDir       自定义 import 包路径
+echo [2/2] Luban 生成 ...
+if not exist "%JSON_OUT%" mkdir "%JSON_OUT%"
 
-@REM Config file root
-set CONF_ROOT=%WORKSPACE%
-echo [4/5] Checking config file...
-if not exist "%CONF_ROOT%\luban.conf" (
-    echo [ERROR] luban.conf not found: %CONF_ROOT%\luban.conf
-    pause
-    exit /b 1
-)
-echo [OK] luban.conf exists
-echo.
-
-@REM Ensure output directories exist
-echo [5/5] Creating output directories...
-if not exist "%WORKSPACE%\output\json" (
-    mkdir "%WORKSPACE%\output\json"
-    echo [CREATE] output\json
-) else (
-    echo [EXISTS] output\json
-)
-
-if not exist "%WORKSPACE%\..\..\java\com\mumu\game\luban\config" (
-    mkdir "%WORKSPACE%\..\..\java\com\mumu\game\luban\config"
-    echo [CREATE] java\com\mumu\game\luban\cfg
-) else (
-    echo [EXISTS] java\com\mumu\game\luban\cfg
-)
-echo.
-
-echo ========================================
-echo   Start generating configs...
-echo ========================================
-echo.
-
-@REM Execute Luban generation
 dotnet "%LUBAN_DLL%" ^
     -t server ^
     -c java-json ^
     -d json ^
-    --conf "%CONF_ROOT%\luban.conf" ^
-    -x outputCodeDir="%WORKSPACE%\..\..\java\com\mumu\game\luban\config" ^
-    -x outputDataDir="%WORKSPACE%\output\json"
+    --conf "%ROOT%\luban.conf" ^
+    --customTemplateDir "%TEMPLATES%" ^
+    -x tableImporter.name=none ^
+    -x outputCodeDir="%JAVA_OUT%" ^
+    -x outputDataDir="%JSON_OUT%"
+if errorlevel 1 goto :fail
 
-@REM Check execution result
-if %errorlevel% equ 0 (
-    echo.
-    echo ========================================
-    echo   Generation SUCCESS!
-    echo ========================================
-    echo Code output: %WORKSPACE%\..\..\java\com\mumu\game\luban\config
-    echo Data output: %WORKSPACE%\output\json
-) else (
-    echo.
-    echo ========================================
-    echo   Generation FAILED! Error code: %errorlevel%
-    echo ========================================
-    echo Please check error messages above
-)
+echo       Java: %JAVA_OUT%
+echo       JSON: %JSON_OUT%
 
+:ok
 echo.
+echo ========== 全部完成 ==========
 pause
+exit /b 0
+
+:: 检查文件是否存在
+:require_exist
+if exist "%~1" exit /b 0
+echo [错误] 找不到 %~2: %~1
+goto :fail
+
+:: 检查命令是否在 PATH 中
+:require_cmd
+where %~1 >nul 2>&1
+if not errorlevel 1 exit /b 0
+echo [错误] 未找到 %~1，需要 %~2
+goto :fail
+
+:fail
+echo.
+echo ========== 执行失败 ==========
+pause
+exit /b 1

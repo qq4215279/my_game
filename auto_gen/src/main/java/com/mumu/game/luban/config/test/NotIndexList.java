@@ -7,30 +7,26 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-package com.mumu.game.luban.config.bean;
+package com.mumu.game.luban.config.test;
 
 import com.google.gson.JsonObject;
 import com.mumu.game.luban.base.AbstractBean;
 
 
-public final class Vector4 extends AbstractBean {
-    public Vector4(JsonObject _buf) {
-        x = _buf.get("x").getAsFloat();
-        y = _buf.get("y").getAsFloat();
-        z = _buf.get("z").getAsFloat();
-        w = _buf.get("w").getAsFloat();
+public final class NotIndexList extends AbstractBean {
+    public NotIndexList(JsonObject _buf) {
+        x = _buf.get("x").getAsInt();
+        y = _buf.get("y").getAsInt();
     }
 
-    public static Vector4 deserialize(JsonObject _buf) {
-        return new com.mumu.game.luban.config.bean.Vector4(_buf);
+    public static NotIndexList deserialize(JsonObject _buf) {
+        return new com.mumu.game.luban.config.test.NotIndexList(_buf);
     }
 
-    public final float x;
-    public final float y;
-    public final float z;
-    public final float w;
+    public final int x;
+    public final int y;
 
-    public static final int __ID__ = 390615795;
+    public static final int __ID__ = -50446599;
 
     @Override
     public int getTypeId() { return __ID__; }
@@ -40,8 +36,6 @@ public final class Vector4 extends AbstractBean {
         return "{ "
         + "x:" + x + ","
         + "y:" + y + ","
-        + "z:" + z + ","
-        + "w:" + w + ","
         + "}";
     }
 }

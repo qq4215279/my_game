@@ -7,30 +7,28 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-package com.mumu.game.luban.config.bean;
+package com.mumu.game.luban.config.test;
 
 import com.google.gson.JsonObject;
 import com.mumu.game.luban.base.AbstractBean;
 
 
-public final class Vector4 extends AbstractBean {
-    public Vector4(JsonObject _buf) {
-        x = _buf.get("x").getAsFloat();
+public final class MultiRowType2 extends AbstractBean {
+    public MultiRowType2(JsonObject _buf) {
+        id = _buf.get("id").getAsInt();
+        x = _buf.get("x").getAsInt();
         y = _buf.get("y").getAsFloat();
-        z = _buf.get("z").getAsFloat();
-        w = _buf.get("w").getAsFloat();
     }
 
-    public static Vector4 deserialize(JsonObject _buf) {
-        return new com.mumu.game.luban.config.bean.Vector4(_buf);
+    public static MultiRowType2 deserialize(JsonObject _buf) {
+        return new com.mumu.game.luban.config.test.MultiRowType2(_buf);
     }
 
-    public final float x;
+    public final int id;
+    public final int x;
     public final float y;
-    public final float z;
-    public final float w;
 
-    public static final int __ID__ = 390615795;
+    public static final int __ID__ = 540474971;
 
     @Override
     public int getTypeId() { return __ID__; }
@@ -38,10 +36,9 @@ public final class Vector4 extends AbstractBean {
     @Override
     public java.lang.String toString() {
         return "{ "
+        + "id:" + id + ","
         + "x:" + x + ","
         + "y:" + y + ","
-        + "z:" + z + ","
-        + "w:" + w + ","
         + "}";
     }
 }

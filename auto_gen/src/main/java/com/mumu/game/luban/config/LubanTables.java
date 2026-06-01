@@ -9,21 +9,52 @@
 
 package com.mumu.game.luban.config;
 
-import luban.*;
 import com.google.gson.JsonElement;
 
-public final class LubanTables
-{
+public final class LubanTables {
 
-    public  interface  IJsonLoader {
-        JsonElement load(String file) throws java.io.IOException;
+    public interface IJsonLoader {
+        JsonElement load(java.lang.String file) throws java.io.IOException;
     }
 
-    private final com.mumu.game.luban.config.demo.TbItem2 _tbitem2;
-    public com.mumu.game.luban.config.demo.TbItem2 getTbItem2() { return _tbitem2; }
+    private final com.mumu.game.luban.config.test.TbFullTypes _tbfulltypes;
+    public com.mumu.game.luban.config.test.TbFullTypes getTbFullTypes() { return _tbfulltypes; }
+    private final com.mumu.game.luban.config.test.TbSingleton _tbsingleton;
+    public com.mumu.game.luban.config.test.TbSingleton getTbSingleton() { return _tbsingleton; }
+    private final com.mumu.game.luban.config.test.TbNotIndexList _tbnotindexlist;
+    public com.mumu.game.luban.config.test.TbNotIndexList getTbNotIndexList() { return _tbnotindexlist; }
+    private final com.mumu.game.luban.config.test.TbMultiUnionIndexList _tbmultiunionindexlist;
+    public com.mumu.game.luban.config.test.TbMultiUnionIndexList getTbMultiUnionIndexList() { return _tbmultiunionindexlist; }
+    private final com.mumu.game.luban.config.test.TbMultiIndexList _tbmultiindexlist;
+    public com.mumu.game.luban.config.test.TbMultiIndexList getTbMultiIndexList() { return _tbmultiindexlist; }
+    private final com.mumu.game.luban.config.test.TbExcelFromJson _tbexcelfromjson;
+    public com.mumu.game.luban.config.test.TbExcelFromJson getTbExcelFromJson() { return _tbexcelfromjson; }
+    private final com.mumu.game.luban.config.test.TbPath _tbpath;
+    public com.mumu.game.luban.config.test.TbPath getTbPath() { return _tbpath; }
+    private final com.mumu.game.luban.config.test.TbTestMapper _tbtestmapper;
+    public com.mumu.game.luban.config.test.TbTestMapper getTbTestMapper() { return _tbtestmapper; }
+    private final com.mumu.game.luban.config.test.TbTestConstAlias _tbtestconstalias;
+    public com.mumu.game.luban.config.test.TbTestConstAlias getTbTestConstAlias() { return _tbtestconstalias; }
+    private final com.mumu.game.luban.config.demo.DemoTable _demotable;
+    public com.mumu.game.luban.config.demo.DemoTable getDemoTable() { return _demotable; }
+    private final com.mumu.game.luban.config.item.ItemTable _itemtable;
+    public com.mumu.game.luban.config.item.ItemTable getItemTable() { return _itemtable; }
+    private final com.mumu.game.luban.config.item.ItemContailTable _itemcontailtable;
+    public com.mumu.game.luban.config.item.ItemContailTable getItemContailTable() { return _itemcontailtable; }
 
     public LubanTables(IJsonLoader loader) throws java.io.IOException {
-        _tbitem2 = new com.mumu.game.luban.config.demo.TbItem2(loader.load("demo_tbitem2")); 
+        _tbfulltypes = new com.mumu.game.luban.config.test.TbFullTypes(loader.load("test_tbfulltypes"));
+        _tbsingleton = new com.mumu.game.luban.config.test.TbSingleton(loader.load("test_tbsingleton"));
+        _tbnotindexlist = new com.mumu.game.luban.config.test.TbNotIndexList(loader.load("test_tbnotindexlist"));
+        _tbmultiunionindexlist = new com.mumu.game.luban.config.test.TbMultiUnionIndexList(loader.load("test_tbmultiunionindexlist"));
+        _tbmultiindexlist = new com.mumu.game.luban.config.test.TbMultiIndexList(loader.load("test_tbmultiindexlist"));
+        _tbexcelfromjson = new com.mumu.game.luban.config.test.TbExcelFromJson(loader.load("test_tbexcelfromjson"));
+        _tbpath = new com.mumu.game.luban.config.test.TbPath(loader.load("test_tbpath"));
+        _tbtestmapper = new com.mumu.game.luban.config.test.TbTestMapper(loader.load("test_tbtestmapper"));
+        _tbtestconstalias = new com.mumu.game.luban.config.test.TbTestConstAlias(loader.load("test_tbtestconstalias"));
+        _demotable = new com.mumu.game.luban.config.demo.DemoTable(loader.load("demo"));
+        _itemtable = new com.mumu.game.luban.config.item.ItemTable(loader.load("item"));
+        _itemcontailtable = new com.mumu.game.luban.config.item.ItemContailTable(loader.load("item_contail"));
     }
 }
 
