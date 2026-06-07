@@ -81,4 +81,7 @@ public class DropParams {
         return (boolean) dropMap.getOrDefault(NEED_POP, true);
     }
 
+    public DropParams setFunctionId(int moduleParentFuncId) {
+        return this;
+    }
 }

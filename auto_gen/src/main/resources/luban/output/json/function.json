@@ -6,6 +6,7 @@
     "desc": "顶层功能id",
     "condition": "",
     "close": false,
+    "sort": 0,
     "extra_info": ""
   },
   {
@@ -15,6 +16,7 @@
     "desc": "背包",
     "condition": "",
     "close": false,
+    "sort": 0,
     "extra_info": ""
   }
 ]

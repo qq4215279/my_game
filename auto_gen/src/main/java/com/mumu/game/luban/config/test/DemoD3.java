@@ -9,6 +9,7 @@
 
 package com.mumu.game.luban.config.test;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mumu.game.luban.base.AbstractBean;
 import com.mumu.game.luban.base.SerializationException;

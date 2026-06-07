@@ -9,6 +9,7 @@
 
 package com.mumu.game.luban.config.function;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mumu.game.luban.base.AbstractBean;
 
@@ -21,6 +22,7 @@ public final class Function extends AbstractBean {
         desc = _buf.get("desc").getAsString();
         condition = _buf.get("condition").getAsString();
         close = _buf.get("close").getAsBoolean();
+        sort = _buf.get("sort").getAsInt();
         extraInfo = _buf.get("extra_info").getAsString();
     }
 
@@ -53,6 +55,10 @@ public final class Function extends AbstractBean {
      */
     public final boolean close;
     /**
+     * 排序
+     */
+    public final int sort;
+    /**
      * 功能额外信息
      */
     public final String extraInfo;
@@ -71,6 +77,7 @@ public final class Function extends AbstractBean {
         + "desc:" + desc + ","
         + "condition:" + condition + ","
         + "close:" + close + ","
+        + "sort:" + sort + ","
         + "extraInfo:" + extraInfo + ","
         + "}";
     }

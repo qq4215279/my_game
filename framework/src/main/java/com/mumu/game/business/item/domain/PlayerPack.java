@@ -65,9 +65,11 @@ public class PlayerPack {
     }
 
     public boolean isShowPack() {
-        return Optional.ofNullable(ItemConfigManager.getBaseItem(itemId))
-                .map(BaseItem::isShowPack)
-                .orElse(false);
+        // TODO
+        // return Optional.ofNullable(ItemConfigManager.getBaseItem(itemId))
+        //         .map(BaseItem::isShowPack)
+        //         .orElse(false);
+        return true;
     }
 
 }

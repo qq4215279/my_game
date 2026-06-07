@@ -10,6 +10,7 @@
 package com.mumu.game.luban.config;
 
 import com.google.gson.JsonElement;
+import com.mumu.game.luban.base.SerializationException;
 
 public final class LubanTables {
 
@@ -37,6 +38,8 @@ public final class LubanTables {
     public com.mumu.game.luban.config.test.TbTestConstAlias getTbTestConstAlias() { return _tbtestconstalias; }
     private final com.mumu.game.luban.config.demo.DemoTable _demotable;
     public com.mumu.game.luban.config.demo.DemoTable getDemoTable() { return _demotable; }
+    private final com.mumu.game.luban.config.activity.ActivityTable _activitytable;
+    public com.mumu.game.luban.config.activity.ActivityTable getActivityTable() { return _activitytable; }
     private final com.mumu.game.luban.config.function.FunctionTable _functiontable;
     public com.mumu.game.luban.config.function.FunctionTable getFunctionTable() { return _functiontable; }
     private final com.mumu.game.luban.config.item.ItemTable _itemtable;
@@ -55,6 +58,7 @@ public final class LubanTables {
         _tbtestmapper = new com.mumu.game.luban.config.test.TbTestMapper(loader.load("test_tbtestmapper"));
         _tbtestconstalias = new com.mumu.game.luban.config.test.TbTestConstAlias(loader.load("test_tbtestconstalias"));
         _demotable = new com.mumu.game.luban.config.demo.DemoTable(loader.load("demo"));
+        _activitytable = new com.mumu.game.luban.config.activity.ActivityTable(loader.load("activity"));
         _functiontable = new com.mumu.game.luban.config.function.FunctionTable(loader.load("function"));
         _itemtable = new com.mumu.game.luban.config.item.ItemTable(loader.load("item"));
         _itemcontailtable = new com.mumu.game.luban.config.item.ItemContailTable(loader.load("item_contail"));

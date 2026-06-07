@@ -4,6 +4,7 @@
 
 package com.mumu.game.template.func.enums;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,6 +59,9 @@ public enum ResetEnum {
 
     private static final Map<Integer, ResetEnum> RESET_ENUM_MAP =
         Stream.of(values()).collect(Collectors.toMap(ResetEnum::getType, e -> e));
+
+    /** 可重置的类型 */
+    public static final List<ResetEnum> CAN_RESET_TYPES = List.of(DAILY, WEEKLY, MONTH, SEASON);
 
     public static ResetEnum get(int type) {
         return RESET_ENUM_MAP.get(type);

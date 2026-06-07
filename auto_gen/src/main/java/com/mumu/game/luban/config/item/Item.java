@@ -9,6 +9,7 @@
 
 package com.mumu.game.luban.config.item;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mumu.game.luban.base.AbstractBean;
 

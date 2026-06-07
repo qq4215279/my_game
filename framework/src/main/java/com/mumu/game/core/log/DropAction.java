@@ -38,5 +38,5 @@ public enum DropAction {
     FAKE_CHARGE,
     /** 充值 */
     CHARGE,
-    DROP;
+    DROP, SEASON_OVER_CLEAR_ITEMS;
 }
