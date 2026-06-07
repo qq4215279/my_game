@@ -37,6 +37,8 @@ public final class LubanTables {
     public com.mumu.game.luban.config.test.TbTestConstAlias getTbTestConstAlias() { return _tbtestconstalias; }
     private final com.mumu.game.luban.config.demo.DemoTable _demotable;
     public com.mumu.game.luban.config.demo.DemoTable getDemoTable() { return _demotable; }
+    private final com.mumu.game.luban.config.function.FunctionTable _functiontable;
+    public com.mumu.game.luban.config.function.FunctionTable getFunctionTable() { return _functiontable; }
     private final com.mumu.game.luban.config.item.ItemTable _itemtable;
     public com.mumu.game.luban.config.item.ItemTable getItemTable() { return _itemtable; }
     private final com.mumu.game.luban.config.item.ItemContailTable _itemcontailtable;
@@ -53,6 +55,7 @@ public final class LubanTables {
         _tbtestmapper = new com.mumu.game.luban.config.test.TbTestMapper(loader.load("test_tbtestmapper"));
         _tbtestconstalias = new com.mumu.game.luban.config.test.TbTestConstAlias(loader.load("test_tbtestconstalias"));
         _demotable = new com.mumu.game.luban.config.demo.DemoTable(loader.load("demo"));
+        _functiontable = new com.mumu.game.luban.config.function.FunctionTable(loader.load("function"));
         _itemtable = new com.mumu.game.luban.config.item.ItemTable(loader.load("item"));
         _itemcontailtable = new com.mumu.game.luban.config.item.ItemContailTable(loader.load("item_contail"));
     }

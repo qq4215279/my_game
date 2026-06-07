@@ -10,6 +10,7 @@
 package com.mumu.game.luban.config.test;
 
 import com.google.gson.JsonElement;
+import com.mumu.game.luban.base.SerializationException;
 
 public final class TbSingleton {
     private final com.mumu.game.luban.config.test.DemoSingletonType _data;

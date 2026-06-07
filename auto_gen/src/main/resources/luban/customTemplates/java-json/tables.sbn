@@ -3,6 +3,7 @@ package {{__namespace}};
 {{~end~}}
 
 import com.google.gson.JsonElement;
+import com.mumu.game.luban.base.SerializationException;
 {{~
 func get_table_inner_name
     ret '_' + ($0 | string.downcase)
