@@ -54,7 +54,8 @@ public enum SerializerType {
             // TODO
             return null;
         }
-    },;
+    },
+    ;
 
     public abstract byte[] serialize(Object msg);
 
