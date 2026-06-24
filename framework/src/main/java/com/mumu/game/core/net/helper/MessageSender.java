@@ -1,6 +1,8 @@
 package com.mumu.game.core.net.helper;
 
+import com.mumu.game.core.cmd.enums.Cmd;
 import com.mumu.game.core.cmd.enums.ICmd;
+import com.mumu.game.core.net.consts.ServiceType;
 import com.mumu.game.core.net.server.IoSession;
 import com.mumu.game.core.net.server.MessageContext;
 import com.mumu.game.core.net.session.PlayerManager;
@@ -55,6 +57,20 @@ public final class MessageSender {
         if (!PlayerManager.self().isRobot(playerId)) {
             send(SessionManager.self().getOutSession(playerId), messagePackage);
         }
+    }
+
+
+
+    // ------------------------- 给玩家所在服务器发送消息（发给内部其他服务端） -------------------------
+
+    /** 向玩家所在目标服发送数据 */
+    public static boolean sendToPlayerServer(ServiceType group, GameMessagePackage messagePackage) {
+        if (messagePackage.getPlayerId() == null) {
+            MessageContext.of(messagePackage, null).error("send playerId is null");
+            return false;
+        }
+        IoSession session = SessionManager.self().getInSession(messagePackage.getPlayerId(), group);
+        return send(session, messagePackage);
     }
 
 }

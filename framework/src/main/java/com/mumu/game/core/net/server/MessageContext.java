@@ -8,11 +8,15 @@ package com.mumu.game.core.net.server;
 import com.alibaba.fastjson2.JSONObject;
 import com.mumu.game.core.cmd.enums.CmdManager;
 import com.mumu.game.core.cmd.enums.ICmd;
+import com.mumu.game.core.cmd.enums.RpcCmd;
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.utils.JProtoBufUtil;
 import com.mumu.game.proto.message.system.message.GameMessageHeader;
 import com.mumu.game.proto.message.system.message.GameMessagePackage;
 
+import com.mumu.game.proto.message.system.message.MessageTypeEnum;
+import com.mumu.game.rpcproto.AbstractRpcRequestMessage;
+import com.mumu.game.rpcproto.AbstractRpcResponseMessage;
 import io.netty.util.AttributeKey;
 import lombok.Getter;
 
@@ -49,6 +53,20 @@ public class MessageContext {
         return JProtoBufUtil.decode(messagePackage.getBody(), clazz);
     }
 
+    /** 获取rpc请求消息内容 */
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractRpcRequestMessage> T getRpcRequestMsg() {
+        ICmd cmd = getCmd();
+        return cmd != null && cmd.getReqMsgClass() != null ? (T) getMsg(cmd.getReqMsgClass()) : null;
+    }
+
+    /** 获取rpc响应消息内容 */
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractRpcResponseMessage> T getRpcResponseMsg() {
+        ICmd cmd = getCmd();
+        return cmd != null && cmd.getResMsgClass() != null ? (T) getMsg(cmd.getResMsgClass()) : null;
+    }
+
     /** 获取玩家ID */
     public Long getPlayerId() {
         return messagePackage.getHeader().getPlayerId();
@@ -63,6 +81,7 @@ public class MessageContext {
     public ICmd getCmd() {
         return CmdManager.getCmd(messagePackage.getHeader().getMessageId());
     }
+
 
     /** 获取 Seq */
     public int getSeq() {
@@ -152,5 +171,10 @@ public class MessageContext {
     /** 打印异常日志 */
     public void error(String action) {
         LogTopic.NET.error(action, "context", this);
+    }
+
+    public boolean isRpcResponse() {
+        MessageTypeEnum messageType = messagePackage.getHeader().getMessageType();
+        return messageType == MessageTypeEnum.RPC_RESPONSE;
     }
 }

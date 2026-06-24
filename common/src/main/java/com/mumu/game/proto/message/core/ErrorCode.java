@@ -198,6 +198,6 @@ public enum ErrorCode {
     /** 游戏未开始 */
     FAIL_GAME_UN_START,
     /** 掉落为空 */
-    FAIL_DROP_EMPTY,
+    FAIL_DROP_EMPTY, RPC_REQUEST_TIME_OUT, RPC_REQUEST_EXPIRED,
 
 }

@@ -1,6 +1,5 @@
 package com.mumu.game.core.cmd.anno;
 
-import com.mumu.game.core.cmd.enums.Cmd;
 import com.mumu.game.core.cmd.enums.RpcCmd;
 
 import java.lang.annotation.ElementType;

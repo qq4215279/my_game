@@ -4,6 +4,9 @@
 
 package com.mumu.game.utils;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -108,6 +111,27 @@ public class JsonUtil {
         if (ArrayUtil.isNotEmpty(ignoreFields))
             Arrays.stream(ignoreFields).forEach(kvMap::remove);
         return kvMap;
+    }
+
+    /**
+     * 将json文件转为Map
+     * @param path path
+     * @return java.util.Map<java.lang.String,java.lang.Integer>
+     * @since 2025/6/8 17:27
+     */
+    public static Map<String, Integer> toMapByJsonFile(String path) {
+        Map<String, Integer> map;
+        try {
+            FileReader reader = new FileReader(path);
+            Type type = new TypeToken<Map<String, Integer>>(){}.getType();
+            map = GSON.fromJson(reader, type);
+
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return map;
     }
 
     /** 对象转换为指定类型（需确定是指定类型才能使用，可能为null） */

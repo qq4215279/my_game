@@ -7,6 +7,7 @@ package com.mumu.game.proto.message.system.message;
 
 import com.baidu.bjf.remoting.protobuf.annotation.ProtobufClass;
 
+import com.mumu.game.proto.message.core.ErrorCode;
 import lombok.Data;
 
 /**
@@ -22,4 +23,16 @@ public class GameMessagePackage {
     private GameMessageHeader header;
     /** 包体数据 */
     private byte[] body;
+
+    public Long getPlayerId() {
+        return header.getPlayerId();
+    }
+
+    public int getSeq() {
+        return 100;
+    }
+
+    public ErrorCode getErrorCode() {
+        return header.getErrorCode();
+    }
 }

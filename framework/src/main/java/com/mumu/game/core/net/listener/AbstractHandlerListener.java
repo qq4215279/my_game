@@ -7,6 +7,7 @@ package com.mumu.game.core.net.listener;
 
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.net.server.MessageContext;
+import com.mumu.game.core.rpc.core.NewRpcManager;
 import com.mumu.game.core.thread.ThreadPoolRouter;
 
 import jakarta.annotation.Resource;
@@ -22,13 +23,19 @@ public abstract class AbstractHandlerListener implements MessageHandlerListener 
 
     @Resource
     ThreadPoolRouter threadPoolRouter;
+    @Resource
+    NewRpcManager newRpcManager;
 
     public AbstractHandlerListener() {
     }
 
     @Override
     public final void handleRead(MessageContext context) {
-        threadPoolRouter.autoExecute(context, () -> doCommand(context));
+        if (context.isRpcResponse()) {
+            newRpcManager.handleRpcResponse(context);
+        } else {
+            threadPoolRouter.autoExecute(context, () -> doCommand(context));
+        }
     }
 
     /** 处理消息(已经切换到逻辑线程处理了) */
