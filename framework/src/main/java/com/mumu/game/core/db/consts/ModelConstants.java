@@ -1,4 +1,4 @@
-package com.mumu.game.core.model.consts;
+package com.mumu.game.core.db.consts;
 
 /**
  * ModelConstants

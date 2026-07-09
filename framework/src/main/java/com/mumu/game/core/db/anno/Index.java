@@ -1,4 +1,4 @@
-package com.mumu.game.core.model.anno;
+package com.mumu.game.core.db.anno;
 
 /**
  * Index
@@ -9,7 +9,7 @@ package com.mumu.game.core.model.anno;
 public @interface Index {
 
     /**
-     * 索引名称，不填，默认为：unq_+字段名 / idx_+字段名
+     * 索引名称，不填，默认为：unq_字段名1 / idx_字段名2_字段名3
      */
     String name() default "";
 
