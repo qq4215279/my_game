@@ -4,12 +4,11 @@ import com.mumu.game.core.db.core.BaseModel;
 import org.springframework.stereotype.Component;
 
 /**
- * PlayerTemplateModel
- *
+ * ClubModel
+ * 公会表model
  * @author liuzhen
- * @version 1.0.0 2026/7/9 17:29
+ * @version 1.0.0 2026/7/10 16:04
  */
 @Component
-public class PlayerTemplateModel extends BaseModel<PlayerTemplate> {
-
+public class ClubModel extends BaseModel<Club> {
 }

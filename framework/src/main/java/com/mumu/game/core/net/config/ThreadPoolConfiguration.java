@@ -49,6 +49,14 @@ public class ThreadPoolConfiguration {
             properties.getPlayerCorePoolSize(), properties.getPlayerMaxQueueSize());
     }
 
+    @Bean
+    public GameEventExecutorGroup modelExecutor() {
+        LogTopic.NET.info("modelExecutor", "corePoolSize", properties.getPlayerCorePoolSize(), "maxQueueSize",
+                properties.getPlayerMaxQueueSize());
+        return playerExecutor = new GameEventExecutorGroup(ThreadConstants.THREAD_PREFIX_PLAYER,
+                properties.getPlayerCorePoolSize(), properties.getPlayerMaxQueueSize());
+    }
+
     /** 服务内部线程池（请求随机分配给空闲线程处理） */
     @Bean
     public ThreadPoolExecutor serverExecutor() {

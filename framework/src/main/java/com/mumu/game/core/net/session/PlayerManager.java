@@ -11,6 +11,7 @@ import com.mumu.game.constants.Symbol;
 import com.mumu.game.core.lock.InternalLock;
 import com.mumu.game.core.lock.LockUtil;
 import com.mumu.game.core.log.LogTopic;
+import com.mumu.game.core.db.lifecycle.ModelLifecycleManager;
 import com.mumu.game.core.properties.CoreConfig;
 import com.mumu.game.core.net.consts.ServiceType;
 import com.mumu.game.core.properties.ServerInfo;
@@ -64,6 +65,9 @@ public class PlayerManager {
 
     @Resource
     ServerInfo serverInfo;
+
+    @Resource
+    ModelLifecycleManager modelLifecycleManager;
 
     /** 全部在本服的玩家（即玩家缓存属于本服，但不一定是最新。比如玩家进入游戏后，部分大厅缓存不是最新） */
     @Getter
@@ -119,9 +123,9 @@ public class PlayerManager {
         // 记录本服玩家ID
         inServerPlayers.add(player.getPlayerId());
 
-        // TODO 异步加载玩家DB缓存模型 机器人不提前加载缓存模型，因为机器人不会有太多的数据
+        // 异步加载玩家 DB 缓存模型，机器人不提前加载
         if (!player.isRobot()) {
-            // AutoModelManager.asyncPreLoadEntity(player.getPlayerId());
+            modelLifecycleManager.asyncPreload(player.getPlayerId());
         }
         return false;
     }
@@ -155,10 +159,8 @@ public class PlayerManager {
 
         // 移除本服玩家ID
         inServerPlayers.remove(playerId);
-        // 移除缓存模型
-        // CacheDataApi.delete(playerId, player);
-        // 清除玩家DB缓存模型
-        // AutoModelManager.asyncDeletePlayerCache(playerId);
+        // 先 flush 脏数据，再清理 JVM 缓存
+        modelLifecycleManager.flushAndClear(playerId);
         // 移除延迟删除缓存任务
         ScheduledExecutorUtil.cancel(ScheduledKey.PLAYER_DELAY_OFFLINE.getKey(playerId), false);
     }
@@ -225,6 +227,7 @@ public class PlayerManager {
     /** 销毁缓存模型 */
     public void destroy() {
         LogTopic.ACTION.info("容器关闭 PlayerManager 玩家批量下线处理...", getInServerPlayers().size());
+        modelLifecycleManager.flushAllOnShutdown();
         forPlayers(this::exitServer);
     }
 

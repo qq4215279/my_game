@@ -1,6 +1,6 @@
 package com.mumu.game.core.db.example;
 
-import com.mumu.game.core.db.core.AbstractModel;
+import com.mumu.game.core.db.core.BaseModel;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,5 +10,7 @@ import org.springframework.stereotype.Component;
  * @version 1.0.0 2026/7/9 17:14
  */
 @Component
-public class PlayerModel extends AbstractModel<Player> {
+public class PlayerModel extends BaseModel<Player> {
+
+
 }

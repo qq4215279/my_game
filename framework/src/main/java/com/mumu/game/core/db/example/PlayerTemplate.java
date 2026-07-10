@@ -3,7 +3,7 @@ package com.mumu.game.core.db.example;
 import com.mumu.game.core.db.anno.Index;
 import com.mumu.game.core.db.anno.ModelTable;
 import com.mumu.game.core.db.consts.PersistStrategy;
-import com.mumu.game.core.db.core.AbstractDomain;
+import com.mumu.game.core.db.core.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
             @Index(name = "playerid_activityid", value = {"playerId", "activityId"}),
     }
 )
-public class PlayerTemplate extends AbstractDomain {
+public class PlayerTemplate extends BaseEntity {
     /** 玩家id */
     private long playerId;
     /** 功能id */
@@ -37,4 +37,10 @@ public class PlayerTemplate extends AbstractDomain {
     private long seasonCaclState;
     /** 参数。注：只用于记录简单数据，复杂信息走协议！ */
     private String param = StringUtils.EMPTY;
+
+
+    @Override
+    public long getPrimaryRouteId() {
+        return playerId;
+    }
 }
