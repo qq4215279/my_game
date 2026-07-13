@@ -59,6 +59,13 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
         if (!meta.hasRedis() || !index.isFullKey(keys)) {
             return null;
         }
+        // 非主索引
+        if (!index.isPrimary()) {
+            LogTopic.MODEL.error("redisGetOne", "非主索引无法从redis中查询", "table", meta.getTableName(), "index",
+                    index.getName());
+            return null;
+        }
+
         try {
             long routeId = meta.getRouteId(keys);
             String redisKey = meta.buildRedisKey(routeId);
@@ -83,6 +90,13 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
         if (!meta.hasRedis()) {
             return Collections.emptyList();
         }
+        // 非主索引
+        if (!index.isPrimary()) {
+            LogTopic.MODEL.error("redisGetList", "非主索引无法从redis中查询", "table", meta.getTableName(), "index",
+                    index.getName());
+            return Collections.emptyList();
+        }
+
         try {
             long routeId = meta.getRouteId(keys);
             String redisKey = meta.buildRedisKey(routeId);
@@ -103,7 +117,7 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
             }
             return List.copyOf(matched.values());
         } catch (Exception e) {
-            LogTopic.MODEL.error(e, "redisList", "table", meta.getTableName(), "index", index.getName());
+            LogTopic.MODEL.error(e, "redisGetList", "table", meta.getTableName(), "index", index.getName());
             return Collections.emptyList();
         }
     }
@@ -167,6 +181,12 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
         if (!meta.hasRedis() || !index.isFullKey(keys)) {
             return;
         }
+        // 仅支持主索引完整键删除（Redis Hash Field 按主索引构建）
+        if (!index.isPrimary()) {
+            LogTopic.MODEL.error("redisDelete", "仅支持主索引删除", "table", meta.getTableName(), "index", index.getName());
+            return;
+        }
+
         try {
             long routeId = meta.getRouteId(keys);
             String redisKey = meta.buildRedisKey(routeId);
@@ -180,12 +200,25 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
 
     @Override
     public void deleteByPrefix(ModelMeta meta, IndexMeta index, Object... keys) {
-        if (!meta.hasRedis()) {
+        if (!meta.hasRedis() || keys == null || keys.length == 0) {
             return;
         }
+        // 仅支持主索引完整键删除（Redis Hash Field 按主索引构建）
+        if (!index.isPrimary()) {
+            LogTopic.MODEL.error("redisDeleteByPrefix", "仅支持主索引删除", "table", meta.getTableName(), "index", index.getName());
+            return;
+        }
+
         try {
             long routeId = meta.getRouteId(keys);
             String redisKey = meta.buildRedisKey(routeId);
+
+            // 复合主键 + 仅传 routeId：该 Hash 整桶都属于此分片，直接删 key
+            if (!meta.isSingleFieldPrimary() && keys.length == 1) {
+                RedisUtil.del(redisKey);
+                return;
+            }
+
             Map<String, String> all = RedisUtil.hmget(redisKey);
             if (all.isEmpty()) {
                 return;
@@ -196,27 +229,40 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
                 }
             }
         } catch (Exception e) {
-            LogTopic.MODEL.error(e, "redisDeleteAll", "table", meta.getTableName(), "index", index.getName());
+            LogTopic.MODEL.error(e, "redisDeleteByPrefix", "table", meta.getTableName(), "index", index.getName());
             throw new IllegalStateException("Redis 批量删除失败: " + meta.getTableName(), e);
         }
     }
 
+    /**
+     * 判断 Redis Hash Field 是否匹配索引左前缀
+     * <p>
+     * 复合主索引的 field 不含 routeId（route 已在 redisKey 中）；
+     * 单字段主索引 / 其他情况按 field 分段与 keys 对齐比较。
+     * </p>
+     */
     private boolean matchFieldByPrefix(ModelMeta meta, IndexMeta index, String hashField, Object... keys) {
-        String[] parts = hashField.split(":");
-        if (keys.length > parts.length) {
-            return false;
-        }
-        if (!meta.isSingleFieldPrimary() && index == meta.getPrimaryIndex()) {
-            for (int i = 0; i < keys.length; i++) {
-                int partIndex = i + 1;
-                if (partIndex >= parts.length) {
-                    return false;
-                }
-                if (!String.valueOf(keys[i]).equals(parts[partIndex])) {
+        String[] parts = hashField.isEmpty() ? new String[0] : hashField.split(":");
+
+        if (!meta.isSingleFieldPrimary()) {
+            // keys[0]=routeId，field 从 keys[1] 起匹配
+            if (keys.length <= 1) {
+                return true;
+            }
+            int fieldKeyCount = keys.length - 1;
+            if (fieldKeyCount > parts.length) {
+                return false;
+            }
+            for (int i = 0; i < fieldKeyCount; i++) {
+                if (!String.valueOf(keys[i + 1]).equals(parts[i])) {
                     return false;
                 }
             }
             return true;
+        }
+
+        if (keys.length > parts.length) {
+            return false;
         }
         for (int i = 0; i < keys.length; i++) {
             if (!String.valueOf(keys[i]).equals(parts[i])) {

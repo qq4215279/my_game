@@ -11,6 +11,7 @@ import com.mumu.game.core.redis.constants.RedisKey;
 import com.mumu.game.core.redis.constants.SerializerType;
 
 import lombok.Data;
+import lombok.Getter;
 
 /**
  * ModelMeta
@@ -32,7 +33,7 @@ import lombok.Data;
  * @author liuzhen
  * @version 1.0.0 2026/7/9
  */
-@Data
+@Getter
 public final class ModelMeta {
 
     /** 实体类 */
@@ -43,14 +44,17 @@ public final class ModelMeta {
     private final String comment;
     /** 持久化策略（JVM / REDIS / DB / REDIS_DB） */
     private final PersistStrategy persistStrategy;
+
+
     /** 全部索引（第一个为主索引） */
-    private final List<IndexMeta> indexes;
+    // private final List<IndexMeta> indexes;
     /** 主索引（indexes[0]，必须唯一） */
     private final IndexMeta primaryIndex;
-    /**
-     * 路由字段名（主索引第一个字段）
-     * <p>用于：业务线程路由、Redis MANY 模式分桶、dirty 重试路由</p>
-     */
+    /** 非主索引列表（启动期从 indexes 过滤，JVM 副索引维护用） */
+    private final List<IndexMeta> secondaryIndexes;
+
+
+    /** 路由字段名（主索引第一个字段） 用于：业务线程路由、Redis MANY 模式分桶、dirty 重试路由 */
     private final String routeField;
     /** 主索引是否仅由一个字段构成（决定 Redis ONE / MANY 模式） */
     private final boolean singleFieldPrimary;
@@ -75,10 +79,23 @@ public final class ModelMeta {
         this.tableName = builder.tableName;
         this.comment = builder.comment;
         this.persistStrategy = builder.persistStrategy;
-        this.indexes = Collections.unmodifiableList(builder.indexes);
+
+        // 索引信息
+        // this.indexes = Collections.unmodifiableList(builder.indexes);
+        // 主索引
+        List<IndexMeta> indexes = Collections.unmodifiableList(builder.indexes);
         this.primaryIndex = builder.indexes.getFirst();
         this.routeField = primaryIndex.getFields()[0];
         this.singleFieldPrimary = primaryIndex.getFields().length == 1;
+        // 副索引
+        List<IndexMeta> secondary = new ArrayList<>();
+        for (IndexMeta index : indexes) {
+            if (!index.isPrimary()) {
+                secondary.add(index);
+            }
+        }
+        this.secondaryIndexes = Collections.unmodifiableList(secondary);
+
         this.preLoad = builder.preLoad;
         this.capacity = builder.capacity;
         this.persistInterval = builder.persistInterval;
@@ -117,16 +134,24 @@ public final class ModelMeta {
 
     /**
      * 按名称获取索引
-     *
      * @param indexName 索引名
      */
     public IndexMeta getIndex(String indexName) {
-        for (IndexMeta index : indexes) {
+        if (primaryIndex.getName().equals(indexName)) {
+            return primaryIndex;
+        }
+
+        for (IndexMeta index : secondaryIndexes) {
             if (index.getName().equals(indexName)) {
                 return index;
             }
         }
         throw new IllegalArgumentException("表 " + tableName + " 不存在索引: " + indexName);
+    }
+
+    /** 是否使用 JVM 缓存 */
+    public boolean hasJVM() {
+        return persistStrategy != PersistStrategy.DB;
     }
 
     /** 是否使用 Redis 二级缓存 */
@@ -143,8 +168,15 @@ public final class ModelMeta {
      * 是否为玩家维度表（参与进服预加载 / 下线 flush）
      * <p>{@code skipThreadCheck=true} 表示非玩家表，生命周期与线程校验均跳过</p>
      */
+    @SuppressWarnings("all")
     public boolean isPlayerScoped() {
         return !skipThreadCheck;
+    }
+
+    /** 是否存在非主索引（需要维护 JVM 副索引） */
+    @SuppressWarnings("all")
+    public boolean hasSecondaryIndex() {
+        return !secondaryIndexes.isEmpty();
     }
 
     /**
@@ -188,35 +220,27 @@ public final class ModelMeta {
      */
     public String buildHashField(BaseEntity entity, IndexMeta index) {
         Object[] values = index.readKeyValues(entity);
-        if (singleFieldPrimary && index == primaryIndex) {
-            return String.valueOf(values[0]);
+        if (index == primaryIndex) {
+            if (singleFieldPrimary) {
+                return String.valueOf(values[0]);
+            } else {
+                return buildCompositeField(values, 1, values.length);
+            }
         }
-        if (index == primaryIndex && !singleFieldPrimary) {
-            return buildCompositeField(values, 1, values.length);
-        }
+
         return buildCompositeField(values, 0, values.length);
     }
 
     public String buildHashField(IndexMeta index, Object... keys) {
-        if (singleFieldPrimary && index == primaryIndex) {
-            return String.valueOf(keys[0]);
+        if (index == primaryIndex) {
+            if (singleFieldPrimary) {
+                return String.valueOf(keys[0]);
+            } else {
+                return buildCompositeField(keys, 1, keys.length);
+            }
         }
-        if (index == primaryIndex && !singleFieldPrimary) {
-            return buildCompositeField(keys, 1, keys.length);
-        }
+
         return index.buildKeyString(keys);
-    }
-
-    /**
-     * 构建 JVM / dirty 唯一 cacheKey
-     * <p>格式：{tableName}:{indexName}:{key1:key2...}</p>
-     */
-    public String buildCacheKey(BaseEntity entity) {
-        return buildCacheKey(primaryIndex, primaryIndex.readKeyValues(entity));
-    }
-
-    public String buildCacheKey(IndexMeta index, Object... keys) {
-        return tableName + ':' + index.getName() + ':' + index.buildKeyString(keys);
     }
 
     /**
@@ -231,6 +255,18 @@ public final class ModelMeta {
             sb.append(values[i]);
         }
         return sb.toString();
+    }
+
+    /**
+     * 构建 JVM / dirty 唯一 cacheKey
+     * <p>格式：{tableName}:{indexName}:{key1:key2...}</p>
+     */
+    public String buildCacheKey(BaseEntity entity) {
+        return buildCacheKey(primaryIndex, primaryIndex.readKeyValues(entity));
+    }
+
+    public String buildCacheKey(IndexMeta index, Object... keys) {
+        return tableName + ':' + index.getName() + ':' + index.buildKeyString(keys);
     }
 
     /** 内部构建器，build 前执行 {@link ModelMetaValidator} 校验 */

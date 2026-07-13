@@ -48,52 +48,6 @@ public interface Model<Entity extends BaseEntity> {
     Entity selectOne(String indexName, Object... primaryKeys);
 
     /**
-     * 按主索引键查询列表。
-     * <p>
-     * 完整键时等价于 {@code selectOne} 的单条结果；
-     * 左前缀键（键数量小于索引字段数）时返回该前缀下所有匹配记录。
-     * 读路径：L1 JVM → L2 Redis → L3 DB；命中时回填上层缓存。
-     * </p>
-     *
-     * @param primaryKeys 索引键（完整键或左前缀）
-     * @return 匹配列表，无数据返回空列表
-     */
-    List<Entity> selectList(Object... primaryKeys);
-
-    /**
-     * 按指定索引键查询列表。
-     * <p>
-     * 完整键时等价于 {@code selectOne} 的单条结果；
-     * 左前缀键时返回该前缀下所有匹配记录。
-     * 读路径：L1 JVM → L2 Redis → L3 DB；命中时回填上层缓存。
-     * </p>
-     *
-     * @param indexName   索引名称（对应 {@code @Index.name}）
-     * @param primaryKeys 索引键（完整键或左前缀）
-     * @return 匹配列表，无数据返回空列表
-     */
-    List<Entity> selectList(String indexName, Object... primaryKeys);
-
-    /**
-     * 按主索引键查询列表，结果按 cacheKey 倒序排列。
-     * <p>语义同 {@link #selectList(Object...)}，仅排序方式不同。</p>
-     *
-     * @param primaryKeys 索引键（完整键或左前缀）
-     * @return 倒序匹配列表，无数据返回空列表
-     */
-    List<Entity> selectListReverse(Object... primaryKeys);
-
-    /**
-     * 按指定索引键查询列表，结果按 cacheKey 倒序排列。
-     * <p>语义同 {@link #selectList(String, Object...)}，仅排序方式不同。</p>
-     *
-     * @param indexName   索引名称（对应 {@code @Index.name}）
-     * @param primaryKeys 索引键（完整键或左前缀）
-     * @return 倒序匹配列表，无数据返回空列表
-     */
-    List<Entity> selectListReverse(String indexName, Object... primaryKeys);
-
-    /**
      * 查询单条记录，不存在则创建并插入。
      * <p>默认异步持久化，等价于 {@code selectOrCreate(builder, false, primaryKeys)}。</p>
      *
@@ -139,6 +93,53 @@ public interface Model<Entity extends BaseEntity> {
         }
         return entity;
     }
+
+    /**
+     * 按主索引键查询列表。
+     * <p>
+     * 完整键时等价于 {@code selectOne} 的单条结果；
+     * 左前缀键（键数量小于索引字段数）时返回该前缀下所有匹配记录。
+     * 读路径：L1 JVM → L2 Redis → L3 DB；命中时回填上层缓存。
+     * </p>
+     *
+     * @param primaryKeys 索引键（完整键或左前缀）
+     * @return 匹配列表，无数据返回空列表
+     */
+    List<Entity> selectList(Object... primaryKeys);
+
+    /**
+     * 按指定索引键查询列表。
+     * <p>
+     * 完整键时等价于 {@code selectOne} 的单条结果；
+     * 左前缀键时返回该前缀下所有匹配记录。
+     * 读路径：L1 JVM → L2 Redis → L3 DB；命中时回填上层缓存。
+     * </p>
+     *
+     * @param indexName   索引名称（对应 {@code @Index.name}）
+     * @param primaryKeys 索引键（完整键或左前缀）
+     * @return 匹配列表，无数据返回空列表
+     */
+    List<Entity> selectList(String indexName, Object... primaryKeys);
+
+    /**
+     * 按主索引键查询列表，结果按 cacheKey 倒序排列。
+     * <p>语义同 {@link #selectList(Object...)}，仅排序方式不同。</p>
+     *
+     * @param primaryKeys 索引键（完整键或左前缀）
+     * @return 倒序匹配列表，无数据返回空列表
+     */
+    List<Entity> selectListReverse(Object... primaryKeys);
+
+    /**
+     * 按指定索引键查询列表，结果按 cacheKey 倒序排列。
+     * <p>语义同 {@link #selectList(String, Object...)}，仅排序方式不同。</p>
+     *
+     * @param indexName   索引名称（对应 {@code @Index.name}）
+     * @param primaryKeys 索引键（完整键或左前缀）
+     * @return 倒序匹配列表，无数据返回空列表
+     */
+    List<Entity> selectListReverse(String indexName, Object... primaryKeys);
+
 
     /**
      * 更新实体（异步持久化）。
@@ -232,16 +233,6 @@ public interface Model<Entity extends BaseEntity> {
     void deleteOne(boolean persistNow, Object... primaryKeys);
 
     /**
-     * 按指定索引完整键删除单条记录。
-     *
-     * @param indexName   索引名称（对应 {@code @Index.name}）
-     * @param persistNow  是否同步持久化（{@code true} 立即 flush 到 Redis / DB）
-     * @param primaryKeys 索引完整键
-     * @throws IllegalArgumentException 索引键不完整时抛出
-     */
-    void deleteOne(String indexName, boolean persistNow, Object... primaryKeys);
-
-    /**
      * 按主索引左前缀批量删除（异步持久化）。
      * <p>删除 JVM 缓存中该前缀下所有匹配记录，并逐条标记 DELETE dirty。</p>
      *
@@ -252,18 +243,10 @@ public interface Model<Entity extends BaseEntity> {
     /**
      * 按指定索引左前缀批量删除（异步持久化）。
      *
-     * @param indexName   索引名称（对应 {@code @Index.name}）
+     * @param persistNow   索引名称（对应 {@code @Index.name}）
      * @param primaryKeys 索引键（左前缀，至少包含 routeId）
      */
-    void deleteAll(String indexName, Object... primaryKeys);
+    void deleteAll(boolean persistNow, Object... primaryKeys);
 
-    /**
-     * 按指定索引左前缀批量删除。
-     *
-     * @param indexName   索引名称（对应 {@code @Index.name}）
-     * @param persistNow  是否同步持久化（{@code true} 立即 flush 到 Redis / DB）
-     * @param primaryKeys 索引键（左前缀，至少包含 routeId）
-     */
-    void deleteAll(String indexName, boolean persistNow, Object... primaryKeys);
 
 }

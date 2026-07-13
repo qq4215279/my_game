@@ -4,6 +4,8 @@ import com.mumu.game.core.db.core.BaseEntity;
 import com.mumu.game.core.db.meta.IndexMeta;
 import com.mumu.game.core.db.meta.ModelMeta;
 
+import java.util.List;
+
 /**
  * ModelCacheWriter
  * 缓存写接口（JVM / Redis 统一写 API）
@@ -18,6 +20,14 @@ public interface ModelCacheWriter {
      * @param entity 实体对象
      */
     void save(ModelMeta meta, BaseEntity entity);
+
+    /**
+     * 批量保存
+     * @param meta   表元数据
+     * @param entities 实体对象列表
+     * @since 2026/7/13 17:06
+     */
+    void saveBatch(ModelMeta meta, List<? extends BaseEntity> entities);
 
     /**
      * 按完整索引键删除单条

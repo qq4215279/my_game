@@ -44,4 +44,10 @@ public interface PersistEngine {
 
     /** 按完整索引键删除 */
     void delete(ModelMeta meta, IndexMeta index, Object... keys);
+
+    /**
+     * 按索引左前缀批量删除
+     * <p>用于 deleteAll：JVM 未加载或仅部分加载时，仍需清 Redis/DB</p>
+     */
+    void deleteByPrefix(ModelMeta meta, IndexMeta index, Object... keys);
 }

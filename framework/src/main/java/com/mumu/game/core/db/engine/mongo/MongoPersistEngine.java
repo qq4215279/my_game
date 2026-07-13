@@ -68,4 +68,10 @@ public class MongoPersistEngine implements PersistEngine {
         LogTopic.MODEL.info("mongoDeleteStub", "table", meta.getTableName(), "index", index.getName(), "keys", keys);
         // TODO 接入 MongoTemplate 后实现真实 delete
     }
+
+    @Override
+    public void deleteByPrefix(ModelMeta meta, IndexMeta index, Object... keys) {
+        LogTopic.MODEL.info("mongoDeleteByPrefixStub", "table", meta.getTableName(), "index", index.getName(), "keys", keys);
+        // TODO 接入 MongoTemplate 后实现真实前缀删除
+    }
 }

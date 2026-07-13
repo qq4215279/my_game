@@ -106,6 +106,26 @@ public final class IndexMeta {
     }
 
     /**
+     * 构建副索引键（末尾带冒号，避免左前缀 startsWith 误匹配，如 10: 与 100:）
+     * <p>完整键示例：{@code 10001:3:}；左前缀示例：{@code 10001:}</p>
+     */
+    public String buildIndexKey(Object... keys) {
+        if (keys == null || keys.length == 0) {
+            return StringUtils.EMPTY;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Object key : keys) {
+            sb.append(key).append(':');
+        }
+        return sb.toString();
+    }
+
+    /** 从实体构建副索引键 */
+    public String buildIndexKey(BaseEntity entity) {
+        return buildIndexKey(readKeyValues(entity));
+    }
+
+    /**
      * 从实体读取本索引全部字段值
      */
     public Object[] readKeyValues(BaseEntity entity) {

@@ -32,6 +32,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
 
     @Resource
     private RedisModelCache redisModelCache;
+
     @Resource
     private DirtyTracker dirtyTracker;
     @Resource
@@ -48,30 +49,38 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
     }
 
     @Override
-    public Entity selectOne(String indexName, Object... primaryKeys) {
+    public Entity selectOne(String indexName, Object... keys) {
         IndexMeta index = meta.getIndex(indexName);
-        if (!index.isFullKey(primaryKeys)) {
+        if (!index.isFullKey(keys)) {
             throw new IllegalArgumentException("selectOne 需要完整索引键");
         }
-        Entity local = jvmCache.get(index, primaryKeys);
+
+        // 1. jvm查询
+        Entity local = jvmCache.get(index, keys);
         if (local != null) {
             return local;
         }
+        // 2. redis查询
         if (meta.hasRedis()) {
-            Entity redis = redisModelCache.getOne(meta, index, domainClass(), primaryKeys);
+            Entity redis = redisModelCache.getOne(meta, index, entityClass(), keys);
             if (redis != null) {
                 jvmCache.put(redis);
                 return redis;
             }
         }
-        return loadOneFromDb(index, primaryKeys);
+        // 3. db查询
+        if (meta.hasDb()) {
+            return loadAndCacheFromDb(index,  meta.getRouteId(keys));
+        }
+
+        return null;
     }
 
-    private Entity loadOneFromDb(IndexMeta index, Object... keys) {
+    private Entity loadAndCacheFromDb(IndexMeta index, Object... keys) {
         if (!meta.hasDb()) {
             return null;
         }
-        Entity db = persistEngineFactory.getEngine(meta).findOne(meta, index, domainClass(), keys);
+        Entity db = persistEngineFactory.getEngine(meta).findOne(meta, index, entityClass(), keys);
         if (db != null) {
             cacheEntity(db);
         }
@@ -82,8 +91,9 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
      * DB/Redis 回填：写入 L1，并同步回填 L2
      */
     private void cacheEntity(Entity entity) {
-        entity.marshal();
-        jvmCache.put(entity);
+        if (meta.hasJVM()) {
+            jvmCache.put(entity);
+        }
         saveToRedisQuietly(entity);
     }
 
@@ -91,6 +101,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
         if (!meta.hasRedis()) {
             return;
         }
+        // TODO 是否优化采用异步save？
         try {
             redisModelCache.save(meta, entity);
         } catch (Exception e) {
@@ -104,58 +115,75 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
     }
 
     @Override
-    public List<Entity> selectList(String indexName, Object... primaryKeys) {
+    public List<Entity> selectList(String indexName, Object... keys) {
         IndexMeta index = meta.getIndex(indexName);
-        if (index.isFullKey(primaryKeys)) {
-            Entity one = selectOne(indexName, primaryKeys);
+        if (index.isFullKey(keys)) {
+            Entity one = selectOne(indexName, keys);
             return one == null ? Collections.emptyList() : List.of(one);
         }
-        List<Entity> local = jvmCache.list(index, primaryKeys);
-        if (!local.isEmpty()) {
-            return local;
-        }
-        if (meta.hasRedis()) {
-            List<Entity> redisList = redisModelCache.getList(meta, index, domainClass(), primaryKeys);
-            if (!redisList.isEmpty()) {
-                for (Entity entity : redisList) {
-                    jvmCache.put(entity);
-                }
-                return redisList;
+
+        // 1. jvm查询
+        if (meta.hasJVM()) {
+            List<Entity> local = jvmCache.list(index, keys);
+            if (!local.isEmpty()) {
+                return local;
             }
         }
-        return loadListFromDb(index, primaryKeys);
+        // 2. redis查询
+        if (meta.hasRedis()) {
+            List<Entity> redisList = redisModelCache.getList(meta, index, entityClass(), keys);
+            // 缓存到jvm
+            cache2Jvm(redisList);
+            return redisList;
+        }
+        // 3. db查询
+        if (meta.hasDb()) {
+            return loadAndCacheListFromDb(index,  meta.getRouteId(keys));
+        }
+
+        return Collections.emptyList();
     }
 
-    private List<Entity> loadListFromDb(IndexMeta index, Object... keys) {
+    private List<Entity> loadAndCacheListFromDb(IndexMeta index, long primaryRouteId) {
         if (!meta.hasDb()) {
             return Collections.emptyList();
         }
-        List<Entity> dbList = persistEngineFactory.getEngine(meta).findList(meta, index, domainClass(), keys);
+        // 非主索引
+        if (index.isPrimary()) {
+            LogTopic.MODEL.error("loadListFromDb", "非主索引无法从db中查询", "table", meta.getTableName(), "index",
+                    index.getName());
+            return Collections.emptyList();
+        }
+
+        List<Entity> dbList = persistEngineFactory.getEngine(meta).findList(meta, index, entityClass(), primaryRouteId);
         if (!dbList.isEmpty()) {
-            cacheEntities(dbList);
+            // 缓存到jvm
+            cache2Jvm(dbList);
+            // 缓存到redis
+            cache2Redis(dbList);
         }
         return dbList;
     }
 
-    private void cacheEntities(List<Entity> entities) {
-        if (entities == null || entities.isEmpty()) {
-            return;
+    /** 缓存到jvm */
+    private void cache2Jvm(List<Entity> entities) {
+        // 缓存到jvm
+        if (meta.hasJVM()) {
+            for (Entity entity : entities) {
+                jvmCache.put(entity);
+            }
         }
-        for (Entity entity : entities) {
-            entity.marshal();
-            jvmCache.put(entity);
-        }
-        saveBatchToRedisQuietly(entities);
     }
 
-    private void saveBatchToRedisQuietly(List<Entity> entities) {
+    /** 缓存到redis */
+    private void cache2Redis(List<Entity> entities) {
         if (!meta.hasRedis()) {
             return;
         }
         try {
             redisModelCache.saveBatch(meta, entities);
         } catch (Exception e) {
-            LogTopic.MODEL.error(e, "cacheBackfillRedisSaveBatch", "table", meta.getTableName());
+            LogTopic.MODEL.error(e, "cache2Redis saveBatch error", "table", meta.getTableName());
         }
     }
 
@@ -192,7 +220,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
         }
         Object[] keys = meta.getPrimaryIndex().readKeyValues(entity);
         Entity cached = jvmCache.get(meta.getPrimaryIndex(), keys);
-        if (cached == null) {
+        if (meta.hasJVM() && cached == null) {
             LogTopic.MODEL.error("updateNotFound", "table", meta.getTableName(), "cacheKey", meta.buildCacheKey(entity));
             return;
         }
@@ -202,6 +230,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
         }
         entity.marshal();
         String cacheKey = meta.buildCacheKey(entity);
+        // 立马持久化
         if (persistNow) {
             syncFlush(cacheKey, routeId, PersistOp.UPDATE);
             return;
@@ -226,7 +255,6 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             LogTopic.MODEL.error("insertExists", "table", meta.getTableName(), "cacheKey", meta.buildCacheKey(entity));
             return;
         }
-        entity.marshal();
         jvmCache.put(entity);
         String cacheKey = meta.buildCacheKey(entity);
         if (persistNow) {
@@ -241,19 +269,19 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
         Object[] keys = meta.getPrimaryIndex().readKeyValues(entity);
         Entity exists = jvmCache.get(meta.getPrimaryIndex(), keys);
         if (exists == null && meta.hasRedis()) {
-            exists = redisModelCache.getOne(meta, meta.getPrimaryIndex(), domainClass(), keys);
+            exists = redisModelCache.getOne(meta, meta.getPrimaryIndex(), entityClass(), keys);
             if (exists != null) {
                 jvmCache.put(exists);
             }
         }
         if (exists == null && meta.hasDb()) {
-            exists = loadOneFromDb(meta.getPrimaryIndex(), keys);
+            exists = loadAndCacheFromDb(meta.getPrimaryIndex(), keys);
         }
+
         if (exists == null) {
             insert(entity);
         } else if (exists != entity) {
-            LogTopic.MODEL.error("insertOrUpdateRefMismatch", "table", meta.getTableName(),
-                "cacheKey", meta.buildCacheKey(entity));
+            LogTopic.MODEL.error("insertOrUpdateRefMismatch", "table", meta.getTableName(), "cacheKey", meta.buildCacheKey(entity));
         } else {
             update(entity);
         }
@@ -292,21 +320,16 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
 
     @Override
     public void deleteOne(boolean persistNow, Object... primaryKeys) {
-        deleteOne(meta.getPrimaryIndex().getName(), persistNow, primaryKeys);
-    }
-
-    @Override
-    public void deleteOne(String indexName, boolean persistNow, Object... primaryKeys) {
-        IndexMeta index = meta.getIndex(indexName);
-        if (!index.isFullKey(primaryKeys)) {
+        IndexMeta primaryIndex = meta.getPrimaryIndex();
+        if (!primaryIndex.isFullKey(primaryKeys)) {
             throw new IllegalArgumentException("deleteOne 需要完整索引键");
         }
         long routeId = meta.getRouteId(primaryKeys);
         if (!modelRouteChecker.checkWrite(routeId, meta)) {
             return;
         }
-        jvmCache.remove(index, primaryKeys);
-        String cacheKey = meta.buildCacheKey(index, primaryKeys);
+        jvmCache.remove(primaryIndex, primaryKeys);
+        String cacheKey = meta.buildCacheKey(primaryIndex, primaryKeys);
         if (persistNow) {
             syncFlush(cacheKey, routeId, PersistOp.DELETE);
             return;
@@ -316,36 +339,54 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
 
     @Override
     public void deleteAll(Object... primaryKeys) {
-        deleteAll(meta.getPrimaryIndex().getName(), false, primaryKeys);
+        deleteAll(false, primaryKeys);
     }
 
     @Override
-    public void deleteAll(String indexName, Object... primaryKeys) {
-        deleteAll(indexName, false, primaryKeys);
-    }
-
-    @Override
-    public void deleteAll(String indexName, boolean persistNow, Object... primaryKeys) {
-        IndexMeta index = meta.getIndex(indexName);
+    public void deleteAll(boolean persistNow, Object... primaryKeys) {
+        IndexMeta primaryIndex = meta.getPrimaryIndex();
         long routeId = meta.getRouteId(primaryKeys);
         if (!modelRouteChecker.checkWrite(routeId, meta)) {
             return;
         }
-        List<Entity> removed = jvmCache.removeAll(index, primaryKeys);
-        for (Entity entity : removed) {
-            String cacheKey = meta.buildCacheKey(entity);
-            if (persistNow) {
-                syncFlush(cacheKey, routeId, PersistOp.DELETE);
-            } else {
-                scheduleFlush(cacheKey, routeId, PersistOp.DELETE);
-            }
+
+        // 1. 清理 JVM，并去掉这些实体上残留的 dirty，避免后续又被 upsert 回去
+        List<Entity> removeList = jvmCache.removeAll(primaryIndex, primaryKeys);
+        for (Entity entity : removeList) {
+            dirtyTracker.remove(meta.getTableName(), meta.buildCacheKey(entity));
         }
-        if (!persistNow && removed.isEmpty()) {
-            String cacheKey = meta.buildCacheKey(index, primaryKeys);
-            scheduleFlush(cacheKey, routeId, PersistOp.DELETE);
+
+        // 2. 下层统一按前缀删（覆盖 JVM 未加载 / 仅部分加载的情况）
+        if (persistNow) {
+            doDeleteByPrefix(primaryIndex, primaryKeys);
+        } else {
+            scheduleDeleteByPrefix(primaryIndex, routeId, primaryKeys);
         }
     }
 
+    /**
+     * 异步按前缀删除 Redis/DB（不走残缺 cacheKey 的 dirty 队列）
+     */
+    private void scheduleDeleteByPrefix(IndexMeta primaryIndex, long routeId, Object... primaryKeys) {
+        if (!meta.hasRedis() && !meta.hasDb()) {
+            return;
+        }
+        String taskKey = "prefixDelete:" + meta.buildCacheKey(primaryIndex, primaryKeys);
+        persistThreadPool.submit(routeId, meta.getTableName(), taskKey, () -> doDeleteByPrefix(primaryIndex, primaryKeys));
+    }
+
+    private void doDeleteByPrefix(IndexMeta primaryIndex, Object... primaryKeys) {
+        try {
+            if (meta.hasRedis()) {
+                redisModelCache.deleteByPrefix(meta, primaryIndex, primaryKeys);
+            }
+            if (meta.hasDb()) {
+                persistEngineFactory.getEngine(meta).deleteByPrefix(meta, primaryIndex, primaryKeys);
+            }
+        } catch (Exception e) {
+            LogTopic.MODEL.error(e, "deleteByPrefixFail", "table", meta.getTableName(), "primaryIndex", primaryIndex.getName());
+        }
+    }
 
     // ===============================【ModelHook】===============================
 
@@ -418,20 +459,20 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
      * 预加载分片数据（L2 Redis → L1 JVM；Redis 无数据时从 DB 加载并回填）
      */
     @Override
-    public void preload(long routeId) {
+    public void preload(long primaryRouteId) {
         if (!meta.isPreLoad()) {
             return;
         }
         if (meta.hasRedis()) {
-            Map<String, Entity> bucket = redisModelCache.loadRouteBucket(meta, domainClass(), routeId);
-            jvmCache.putAll(routeId, bucket);
+            Map<String, Entity> bucket = redisModelCache.loadRouteBucket(meta, entityClass(), primaryRouteId);
+            jvmCache.putAll(primaryRouteId, bucket);
             if (!bucket.isEmpty()) {
                 return;
             }
         }
         if (meta.hasDb()) {
-            List<Entity> dbList = loadListFromDb(meta.getPrimaryIndex(), routeId);
-            LogTopic.MODEL.info("preloadFromDb", "table", meta.getTableName(), "routeId", routeId, "size", dbList.size());
+            List<Entity> dbList = loadAndCacheListFromDb(meta.getPrimaryIndex(), primaryRouteId);
+            LogTopic.MODEL.info("preloadFromDb", "table", meta.getTableName(), "primaryRouteId", primaryRouteId, "size", dbList.size());
         }
     }
 
@@ -528,7 +569,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
 
 
     @SuppressWarnings("unchecked")
-    protected Class<Entity> domainClass() {
+    protected Class<Entity> entityClass() {
         return (Class<Entity>) meta.getEntityClass();
     }
 
