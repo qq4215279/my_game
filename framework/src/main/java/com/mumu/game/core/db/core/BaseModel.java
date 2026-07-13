@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.mumu.game.core.db.cache.JvmModelCache;
 import com.mumu.game.core.db.cache.RedisModelCache;
 import com.mumu.game.core.db.consts.PersistOp;
@@ -17,6 +15,8 @@ import com.mumu.game.core.db.meta.ModelMeta;
 import com.mumu.game.core.db.pool.PersistThreadPool;
 import com.mumu.game.core.db.util.ModelRouteChecker;
 import com.mumu.game.core.log.LogTopic;
+
+import jakarta.annotation.Resource;
 
 /**
  * BaseModel
@@ -30,15 +30,15 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
     /** 缓存 */
     private JvmModelCache<Entity> jvmCache;
 
-    @Autowired
+    @Resource
     private RedisModelCache redisModelCache;
-    @Autowired
+    @Resource
     private DirtyTracker dirtyTracker;
-    @Autowired
+    @Resource
     private PersistThreadPool persistThreadPool;
-    @Autowired
+    @Resource
     private PersistEngineFactory persistEngineFactory;
-    @Autowired
+    @Resource
     private ModelRouteChecker modelRouteChecker;
 
 
@@ -138,8 +138,24 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
     }
 
     private void cacheEntities(List<Entity> entities) {
+        if (entities == null || entities.isEmpty()) {
+            return;
+        }
         for (Entity entity : entities) {
-            cacheEntity(entity);
+            entity.marshal();
+            jvmCache.put(entity);
+        }
+        saveBatchToRedisQuietly(entities);
+    }
+
+    private void saveBatchToRedisQuietly(List<Entity> entities) {
+        if (!meta.hasRedis()) {
+            return;
+        }
+        try {
+            redisModelCache.saveBatch(meta, entities);
+        } catch (Exception e) {
+            LogTopic.MODEL.error(e, "cacheBackfillRedisSaveBatch", "table", meta.getTableName());
         }
     }
 
@@ -170,15 +186,19 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
 
     @Override
     public void update(Entity entity, boolean persistNow) {
-        long routeId = meta.getRouteId(entity);
-        modelRouteChecker.checkWrite(routeId, meta);
+        long routeId = entity.getPrimaryRouteId();
+        if (!modelRouteChecker.checkWrite(routeId, meta)) {
+            return;
+        }
         Object[] keys = meta.getPrimaryIndex().readKeyValues(entity);
         Entity cached = jvmCache.get(meta.getPrimaryIndex(), keys);
         if (cached == null) {
-            throw new IllegalStateException("update 失败，记录不存在: " + meta.buildCacheKey(entity));
+            LogTopic.MODEL.error("updateNotFound", "table", meta.getTableName(), "cacheKey", meta.buildCacheKey(entity));
+            return;
         }
         if (cached != entity) {
-            throw new IllegalStateException("update 失败，必须使用 JVM 缓存中的同一对象引用: " + meta.buildCacheKey(entity));
+            LogTopic.MODEL.error("updateRefMismatch", "table", meta.getTableName(), "cacheKey", meta.buildCacheKey(entity));
+            return;
         }
         entity.marshal();
         String cacheKey = meta.buildCacheKey(entity);
@@ -186,8 +206,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             syncFlush(cacheKey, routeId, PersistOp.UPDATE);
             return;
         }
-        dirtyTracker.mark(meta.getTableName(), cacheKey, routeId, PersistOp.UPDATE);
-        scheduleFlush(cacheKey, routeId);
+        scheduleFlush(cacheKey, routeId, PersistOp.UPDATE);
     }
 
     @Override
@@ -197,12 +216,15 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
 
     @Override
     public void insert(Entity entity, boolean persistNow) {
-        long routeId = meta.getRouteId(entity);
-        modelRouteChecker.checkWrite(routeId, meta);
+        long routeId = entity.getPrimaryRouteId();
+        if (!modelRouteChecker.checkWrite(routeId, meta)) {
+            return;
+        }
         Object[] keys = meta.getPrimaryIndex().readKeyValues(entity);
         Entity exists = jvmCache.get(meta.getPrimaryIndex(), keys);
         if (exists != null) {
-            throw new IllegalStateException("insert 失败，记录已存在: " + meta.buildCacheKey(entity));
+            LogTopic.MODEL.error("insertExists", "table", meta.getTableName(), "cacheKey", meta.buildCacheKey(entity));
+            return;
         }
         entity.marshal();
         jvmCache.put(entity);
@@ -211,8 +233,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             syncFlush(cacheKey, routeId, PersistOp.INSERT);
             return;
         }
-        dirtyTracker.mark(meta.getTableName(), cacheKey, routeId, PersistOp.INSERT);
-        scheduleFlush(cacheKey, routeId);
+        scheduleFlush(cacheKey, routeId, PersistOp.INSERT);
     }
 
     @Override
@@ -231,8 +252,8 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
         if (exists == null) {
             insert(entity);
         } else if (exists != entity) {
-            throw new IllegalStateException(
-                "insertOrUpdate 失败，update 必须使用 JVM 缓存中的同一对象引用: " + meta.buildCacheKey(entity));
+            LogTopic.MODEL.error("insertOrUpdateRefMismatch", "table", meta.getTableName(),
+                "cacheKey", meta.buildCacheKey(entity));
         } else {
             update(entity);
         }
@@ -245,13 +266,15 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
 
     @Override
     public void delete(Entity entity, boolean persistNow) {
-        long routeId = meta.getRouteId(entity);
-        modelRouteChecker.checkWrite(routeId, meta);
+        long routeId = entity.getPrimaryRouteId();
+        if (!modelRouteChecker.checkWrite(routeId, meta)) {
+            return;
+        }
         Object[] keys = meta.getPrimaryIndex().readKeyValues(entity);
         Entity cached = jvmCache.get(meta.getPrimaryIndex(), keys);
         if (cached != null && cached != entity) {
-            throw new IllegalStateException(
-                "delete 失败，必须使用 JVM 缓存中的同一对象引用: " + meta.buildCacheKey(entity));
+            LogTopic.MODEL.error("deleteRefMismatch", "table", meta.getTableName(), "cacheKey", meta.buildCacheKey(entity));
+            return;
         }
         jvmCache.remove(meta.getPrimaryIndex(), keys);
         String cacheKey = meta.buildCacheKey(entity);
@@ -259,8 +282,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             syncFlush(cacheKey, routeId, PersistOp.DELETE);
             return;
         }
-        dirtyTracker.mark(meta.getTableName(), cacheKey, routeId, PersistOp.DELETE);
-        scheduleFlush(cacheKey, routeId);
+        scheduleFlush(cacheKey, routeId, PersistOp.DELETE);
     }
 
     @Override
@@ -280,15 +302,16 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             throw new IllegalArgumentException("deleteOne 需要完整索引键");
         }
         long routeId = meta.getRouteId(primaryKeys);
-        modelRouteChecker.checkWrite(routeId, meta);
+        if (!modelRouteChecker.checkWrite(routeId, meta)) {
+            return;
+        }
         jvmCache.remove(index, primaryKeys);
         String cacheKey = meta.buildCacheKey(index, primaryKeys);
         if (persistNow) {
             syncFlush(cacheKey, routeId, PersistOp.DELETE);
             return;
         }
-        dirtyTracker.mark(meta.getTableName(), cacheKey, routeId, PersistOp.DELETE);
-        scheduleFlush(cacheKey, routeId);
+        scheduleFlush(cacheKey, routeId, PersistOp.DELETE);
     }
 
     @Override
@@ -305,21 +328,21 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
     public void deleteAll(String indexName, boolean persistNow, Object... primaryKeys) {
         IndexMeta index = meta.getIndex(indexName);
         long routeId = meta.getRouteId(primaryKeys);
-        modelRouteChecker.checkWrite(routeId, meta);
+        if (!modelRouteChecker.checkWrite(routeId, meta)) {
+            return;
+        }
         List<Entity> removed = jvmCache.removeAll(index, primaryKeys);
         for (Entity entity : removed) {
             String cacheKey = meta.buildCacheKey(entity);
             if (persistNow) {
                 syncFlush(cacheKey, routeId, PersistOp.DELETE);
             } else {
-                dirtyTracker.mark(meta.getTableName(), cacheKey, routeId, PersistOp.DELETE);
-                scheduleFlush(cacheKey, routeId);
+                scheduleFlush(cacheKey, routeId, PersistOp.DELETE);
             }
         }
         if (!persistNow && removed.isEmpty()) {
             String cacheKey = meta.buildCacheKey(index, primaryKeys);
-            dirtyTracker.mark(meta.getTableName(), cacheKey, routeId, PersistOp.DELETE);
-            scheduleFlush(cacheKey, routeId);
+            scheduleFlush(cacheKey, routeId, PersistOp.DELETE);
         }
     }
 
@@ -338,16 +361,19 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
      */
     private void onEvicted(Entity entity) {
         String cacheKey = meta.buildCacheKey(entity);
-        long routeId = meta.getRouteId(entity);
-        dirtyTracker.mark(meta.getTableName(), cacheKey, routeId, PersistOp.DELETE);
-        scheduleFlush(cacheKey, routeId);
+        long routeId = entity.getPrimaryRouteId();
+        scheduleFlush(cacheKey, routeId, PersistOp.DELETE);
     }
 
-    private void scheduleFlush(String cacheKey, long routeId) {
+    private void scheduleFlush(String cacheKey, long routeId, PersistOp op) {
         if (!meta.hasRedis() && !meta.hasDb()) {
-            dirtyTracker.remove(meta.getTableName(), cacheKey);
             return;
         }
+        dirtyTracker.mark(meta.getTableName(), cacheKey, routeId, op);
+        submitFlush(cacheKey, routeId);
+    }
+
+    private void submitFlush(String cacheKey, long routeId) {
         persistThreadPool.submit(routeId, meta.getTableName(), cacheKey, () -> {
             if (!dirtyTracker.isDirty(meta.getTableName(), cacheKey)) {
                 return;
@@ -358,7 +384,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             }
             doFlush(cacheKey, routeId, entry.getOp());
             if (dirtyTracker.isDirty(meta.getTableName(), cacheKey)) {
-                scheduleFlush(cacheKey, routeId);
+                submitFlush(cacheKey, routeId);
             }
         });
     }

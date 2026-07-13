@@ -1,12 +1,13 @@
 package com.mumu.game.core.db.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.mumu.game.core.db.config.DbPersistProperties;
 import com.mumu.game.core.db.meta.ModelMeta;
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.thread.ThreadPoolRouter;
+
+import jakarta.annotation.Resource;
 
 /**
  * ModelRouteChecker
@@ -18,25 +19,22 @@ import com.mumu.game.core.thread.ThreadPoolRouter;
 @Component
 public class ModelRouteChecker {
 
-    @Autowired
+    @Resource
     private DbPersistProperties persistProperties;
 
     /**
      * 校验写操作是否在 routeId 对应业务线程执行
+     * @return {@code true} 允许写；{@code false} 拒绝写（方法内已打日志）
      */
-    public void checkWrite(long routeId, ModelMeta meta) {
+    public boolean checkWrite(long routeId, ModelMeta meta) {
         if (!persistProperties.isThreadCheckEnabled() || meta.isSkipThreadCheck()) {
-            return;
+            return true;
         }
         if (ThreadPoolRouter.isPlayerThread(routeId)) {
-            return;
-        }
-        String message = "非法缓存写操作，routeId=" + routeId + ", table=" + meta.getTableName()
-            + ", thread=" + Thread.currentThread().getName();
-        if (persistProperties.isStrictThreadCheck()) {
-            throw new IllegalStateException(message);
+            return true;
         }
         LogTopic.MODEL.error("illegalCacheWrite", "routeId", routeId, "table", meta.getTableName(), "thread",
             Thread.currentThread().getName());
+        return false;
     }
 }

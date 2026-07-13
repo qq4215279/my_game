@@ -1,80 +1,89 @@
 package com.mumu.game.core.db.meta;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.mumu.game.core.db.anno.Index;
+import com.mumu.game.core.db.core.BaseEntity;
+import com.mumu.game.core.db.util.ReflectFieldUtil;
 
-import lombok.Data;
+import lombok.Getter;
 
 /**
  * IndexMeta
  * 索引运行时元数据，由 {@link Index} 注解在启动期解析生成。
- * <p>
- * 用于：
- * <ul>
- *   <li>判断查询键是否完整（selectOne）或左前缀（selectList）</li>
- *   <li>构建 cacheKey、Redis hashField</li>
- *   <li>从实体读取索引字段值</li>
- * </ul>
  *
  * @author liuzhen
  * @version 1.0.0 2026/7/9
  */
-@Data
+@Getter
 public final class IndexMeta {
 
-    /** 索引名称，如 unq_playerid / idx_playerid_functionid */
+    /** 索引名称 */
     private final String name;
-    /** 索引列（实体字段名），顺序与 @Index.value 一致 */
+    /** 索引列（实体字段名） */
     private final String[] fields;
     /** 是否唯一索引 */
     private final boolean unique;
+    /** 是否主索引 */
+    private final boolean primary;
+    /** 索引字段访问器（MethodHandle，启动期构建） */
+    private final IndexFieldAccessor accessor;
 
-    private IndexMeta(String name, String[] fields, boolean unique) {
+    private IndexMeta(String name, String[] fields, boolean unique, boolean primary, IndexFieldAccessor accessor) {
         this.name = name;
         this.fields = fields;
         this.unique = unique;
+        this.primary = primary;
+        this.accessor = accessor;
     }
 
     /**
      * 从 {@link Index} 注解构建索引元数据
-     * @param index 索引注解
-     * @return IndexMeta
+     *
+     * @param entityClass 实体类
+     * @param index       索引注解
+     * @param primary     是否主索引
      */
-    public static IndexMeta from(Index index) {
+    public static IndexMeta from(Class<?> entityClass, Index index, boolean primary) {
         String[] fields = index.value();
         if (fields == null || fields.length == 0) {
             throw new IllegalArgumentException("索引字段不能为空");
         }
         String name = index.name();
-        // 未指定名称时自动生成：unq_字段 / idx_字段1_字段2
         if (StringUtils.isBlank(name)) {
             String prefix = index.unique() ? "unq_" : "idx_";
             name = prefix + String.join("_", fields);
         }
-        return new IndexMeta(name, fields.clone(), index.unique());
+        IndexFieldAccessor accessor = IndexFieldAccessor.create(entityClass, fields);
+        return new IndexMeta(name, fields.clone(), index.unique(), primary, accessor);
     }
 
-    /**
-     * 是否为完整索引键（键数量与索引列数一致）
-     * <p>完整键用于 selectOne / deleteOne</p>
-     */
     public boolean isFullKey(Object... keys) {
         return keys != null && keys.length == fields.length;
     }
 
     /**
      * 左前缀匹配：实体字段值与 keys 逐位相等
-     * <p>keys 数量小于 fields.length 时用于 selectList</p>
      */
-    public boolean matchPrefix(Object entity, Object... keys) {
+    public boolean matchPrefix(BaseEntity entity, Object... keys) {
         if (keys == null || keys.length > fields.length) {
             return false;
         }
+        if (primary) {
+            return matchPrimaryPrefix(entity, keys);
+        }
+        return accessor.matchPrefix(entity, keys);
+    }
+
+    private boolean matchPrimaryPrefix(BaseEntity entity, Object... keys) {
         for (int i = 0; i < keys.length; i++) {
-            Object fieldValue = ModelFieldReader.read(entity, fields[i]);
+            Object fieldValue = i == 0 ? entity.getPrimaryRouteId() : accessor.readAt(entity, i);
             if (!Objects.equals(String.valueOf(fieldValue), String.valueOf(keys[i]))) {
                 return false;
             }
@@ -82,9 +91,6 @@ public final class IndexMeta {
         return true;
     }
 
-    /**
-     * 将索引键拼接为字符串，如 10001 或 10001:3
-     */
     public String buildKeyString(Object... keys) {
         if (keys == null || keys.length == 0) {
             return StringUtils.EMPTY;
@@ -102,11 +108,99 @@ public final class IndexMeta {
     /**
      * 从实体读取本索引全部字段值
      */
-    public Object[] readKeyValues(Object entity) {
+    public Object[] readKeyValues(BaseEntity entity) {
+        if (primary) {
+            return readPrimaryKeyValues(entity);
+        }
+        return accessor.readAll(entity);
+    }
+
+    private Object[] readPrimaryKeyValues(BaseEntity entity) {
+        if (fields.length == 1) {
+            return new Object[] {entity.getPrimaryRouteId()};
+        }
         Object[] values = new Object[fields.length];
-        for (int i = 0; i < fields.length; i++) {
-            values[i] = ModelFieldReader.read(entity, fields[i]);
+        values[0] = entity.getPrimaryRouteId();
+        for (int i = 1; i < fields.length; i++) {
+            values[i] = accessor.readAt(entity, i);
         }
         return values;
+    }
+
+    /**
+     * 索引字段访问器（MethodHandle，启动期构建）
+     */
+    static final class IndexFieldAccessor {
+        /**  */
+        private final MethodHandle[] readers;
+
+        private IndexFieldAccessor(MethodHandle[] readers) {
+            this.readers = readers;
+        }
+
+        static IndexFieldAccessor create(Class<?> entityClass, String[] fieldNames) {
+            MethodHandle[] readers = new MethodHandle[fieldNames.length];
+            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            for (int i = 0; i < fieldNames.length; i++) {
+                readers[i] = resolveReader(lookup, entityClass, fieldNames[i]);
+            }
+            return new IndexFieldAccessor(readers);
+        }
+
+        private static MethodHandle resolveReader(MethodHandles.Lookup lookup, Class<?> clazz, String fieldName) {
+            String capitalized = capitalize(fieldName);
+            try {
+                Method getter = clazz.getMethod("get" + capitalized);
+                return lookup.unreflect(getter);
+            } catch (NoSuchMethodException | IllegalAccessException ignored) {
+                // boolean 字段可能为 isXxx
+            }
+            try {
+                Method getter = clazz.getMethod("is" + capitalized);
+                return lookup.unreflect(getter);
+            } catch (NoSuchMethodException | IllegalAccessException ignored) {
+                // 回退 Field
+            }
+            try {
+                Field field = ReflectFieldUtil.resolveField(clazz, fieldName);
+                return lookup.unreflectGetter(field);
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException("无法构建索引访问器: " + clazz.getSimpleName() + "#" + fieldName, e);
+            }
+        }
+
+
+        Object readAt(Object entity, int index) {
+            try {
+                return readers[index].invoke(entity);
+            } catch (Throwable e) {
+                throw new IllegalStateException("读取索引字段失败, index=" + index, e);
+            }
+        }
+
+        Object[] readAll(Object entity) {
+            Object[] values = new Object[readers.length];
+            for (int i = 0; i < readers.length; i++) {
+                values[i] = readAt(entity, i);
+            }
+            return values;
+        }
+
+        boolean matchPrefix(Object entity, Object... keys) {
+            for (int i = 0; i < keys.length; i++) {
+                Object fieldValue = readAt(entity, i);
+                if (!Objects.equals(String.valueOf(fieldValue), String.valueOf(keys[i]))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static String capitalize(String name) {
+            if (name == null || name.isEmpty()) {
+                return name;
+            }
+            return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+        }
     }
 }

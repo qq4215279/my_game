@@ -80,7 +80,7 @@ public class JvmModelCache<Entity extends BaseEntity> implements ModelCacheReade
      */
     public List<Entity> listReverse(IndexMeta index, Object... keys) {
         List<Entity> list = new ArrayList<>(list(index, keys));
-        list.sort(Comparator.comparing(meta::buildCacheKey).reversed());
+        list.sort(Comparator.comparing((Entity e) -> meta.buildCacheKey(e)).reversed());
         return list;
     }
 

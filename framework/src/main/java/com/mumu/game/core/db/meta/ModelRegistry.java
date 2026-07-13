@@ -32,7 +32,7 @@ public final class ModelRegistry {
     /**
      * 注册实体元数据
      */
-    public static void registerDomain(ModelMeta meta) {
+    public static void registerEntity(ModelMeta meta) {
         DOMAIN_META.put(meta.getEntityClass(), meta);
         TABLE_META.put(meta.getTableName(), meta);
     }

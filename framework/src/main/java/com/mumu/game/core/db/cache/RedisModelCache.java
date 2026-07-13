@@ -115,7 +115,7 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
         }
         try {
             entity.unmarshal();
-            long routeId = meta.getRouteId(entity);
+            long routeId = entity.getPrimaryRouteId();
             String redisKey = meta.buildRedisKey(routeId);
             String hashField = meta.buildHashField(entity, meta.getPrimaryIndex());
             String json = EntitySerializer.serialize(meta, entity);
@@ -126,6 +126,39 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
         } catch (Exception e) {
             LogTopic.MODEL.error(e, "redisSave", "table", meta.getTableName());
             throw new IllegalStateException("Redis 写入失败: " + meta.getTableName(), e);
+        }
+    }
+
+    /**
+     * 批量保存到 Redis（同一 routeId 桶一次 hmset）
+     */
+    public void saveBatch(ModelMeta meta, List<? extends BaseEntity> entities) {
+        if (!meta.hasRedis() || entities == null || entities.isEmpty()) {
+            return;
+        }
+        try {
+            Map<Long, Map<String, String>> routeBuckets = new HashMap<>();
+            for (BaseEntity entity : entities) {
+                entity.unmarshal();
+                long routeId = entity.getPrimaryRouteId();
+                String hashField = meta.buildHashField(entity, meta.getPrimaryIndex());
+                String json = EntitySerializer.serialize(meta, entity);
+                routeBuckets.computeIfAbsent(routeId, k -> new HashMap<>()).put(hashField, json);
+            }
+            for (Map.Entry<Long, Map<String, String>> entry : routeBuckets.entrySet()) {
+                String redisKey = meta.buildRedisKey(entry.getKey());
+                boolean success = RedisUtil.hmset(redisKey, entry.getValue());
+                if (meta.getExpire() > 0) {
+                    RedisUtil.expire(redisKey, meta.getExpire());
+                }
+                if (!success) {
+                    LogTopic.MODEL.error("redisSaveBatchFail", "table", meta.getTableName(), "key", redisKey,
+                        "size", entry.getValue().size());
+                }
+            }
+        } catch (Exception e) {
+            LogTopic.MODEL.error(e, "redisSaveBatch", "table", meta.getTableName());
+            throw new IllegalStateException("Redis 批量写入失败: " + meta.getTableName(), e);
         }
     }
 

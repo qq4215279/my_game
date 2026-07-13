@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
      name = "player",
      comment = "玩家表",
      persistStrategy = PersistStrategy.REDIS_DB,
+     preLoad = true,
      indexes = {
              @Index(name = "unq_playerid", value = {"playerId"})
      }

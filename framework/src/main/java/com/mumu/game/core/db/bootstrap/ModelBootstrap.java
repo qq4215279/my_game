@@ -48,7 +48,7 @@ public class ModelBootstrap implements AutoInitEvent {
             }
             String engine = persistProperties.resolveEngine(table.name());
             ModelMeta meta = ModelMeta.parse(domainClass, table, engine);
-            ModelRegistry.registerDomain(meta);
+            ModelRegistry.registerEntity(meta);
             model.bindMeta(meta);
             ModelRegistry.registerModel(domainClass, model);
             LogTopic.MODEL.info("registerModel", "table", meta.getTableName(), "domain", domainClass.getSimpleName(),

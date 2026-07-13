@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.mumu.game.core.db.anno.ModelTable;
 import com.mumu.game.core.db.consts.PersistStrategy;
+import com.mumu.game.core.db.core.BaseEntity;
 import com.mumu.game.core.redis.constants.RedisKey;
 import com.mumu.game.core.redis.constants.SerializerType;
 
@@ -65,7 +66,7 @@ public final class ModelMeta {
     private final SerializerType serializerType;
     /** 持久化引擎类型（mongo / mysql 等，默认 mongo） */
     private final String persistEngine;
-    /** 是否跳过写操作线程校验（全局表由业务 Redis 锁保证并发时使用） */
+    /** 非玩家维度表：true 时跳过线程校验，且不参与玩家进服预加载/下线 flush */
     private final boolean skipThreadCheck;
 
 
@@ -107,8 +108,9 @@ public final class ModelMeta {
         builder.serializerType = table.serializerType();
         builder.persistEngine = persistEngine;
         builder.skipThreadCheck = table.skipThreadCheck();
-        for (com.mumu.game.core.db.anno.Index index : table.indexes()) {
-            builder.indexes.add(IndexMeta.from(index));
+        com.mumu.game.core.db.anno.Index[] tableIndexes = table.indexes();
+        for (int i = 0; i < tableIndexes.length; i++) {
+            builder.indexes.add(IndexMeta.from(domainClass, tableIndexes[i], i == 0));
         }
         return builder.build();
     }
@@ -138,10 +140,18 @@ public final class ModelMeta {
     }
 
     /**
-     * 从实体提取路由分片 id
+     * 是否为玩家维度表（参与进服预加载 / 下线 flush）
+     * <p>{@code skipThreadCheck=true} 表示非玩家表，生命周期与线程校验均跳过</p>
      */
-    public long getRouteId(Object entity) {
-        return ModelFieldReader.readLong(entity, routeField);
+    public boolean isPlayerScoped() {
+        return !skipThreadCheck;
+    }
+
+    /**
+     * 从实体提取路由分片 id（走 {@link BaseEntity#getPrimaryRouteId()}，无反射）
+     */
+    public long getRouteId(BaseEntity entity) {
+        return entity.getPrimaryRouteId();
     }
 
     /**
@@ -169,15 +179,14 @@ public final class ModelMeta {
         return RedisKey.AUTO_MODEL_CACHE_MANY.buildKey(tableName, routeId);
     }
 
-    public String buildRedisKey(Object entity) {
+    public String buildRedisKey(BaseEntity entity) {
         return buildRedisKey(getRouteId(entity));
     }
 
     /**
      * 构建 Redis Hash Field
-     * <p>单字段主键：field = 主键值；复合主键：field = 除 routeField 外的剩余字段组合</p>
      */
-    public String buildHashField(Object entity, IndexMeta index) {
+    public String buildHashField(BaseEntity entity, IndexMeta index) {
         Object[] values = index.readKeyValues(entity);
         if (singleFieldPrimary && index == primaryIndex) {
             return String.valueOf(values[0]);
@@ -202,7 +211,7 @@ public final class ModelMeta {
      * 构建 JVM / dirty 唯一 cacheKey
      * <p>格式：{tableName}:{indexName}:{key1:key2...}</p>
      */
-    public String buildCacheKey(Object entity) {
+    public String buildCacheKey(BaseEntity entity) {
         return buildCacheKey(primaryIndex, primaryIndex.readKeyValues(entity));
     }
 

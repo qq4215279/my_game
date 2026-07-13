@@ -55,7 +55,10 @@ public final class ReflectFieldUtil {
         }
     }
 
-    private static Field resolveField(Class<?> clazz, String fieldName) {
+    /**
+     * 解析并缓存实体字段（供索引访问器构建使用）
+     */
+    public static Field resolveField(Class<?> clazz, String fieldName) {
         String cacheKey = clazz.getName() + "#" + fieldName;
         return FIELD_CACHE.computeIfAbsent(cacheKey, k -> {
             Class<?> current = clazz;

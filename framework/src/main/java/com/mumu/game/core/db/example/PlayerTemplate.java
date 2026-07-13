@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 @ModelTable(
     name = "player_template", comment = "玩家模版表",
     persistStrategy = PersistStrategy.REDIS_DB,
+    preLoad = true,
     indexes = {
             @Index(name = "playerid_functionid", value = {"playerId", "functionId"}),
             @Index(name = "playerid_activityid", value = {"playerId", "activityId"}),

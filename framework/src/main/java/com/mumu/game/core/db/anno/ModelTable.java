@@ -29,15 +29,16 @@ public @interface ModelTable {
     /** 数据持久化策略（默认JVM） */
     PersistStrategy persistStrategy() default PersistStrategy.JVM;
 
+    /** 【非JVM策略参数】缓存数据预加载（true-玩家进入服务器时就加载数据，false-玩家在第一次获取缓存模型时加载数据） */
+    boolean preLoad() default false;
+
     /** 索引数组 */
     Index[] indexes() default {};
 
+
     // ============================= 扩展设置 ================================
 
-    /** 【非JVM策略参数】缓存数据预加载（true-玩家进入服务器时就加载数据，false-玩家在第一次获取缓存模型时加载数据） */
-    boolean preLoad() default true;
-
-    /** 跳过写操作线程校验（全局表由业务层 Redis 锁保证并发） 非用户玩家表标识！ */
+    /** 非玩家维度表标识：true 时跳过线程校验，且不参与玩家进服预加载/下线 flush */
     boolean skipThreadCheck() default false;
 
     /** 数据容量限制，超出时移除最久的元素（需要保证数据升序，且新增的数据一定比历史数据大） */
