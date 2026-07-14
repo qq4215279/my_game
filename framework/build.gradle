@@ -9,3 +9,11 @@ dependencies {
     api project(":auto_gen")
     api 'io.netty:netty-all:4.1.111.Final'
 }
+
+// 排除 PowerMock 对 MockMaker 的抢占，使 mockito-core 5.x 内置 inline（mockStatic）可用
+configurations.testRuntimeClasspath {
+    exclude group: 'org.powermock'
+}
+configurations.testCompileClasspath {
+    exclude group: 'org.powermock'
+}
