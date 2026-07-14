@@ -15,7 +15,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 import com.google.common.cache.RemovalNotification;
-import com.mumu.game.collection.LRULinkedHashMap;
+import com.mumu.game.core.db.core.index.PrimaryIndex;
+import com.mumu.game.core.db.core.index.SecondaryIndex;
 import com.mumu.game.core.db.core.inf.ModelCacheReader;
 import com.mumu.game.core.db.core.inf.ModelCacheWriter;
 import com.mumu.game.core.db.consts.ModelConstants;
@@ -29,17 +30,28 @@ import lombok.Setter;
 
 /**
  * MemoryModelCache
- * 内存一级缓存（
- * 每个 primaryRouteId 分桶：主存储 HashMap + 非主索引 SecondaryIndex
+ * 内存一级缓存
+ * <p>
+ * 每个 primaryRouteId 分桶：{@link PrimaryIndex} 主存储 + {@link SecondaryIndex} 非主索引；
  * 外层使用 Guava Cache 管理 route 桶：maximumSize + expireAfterAccess，防止业务漏清导致泄漏；
  * 内层 {@code @ModelTable.capacity} 仍约束单桶实体数量。
+ * </p>
  * @author liuzhen
  * @version 1.0.0 2026/7/9
  */
 public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheReader, ModelCacheWriter {
+    /**
+     * 路由分桶：主存储 + 副索引
+     * @param primaryIndex  主索引封装
+     * @param secondaryIndexMap 副索引：indexName → SecondaryIndex
+     */
+    private record IndexWrapper<Entity extends BaseEntity>(PrimaryIndex<Entity> primaryIndex,
+        Map<String, SecondaryIndex<Entity>> secondaryIndexMap) {
+    }
+
 
     /** primaryRouteId → 路由桶 */
-    private final Cache<Long, RouteBucket<Entity>> routeBuckets;
+    private final Cache<Long, IndexWrapper<Entity>> routeBuckets;
     /** 表元数据 */
     private final ModelMeta meta;
 
@@ -68,9 +80,9 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
     /**
      * 外层 route 桶被淘汰时的回调
      */
-    private void onRouteBucketRemoved(RemovalNotification<Long, RouteBucket<Entity>> notification) {
-        RouteBucket<Entity> bucket = notification.getValue();
-        if (bucket == null || bucket.primary.isEmpty()) {
+    private void onRouteBucketRemoved(RemovalNotification<Long, IndexWrapper<Entity>> notification) {
+        IndexWrapper<Entity> bucket = notification.getValue();
+        if (bucket == null || bucket.primaryIndex.isEmpty()) {
             return;
         }
         RemovalCause cause = notification.getCause();
@@ -80,25 +92,25 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         }
         Long primaryRouteId = notification.getKey();
         LogTopic.MODEL.info("routeBucketEvicted", "table", meta.getTableName(), "primaryRouteId", primaryRouteId,
-            "cause", cause, "size", bucket.primary.size());
+            "cause", cause, "size", bucket.primaryIndex.size());
         if (routeEvictionListener == null) {
             return;
         }
         try {
-            routeEvictionListener.accept(primaryRouteId, List.copyOf(bucket.primary.values()));
+            routeEvictionListener.accept(primaryRouteId, List.copyOf(bucket.primaryIndex.values()));
         } catch (Exception e) {
             LogTopic.MODEL.error(e, "routeBucketEvictListener", "table", meta.getTableName(), "primaryRouteId", primaryRouteId);
         }
     }
 
     /** 获取路由桶 */
-    private RouteBucket<Entity> getBucket(long primaryRouteId) {
+    private IndexWrapper<Entity> getBucket(long primaryRouteId) {
         return routeBuckets.getIfPresent(primaryRouteId);
     }
 
     /** 获取or创建路由桶 */
-    private RouteBucket<Entity> getOrCreateBucket(long primaryRouteId) {
-        RouteBucket<Entity> bucket = routeBuckets.getIfPresent(primaryRouteId);
+    private IndexWrapper<Entity> getOrCreateBucket(long primaryRouteId) {
+        IndexWrapper<Entity> bucket = routeBuckets.getIfPresent(primaryRouteId);
         if (bucket != null) {
             return bucket;
         }
@@ -108,33 +120,11 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
     }
 
     /** 创建路由桶 */
-    private RouteBucket<Entity> createRouteBucket() {
+    private IndexWrapper<Entity> createRouteBucket() {
         @SuppressWarnings("unchecked")
-        RouteBucket<Entity>[] holder = new RouteBucket[1];
-        Map<String, Entity> primary = createPrimaryMap(holder);
-        RouteBucket<Entity> bucket = new RouteBucket<>(primary, createSecondaryIndexes());
-        holder[0] = bucket;
-        return bucket;
-    }
-
-    private Map<String, SecondaryIndex<Entity>> createSecondaryIndexes() {
-        if (!meta.hasSecondaryIndex()) {
-            return Collections.emptyMap();
-        }
-        Map<String, SecondaryIndex<Entity>> map = new HashMap<>();
-        for (IndexMeta index : meta.getSecondaryIndexes()) {
-            map.put(index.getName(), new SecondaryIndex<>(index.isUnique()));
-        }
-        return map;
-    }
-
-    private Map<String, Entity> createPrimaryMap(RouteBucket<Entity>[] holder) {
-        int capacity = meta.getCapacity();
-        if (capacity >= Integer.MAX_VALUE) {
-            return new HashMap<>();
-        }
-        return LRULinkedHashMap.of(capacity, (field, entity) -> {
-            RouteBucket<Entity> bucket = holder[0];
+        IndexWrapper<Entity>[] holder = new IndexWrapper[1];
+        PrimaryIndex<Entity> primary = new PrimaryIndex<>(meta.getCapacity(), entity -> {
+            IndexWrapper<Entity> bucket = holder[0];
             if (bucket != null) {
                 // LRU 淘汰主存储时同步卸副索引，避免脏引用
                 removeFromSecondary(bucket, entity);
@@ -148,14 +138,28 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
                 }
             }
         });
+        IndexWrapper<Entity> bucket = new IndexWrapper<>(primary, createSecondaryIndexes());
+        holder[0] = bucket;
+        return bucket;
     }
 
-    private void removeFromSecondary(RouteBucket<Entity> bucket, Entity entity) {
+    private Map<String, SecondaryIndex<Entity>> createSecondaryIndexes() {
+        if (!meta.hasSecondaryIndex()) {
+            return Collections.emptyMap();
+        }
+        Map<String, SecondaryIndex<Entity>> map = new HashMap<>();
+        for (IndexMeta index : meta.getSecondaryIndexes()) {
+            map.put(index.getName(), SecondaryIndex.create(index));
+        }
+        return map;
+    }
+
+    private void removeFromSecondary(IndexWrapper<Entity> bucket, Entity entity) {
         if (!meta.hasSecondaryIndex()) {
             return;
         }
         for (IndexMeta index : meta.getSecondaryIndexes()) {
-            SecondaryIndex<Entity> secondary = bucket.secondaryIndexes.get(index.getName());
+            SecondaryIndex<Entity> secondary = bucket.secondaryIndexMap.get(index.getName());
             if (secondary != null) {
                 secondary.remove(index.buildIndexKey(entity), entity);
             }
@@ -175,8 +179,8 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
     }
 
     public boolean hasRoute(long primaryRouteId) {
-        RouteBucket<Entity> bucket = getBucket(primaryRouteId);
-        return bucket != null && !bucket.primary.isEmpty();
+        IndexWrapper<Entity> bucket = getBucket(primaryRouteId);
+        return bucket != null && !bucket.primaryIndex.isEmpty();
     }
 
 
@@ -189,14 +193,14 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         if (!index.isFullKey(keys)) {
             return null;
         }
-        RouteBucket<Entity> bucket = getBucket(primaryRouteId);
+        IndexWrapper<Entity> bucket = getBucket(primaryRouteId);
         if (bucket == null) {
             return null;
         }
         if (index.isPrimary()) {
-            return bucket.primary.get(meta.buildHashField(index, keys));
+            return bucket.primaryIndex.getOne(meta.buildHashField(index, keys));
         }
-        SecondaryIndex<Entity> secondary = bucket.secondaryIndexes.get(index.getName());
+        SecondaryIndex<Entity> secondary = bucket.secondaryIndexMap.get(index.getName());
         return secondary == null ? null : secondary.getOne(index.buildIndexKey(keys));
     }
 
@@ -207,19 +211,19 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         if (keys == null || keys.length == 0 || keys.length > index.getFields().length) {
             return Collections.emptyList();
         }
-        RouteBucket<Entity> bucket = getBucket(primaryRouteId);
-        if (bucket == null || bucket.primary.isEmpty()) {
+        IndexWrapper<Entity> bucket = getBucket(primaryRouteId);
+        if (bucket == null || bucket.primaryIndex.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // 主索引：完整键走 HashMap；左前缀在 route 桶内扫描（桶已按 primaryRouteId 分片）
+        // 主索引：完整键 O(1)；左前缀在 route 桶内用 matchPrefix 扫描（勿对 hashField 做 startsWith）
         if (index.isPrimary()) {
             if (index.isFullKey(keys)) {
-                Entity one = bucket.primary.get(meta.buildHashField(index, keys));
+                Entity one = bucket.primaryIndex.getOne(meta.buildHashField(index, keys));
                 return one == null ? Collections.emptyList() : List.of(one);
             }
             List<Entity> result = new ArrayList<>();
-            for (Entity entity : bucket.primary.values()) {
+            for (Entity entity : bucket.primaryIndex.values()) {
                 if (index.matchPrefix(entity, keys)) {
                     result.add(entity);
                 }
@@ -228,7 +232,7 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         }
 
         // 非主索引：走副索引
-        SecondaryIndex<Entity> secondary = bucket.secondaryIndexes.get(index.getName());
+        SecondaryIndex<Entity> secondary = bucket.secondaryIndexMap.get(index.getName());
         if (secondary == null) {
             return Collections.emptyList();
         }
@@ -254,9 +258,9 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
     public void put(Entity entity) {
         entity.marshal();
         long primaryRouteId = entity.getPrimaryRouteId();
-        RouteBucket<Entity> bucket = getOrCreateBucket(primaryRouteId);
+        IndexWrapper<Entity> bucket = getOrCreateBucket(primaryRouteId);
         String hashField = meta.buildHashField(entity, meta.getPrimaryIndex());
-        Entity old = bucket.primary.put(hashField, entity);
+        Entity old = bucket.primaryIndex.put(hashField, entity);
         // 替换了不同对象：卸旧索引
         if (old != null && old != entity) {
             removeFromSecondary(bucket, old);
@@ -267,12 +271,12 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         }
     }
 
-    private void addToSecondary(RouteBucket<Entity> bucket, Entity entity) {
+    private void addToSecondary(IndexWrapper<Entity> bucket, Entity entity) {
         if (!meta.hasSecondaryIndex()) {
             return;
         }
         for (IndexMeta index : meta.getSecondaryIndexes()) {
-            SecondaryIndex<Entity> secondary = bucket.secondaryIndexes.get(index.getName());
+            SecondaryIndex<Entity> secondary = bucket.secondaryIndexMap.get(index.getName());
             if (secondary != null) {
                 secondary.put(index.buildIndexKey(entity), entity);
             }
@@ -296,28 +300,28 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         if (!index.isFullKey(keys)) {
             return null;
         }
-        RouteBucket<Entity> bucket = getBucket(primaryRouteId);
+        IndexWrapper<Entity> bucket = getBucket(primaryRouteId);
         if (bucket == null) {
             return null;
         }
 
         Entity removed;
         if (index.isPrimary()) {
-            removed = bucket.primary.remove(meta.buildHashField(index, keys));
+            removed = bucket.primaryIndex.removeKey(meta.buildHashField(index, keys));
         } else {
-            SecondaryIndex<Entity> secondary = bucket.secondaryIndexes.get(index.getName());
+            SecondaryIndex<Entity> secondary = bucket.secondaryIndexMap.get(index.getName());
             if (secondary == null) {
                 return null;
             }
             removed = secondary.getOne(index.buildIndexKey(keys));
             if (removed != null) {
                 String primaryField = meta.buildHashField(removed, meta.getPrimaryIndex());
-                bucket.primary.remove(primaryField);
+                bucket.primaryIndex.removeKey(primaryField);
             }
         }
         if (removed != null) {
             removeFromSecondary(bucket, removed);
-            if (bucket.primary.isEmpty()) {
+            if (bucket.primaryIndex.isEmpty()) {
                 routeBuckets.invalidate(primaryRouteId);
             }
         }
@@ -340,16 +344,16 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
      */
     private void removeEntity(Entity entity) {
         long primaryRouteId = entity.getPrimaryRouteId();
-        RouteBucket<Entity> bucket = getBucket(primaryRouteId);
+        IndexWrapper<Entity> bucket = getBucket(primaryRouteId);
         if (bucket == null) {
             return;
         }
         String hashField = meta.buildHashField(entity, meta.getPrimaryIndex());
-        Entity removed = bucket.primary.remove(hashField);
+        Entity removed = bucket.primaryIndex.removeKey(hashField);
         if (removed != null) {
             removeFromSecondary(bucket, removed);
         }
-        if (bucket.primary.isEmpty()) {
+        if (bucket.primaryIndex.isEmpty()) {
             routeBuckets.invalidate(primaryRouteId);
         }
     }
@@ -407,17 +411,5 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         }
         removeAll(index, keys);
     }
-
-
-
-
-    /**
-     * 路由分桶：主存储 + 副索引
-     * @param primary          主存储：primaryHashField → entity
-     * @param secondaryIndexes 副索引：indexName → SecondaryIndex
-     */
-    private record RouteBucket<Entity extends BaseEntity>(Map<String, Entity> primary,
-        Map<String, SecondaryIndex<Entity>> secondaryIndexes) {
-    }
-
+    
 }
