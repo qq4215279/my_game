@@ -75,7 +75,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
                 Entity redis = castEntity(redisModelCache.getOne(primaryRouteId, index, secondaryKeys));
                 // 缓存到内存
                 if (redis != null) {
-                    memoryCache.put(redis);
+                    memoryCache.save(meta, redis);
                     return redis;
                 }
             }
@@ -113,7 +113,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
     /** DB/Redis 回填：写入 L1，并同步回填 L2 */
     private void cacheEntity(Entity entity) {
         if (meta.hasJVM()) {
-            memoryCache.put(entity);
+            memoryCache.save(meta, entity);
         }
         saveToRedisQuietly(entity);
     }
@@ -197,11 +197,8 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
 
     /** 缓存到内存 */
     private void cache2Jvm(List<Entity> entities) {
-        // 缓存到内存
         if (meta.hasJVM()) {
-            for (Entity entity : entities) {
-                memoryCache.put(entity);
-            }
+            memoryCache.saveBatch(meta, entities);
         }
     }
 
@@ -304,7 +301,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
                 LogTopic.MODEL.error("insertExists", "table", meta.getTableName(), "routeId", primaryRouteId, "cacheKey", meta.buildCacheKey(entity));
                 return;
             }
-            memoryCache.put(entity);
+            memoryCache.save(meta, entity);
             String cacheKey = meta.buildCacheKey(entity);
             if (persistNow) {
                 syncFlush(cacheKey, primaryRouteId, PersistOp.INSERT);
@@ -326,7 +323,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             if (exists == null && meta.hasRedis()) {
                 exists = castEntity(redisModelCache.getOne(primaryRouteId, meta.getPrimaryIndex(), keys));
                 if (exists != null) {
-                    memoryCache.put(exists);
+                    memoryCache.save(meta, exists);
                 }
             }
             if (exists == null && meta.hasDb()) {
@@ -364,7 +361,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
                 LogTopic.MODEL.error("deleteRefMismatch", "table", meta.getTableName(), "routeId", primaryRouteId, "cacheKey", meta.buildCacheKey(entity));
                 return;
             }
-            memoryCache.remove(primaryRouteId, meta.getPrimaryIndex(), keys);
+            memoryCache.delete(primaryRouteId, meta.getPrimaryIndex(), keys);
             String cacheKey = meta.buildCacheKey(entity);
             if (persistNow) {
                 syncFlush(cacheKey, primaryRouteId, PersistOp.DELETE);
@@ -394,7 +391,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             if (!modelRouteChecker.checkWrite(primaryRouteId, meta)) {
                 return;
             }
-            memoryCache.remove(primaryRouteId, primaryIndex, primaryKeys);
+            memoryCache.delete(primaryRouteId, primaryIndex, primaryKeys);
             String cacheKey = meta.buildCacheKey(primaryIndex, primaryKeys);
             if (persistNow) {
                 syncFlush(cacheKey, primaryRouteId, PersistOp.DELETE);
@@ -423,7 +420,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             }
 
             // 1. 清理 JVM，并去掉这些实体上残留的 dirty，避免后续又被 upsert 回去
-            List<Entity> removeList = castList(memoryCache.removeAll(primaryIndex, primaryKeys));
+            List<Entity> removeList = castList(memoryCache.deleteByPrefix(primaryIndex, primaryKeys));
             for (Entity entity : removeList) {
                 dirtyTracker.remove(meta.getTableName(), meta.buildCacheKey(entity));
             }
@@ -580,7 +577,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
         }
         if (meta.hasRedis()) {
             Map<String, BaseEntity> fieldEntityMap = redisModelCache.loadRouteBucket(meta, entityClass(), primaryRouteId);
-            memoryCache.putAll(primaryRouteId, fieldEntityMap);
+            memoryCache.saveBatch(meta, List.copyOf(fieldEntityMap.values()));
             if (!fieldEntityMap.isEmpty()) {
                 return;
             }

@@ -41,6 +41,7 @@ public interface ModelCacheWriter {
      * 按索引左前缀批量删除
      * @param index 索引元数据
      * @param keys  索引键（支持左前缀）
+     * @return 被删除的实体列表（Memory 返回实际删除项；Redis 通常返回空列表）
      */
-    void deleteByPrefix(IndexMeta index, Object... keys);
+    List<BaseEntity> deleteByPrefix(IndexMeta index, Object... keys);
 }

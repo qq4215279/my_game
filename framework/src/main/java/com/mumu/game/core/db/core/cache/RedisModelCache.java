@@ -214,15 +214,15 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
     }
 
     @Override
-    public void deleteByPrefix(IndexMeta index, Object... keys) {
+    public List<BaseEntity> deleteByPrefix(IndexMeta index, Object... keys) {
         ModelMeta meta = ModelRegistry.getMeta(index.getEntityClass());
         if (!meta.hasRedis() || keys == null || keys.length == 0) {
-            return;
+            return Collections.emptyList();
         }
         // 仅支持主索引完整键删除（Redis Hash Field 按主索引构建）
         if (!index.isPrimary()) {
             LogTopic.MODEL.error("redisDeleteByPrefix", "仅支持主索引删除", "table", meta.getTableName(), "index", index.getName());
-            return;
+            return Collections.emptyList();
         }
 
         try {
@@ -232,18 +232,20 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
             // 复合主键 + 仅传 routeId：该 Hash 整桶都属于此分片，直接删 key
             if (!meta.isSingleFieldPrimary() && keys.length == 1) {
                 RedisUtil.del(redisKey);
-                return;
+                return Collections.emptyList();
             }
 
             Map<String, String> all = RedisUtil.hmget(redisKey);
             if (all.isEmpty()) {
-                return;
+                return Collections.emptyList();
             }
             for (String field : all.keySet()) {
                 if (matchFieldByPrefix(meta, index, field, keys)) {
                     RedisUtil.hdel(redisKey, field);
                 }
             }
+            // Redis 侧不反序列化实体，dirty 清理依赖 Memory 返回值
+            return Collections.emptyList();
         } catch (Exception e) {
             LogTopic.MODEL.error(e, "redisDeleteByPrefix", "table", meta.getTableName(), "index", index.getName());
             throw new ModelPersistException("Redis 批量删除失败: " + meta.getTableName(), e);

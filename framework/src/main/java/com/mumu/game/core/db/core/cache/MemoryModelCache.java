@@ -246,25 +246,6 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         return list;
     }
 
-    /**
-     * 写入 JVM 缓存（同 hashField 仅保留一份引用，并同步维护副索引）
-     */
-    public void put(Entity entity) {
-        entity.marshal();
-        long primaryRouteId = entity.getPrimaryRouteId();
-        IndexWrapper<Entity> bucket = getOrCreateBucket(primaryRouteId);
-        String hashField = meta.buildHashField(entity, meta.getPrimaryIndex());
-        Entity old = bucket.primaryIndex.put(hashField, entity);
-        // 替换了不同对象：卸旧索引
-        if (old != null && old != entity) {
-            removeFromSecondary(bucket, old);
-        }
-        // 新对象或替换：挂新索引（同引用 update 约定索引字段不变，跳过重建）
-        if (old != entity) {
-            addToSecondary(bucket, entity);
-        }
-    }
-
     private void addToSecondary(IndexWrapper<Entity> bucket, Entity entity) {
         if (!meta.hasSecondaryIndex()) {
             return;
@@ -275,62 +256,6 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
                 secondary.put(index.buildIndexKey(entity), entity);
             }
         }
-    }
-
-    /**
-     * 批量写入某个 primaryRouteId 分桶
-     */
-    @SuppressWarnings("unchecked")
-    public void putAll(long primaryRouteId, Map<String, ? extends BaseEntity> fieldEntityMap) {
-        for (Map.Entry<String, ? extends BaseEntity> entry : fieldEntityMap.entrySet()) {
-            put((Entity) entry.getValue());
-        }
-    }
-
-    /**
-     * 按完整索引键删除（副索引查询后按主存储删除）
-     */
-    public Entity remove(long primaryRouteId, IndexMeta index, Object... keys) {
-        if (!index.isFullKey(keys)) {
-            return null;
-        }
-        IndexWrapper<Entity> bucket = getBucket(primaryRouteId);
-        if (bucket == null) {
-            return null;
-        }
-
-        Entity removed;
-        if (index.isPrimary()) {
-            removed = bucket.primaryIndex.removeKey(meta.buildHashField(index, keys));
-        } else {
-            SecondaryIndex<Entity> secondary = bucket.secondaryIndexMap.get(index.getName());
-            if (secondary == null) {
-                return null;
-            }
-            removed = secondary.getOne(index.buildIndexKey(keys));
-            if (removed != null) {
-                String primaryField = meta.buildHashField(removed, meta.getPrimaryIndex());
-                bucket.primaryIndex.removeKey(primaryField);
-            }
-        }
-        if (removed != null) {
-            removeFromSecondary(bucket, removed);
-            if (bucket.primaryIndex.isEmpty()) {
-                routeBuckets.invalidate(primaryRouteId);
-            }
-        }
-        return removed;
-    }
-
-    /**
-     * 按左前缀删除
-     */
-    public List<BaseEntity> removeAll(IndexMeta primaryIndex, Object... primaryKeys) {
-        List<BaseEntity> matched = getList(meta.getRouteId(primaryKeys), primaryIndex, primaryKeys);
-        for (BaseEntity entity : matched) {
-            removeEntity(entity);
-        }
-        return matched;
     }
 
     /**
@@ -352,44 +277,86 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         }
     }
 
-
-
-
-
     @Override
     @SuppressWarnings("unchecked")
     public void save(ModelMeta tableMeta, BaseEntity entity) {
         if (!meta.getTableName().equals(tableMeta.getTableName())) {
-            throw new ModelArgException("JvmModelCache 与 ModelMeta 表名不一致");
+            throw new ModelArgException("MemoryModelCache 与 ModelMeta 表名不一致");
         }
-        put((Entity) entity);
+        Entity typed = (Entity) entity;
+        typed.marshal();
+        long primaryRouteId = typed.getPrimaryRouteId();
+        IndexWrapper<Entity> bucket = getOrCreateBucket(primaryRouteId);
+        String hashField = meta.buildHashField(typed, meta.getPrimaryIndex());
+        Entity old = bucket.primaryIndex.put(hashField, typed);
+        // 替换了不同对象：卸旧索引
+        if (old != null && old != typed) {
+            removeFromSecondary(bucket, old);
+        }
+        // 新对象或替换：挂新索引（同引用 update 约定索引字段不变，跳过重建）
+        if (old != typed) {
+            addToSecondary(bucket, typed);
+        }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void saveBatch(ModelMeta tableMeta, List<? extends BaseEntity> entities) {
         if (!meta.getTableName().equals(tableMeta.getTableName())) {
-            throw new ModelArgException("JvmModelCache 与 ModelMeta 表名不一致");
+            throw new ModelArgException("MemoryModelCache 与 ModelMeta 表名不一致");
+        }
+        if (entities == null || entities.isEmpty()) {
+            return;
         }
         for (BaseEntity entity : entities) {
-            put((Entity) entity);
+            save(tableMeta, entity);
         }
     }
 
     @Override
-    public void delete(long primaryRouteId, IndexMeta index, Object... secondaryKeys) {
+    public void delete(long primaryRouteId, IndexMeta index, Object... keys) {
         if (!meta.getEntityClass().equals(index.getEntityClass())) {
             throw new ModelArgException("MemoryModelCache 与 IndexMeta 实体类型不一致");
         }
-        remove(primaryRouteId, index, secondaryKeys);
+        if (!index.isFullKey(keys)) {
+            return;
+        }
+        IndexWrapper<Entity> bucket = getBucket(primaryRouteId);
+        if (bucket == null) {
+            return;
+        }
+
+        Entity removed;
+        if (index.isPrimary()) {
+            removed = bucket.primaryIndex.removeKey(meta.buildHashField(index, keys));
+        } else {
+            SecondaryIndex<Entity> secondary = bucket.secondaryIndexMap.get(index.getName());
+            if (secondary == null) {
+                return;
+            }
+            removed = secondary.getOne(index.buildIndexKey(keys));
+            if (removed != null) {
+                String primaryField = meta.buildHashField(removed, meta.getPrimaryIndex());
+                bucket.primaryIndex.removeKey(primaryField);
+            }
+        }
+        if (removed != null) {
+            removeFromSecondary(bucket, removed);
+            if (bucket.primaryIndex.isEmpty()) {
+                routeBuckets.invalidate(primaryRouteId);
+            }
+        }
     }
 
     @Override
-    public void deleteByPrefix(IndexMeta index, Object... keys) {
+    public List<BaseEntity> deleteByPrefix(IndexMeta index, Object... keys) {
         if (!meta.getEntityClass().equals(index.getEntityClass())) {
             throw new ModelArgException("MemoryModelCache 与 IndexMeta 实体类型不一致");
         }
-        removeAll(index, keys);
+        List<BaseEntity> matched = getList(meta.getRouteId(keys), index, keys);
+        for (BaseEntity entity : matched) {
+            removeEntity(entity);
+        }
+        return matched;
     }
-    
+
 }
