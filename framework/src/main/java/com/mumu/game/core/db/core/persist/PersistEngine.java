@@ -13,6 +13,7 @@ import com.mumu.game.core.db.core.meta.ModelMeta;
  * <p>
  * 读：供 select 懒加载穿透 DB、preload 预加载使用；
  * 写：供异步 flush、persistNow 同步落库使用。
+ * 实体类型由 {@link IndexMeta#getEntityClass()} 解析，无需额外传 Class。
  * </p>
  *
  * @author liuzhen
@@ -27,13 +28,13 @@ public interface PersistEngine {
      * 按索引完整键查询单条
      * <p>用于 select 懒加载穿透 DB、preload 预加载</p>
      */
-    <Domain extends BaseEntity> Domain findOne(ModelMeta meta, IndexMeta index, Class<Domain> clazz, Object... keys);
+    <Entity extends BaseEntity> Entity findOne(ModelMeta meta, IndexMeta index, Object... keys);
 
     /**
      * 按索引左前缀查询列表
      * <p>用于 select 懒加载穿透 DB、preload 预加载</p>
      */
-    <T extends BaseEntity> List<T> findList(ModelMeta meta, IndexMeta index, Class<T> clazz, Object... keys);
+    <Entity extends BaseEntity> List<Entity> findList(ModelMeta meta, IndexMeta index, Object... keys);
 
     /** 新增或更新单条 */
     void upsert(ModelMeta meta, BaseEntity entity);

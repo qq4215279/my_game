@@ -103,7 +103,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
                     index.getName());
             return null;
         }
-        Entity db = persistEngineFactory.getEngine(meta).findOne(meta, index, entityClass(), primaryKeys);
+        Entity db = persistEngineFactory.getEngine(meta).findOne(meta, index, primaryKeys);
         if (db != null) {
             cacheEntity(db);
         }
@@ -185,7 +185,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             return Collections.emptyList();
         }
 
-        List<Entity> dbList = persistEngineFactory.getEngine(meta).findList(meta, index, entityClass(), primaryRouteId);
+        List<Entity> dbList = persistEngineFactory.getEngine(meta).findList(meta, index, primaryRouteId);
         if (!dbList.isEmpty()) {
             // 缓存到内存
             cache2Jvm(dbList);

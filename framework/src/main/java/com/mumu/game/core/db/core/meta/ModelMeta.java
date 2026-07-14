@@ -106,7 +106,7 @@ public final class ModelMeta {
      * @param table         @ModelTable 注解
      * @param persistEngine 持久化引擎名
      */
-    public static ModelMeta parse(Class<?> entityClass, ModelTable table, String persistEngine) {
+    public static <Entity extends BaseEntity> ModelMeta parse(Class<Entity> entityClass, ModelTable table, String persistEngine) {
         Builder builder = new Builder();
         builder.entityClass = entityClass;
         builder.tableName = table.name();

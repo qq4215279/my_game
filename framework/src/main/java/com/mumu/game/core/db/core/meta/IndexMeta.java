@@ -22,9 +22,9 @@ import lombok.Getter;
  * @version 1.0.0 2026/7/9
  */
 @Getter
-public final class IndexMeta {
+public final class IndexMeta<Entity extends BaseEntity> {
     /** 实体类class */
-    private final Class<?> entityClass;
+    private final Class<Entity> entityClass;
     /** 索引名称 */
     private final String name;
     /** 索引列（实体字段名） */
@@ -36,7 +36,7 @@ public final class IndexMeta {
     /** 索引字段访问器（MethodHandle，启动期构建） */
     private final IndexFieldAccessor accessor;
 
-    private IndexMeta(Class<?> entityClass, String name, String[] fields, boolean unique, boolean primary, IndexFieldAccessor accessor) {
+    private IndexMeta(Class<Entity> entityClass, String name, String[] fields, boolean unique, boolean primary, IndexFieldAccessor accessor) {
         this.entityClass = entityClass;
         this.name = name;
         this.fields = fields;
@@ -51,7 +51,7 @@ public final class IndexMeta {
      * @param index       索引注解
      * @param primary     是否主索引
      */
-    public static IndexMeta from(Class<?> entityClass, Index index, boolean primary) {
+    public static <Entity extends BaseEntity> IndexMeta from(Class<Entity> entityClass, Index index, boolean primary) {
         String[] fields = index.value();
         if (fields == null || fields.length == 0) {
             throw new IllegalArgumentException("索引字段不能为空");

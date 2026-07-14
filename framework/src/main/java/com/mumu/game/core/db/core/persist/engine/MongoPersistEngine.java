@@ -28,7 +28,6 @@ import com.mumu.game.expcetion.ModelPersistException;
 /**
  * MongoPersistEngine
  * MongoDB 持久化引擎（L3），使用 {@link MongoDB#MODEL} 库模版
- *
  * @author liuzhen
  * @version 1.0.0 2026/7/9
  */
@@ -43,13 +42,15 @@ public class MongoPersistEngine implements PersistEngine {
     }
 
     @Override
-    public <Domain extends BaseEntity> Domain findOne(ModelMeta meta, IndexMeta index, Class<Domain> clazz, Object... keys) {
+    @SuppressWarnings("unchecked")
+    public <Entity extends BaseEntity> Entity findOne(ModelMeta meta, IndexMeta index, Object... keys) {
         if (keys == null || keys.length == 0) {
             return null;
         }
         try {
-            MongoTemplate template = requireTemplate();
-            Domain entity = template.findOne(buildQuery(index, keys), clazz, meta.getTableName());
+            MongoTemplate template = getTemplate();
+            Class<Entity> clazz = (Class<Entity>) index.getEntityClass();
+            Entity entity = template.findOne(buildQuery(index, keys), clazz, meta.getTableName());
             if (entity != null) {
                 entity.marshal();
             }
@@ -63,13 +64,14 @@ public class MongoPersistEngine implements PersistEngine {
     }
 
     @Override
-    public <Domain extends BaseEntity> List<Domain> findList(ModelMeta meta, IndexMeta index, Class<Domain> clazz,
-                                                             Object... keys) {
+    @SuppressWarnings("unchecked")
+    public <Domain extends BaseEntity> List<Domain> findList(ModelMeta meta, IndexMeta index, Object... keys) {
         if (keys == null || keys.length == 0) {
             return Collections.emptyList();
         }
         try {
-            MongoTemplate template = requireTemplate();
+            MongoTemplate template = getTemplate();
+            Class<Domain> clazz = (Class<Domain>) index.getEntityClass();
             List<Domain> list = template.find(buildQuery(index, keys), clazz, meta.getTableName());
             if (list.isEmpty()) {
                 return Collections.emptyList();
@@ -91,7 +93,7 @@ public class MongoPersistEngine implements PersistEngine {
     public void upsert(ModelMeta meta, BaseEntity entity) {
         try {
             entity.unmarshal();
-            MongoTemplate template = requireTemplate();
+            MongoTemplate template = getTemplate();
             IndexMeta primary = meta.getPrimaryIndex();
             Object[] keys = primary.readKeyValues(entity);
             Query query = buildQuery(primary, keys);
@@ -112,7 +114,7 @@ public class MongoPersistEngine implements PersistEngine {
             return;
         }
         try {
-            MongoTemplate template = requireTemplate();
+            MongoTemplate template = getTemplate();
             IndexMeta primary = meta.getPrimaryIndex();
             Class<BaseEntity> clazz = (Class<BaseEntity>) meta.getEntityClass();
             FindAndReplaceOptions options = FindAndReplaceOptions.options().upsert();
@@ -137,7 +139,7 @@ public class MongoPersistEngine implements PersistEngine {
             return;
         }
         try {
-            MongoTemplate template = requireTemplate();
+            MongoTemplate template = getTemplate();
             template.remove(buildQuery(index, keys), meta.getTableName());
         } catch (ModelPersistException e) {
             throw e;
@@ -153,7 +155,7 @@ public class MongoPersistEngine implements PersistEngine {
             return;
         }
         try {
-            MongoTemplate template = requireTemplate();
+            MongoTemplate template = getTemplate();
             template.remove(buildQuery(index, keys), meta.getTableName());
         } catch (ModelPersistException e) {
             throw e;
@@ -183,15 +185,20 @@ public class MongoPersistEngine implements PersistEngine {
     }
 
 
+    /** 获取模版 */
+    private MongoTemplate getTemplate() {
+        MongoTemplate template = MongoDB.MODEL.template();
+        if (template == null) {
+            throw new ModelPersistException("MongoTemplate 未初始化: MongoDB.MODEL");
+        }
+        return template;
+    }
+
     /**
      * 启动期：为所有落 Mongo 的表按主索引字段创建 unique index（幂等）
      */
     public void ensurePrimaryUniqueIndexes() {
-        MongoTemplate template = MongoDB.MODEL.template();
-        if (template == null) {
-            LogTopic.MODEL.error("mongoUniqueIndexSkip", "MongoTemplate 未就绪，跳过建索引");
-            return;
-        }
+        MongoTemplate template = getTemplate();
         for (ModelMeta meta : ModelRegistry.allMeta()) {
             if (!meta.hasDb() || !isMongoEngine(meta)) {
                 continue;
@@ -220,16 +227,9 @@ public class MongoPersistEngine implements PersistEngine {
         }
     }
 
+    /** 是否是Mongo殷勤 */
     private boolean isMongoEngine(ModelMeta meta) {
         String engine = meta.getPersistEngine();
         return StringUtils.isBlank(engine) || ENGINE_TYPE.equalsIgnoreCase(engine);
-    }
-
-    private MongoTemplate requireTemplate() {
-        MongoTemplate template = MongoDB.MODEL.template();
-        if (template == null) {
-            throw new ModelPersistException("MongoTemplate 未初始化: MongoDB.MODEL");
-        }
-        return template;
     }
 }
