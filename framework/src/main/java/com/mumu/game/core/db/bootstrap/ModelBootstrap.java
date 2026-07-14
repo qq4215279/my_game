@@ -24,13 +24,13 @@ import com.mumu.game.core.db.config.DbPersistProperties;
 import com.mumu.game.core.db.core.BaseEntity;
 import com.mumu.game.core.db.core.BaseModel;
 import com.mumu.game.core.db.core.meta.ModelMeta;
+import com.mumu.game.core.db.core.persist.engine.MongoPersistEngine;
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.utils.SpringContextUtils;
 
 /**
  * ModelBootstrap
  * 模型启动注册与校验
- *
  * @author liuzhen
  * @version 1.0.0 2026/7/9
  */
@@ -45,6 +45,8 @@ public class ModelBootstrap implements AutoInitEvent {
     private DirtyTracker dirtyTracker;
     @Resource
     private PersistThreadPool persistThreadPool;
+    @Resource
+    private MongoPersistEngine mongoPersistEngine;
 
     @Override
     public AutoInitModule getInitGroup() {
@@ -56,7 +58,8 @@ public class ModelBootstrap implements AutoInitEvent {
     public void autoInit() {
         // 初始化模型表
         initModelTable();
-
+        // 启动期为 Mongo 表主索引建 unique index
+        mongoPersistEngine.ensurePrimaryUniqueIndexes();
         // 初始化模型表任务
         initModelPersistSchedule();
     }

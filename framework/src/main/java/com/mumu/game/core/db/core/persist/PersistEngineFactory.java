@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.mumu.game.core.db.core.persist.mongo.MongoPersistEngine;
+import com.mumu.game.core.db.core.persist.engine.MongoPersistEngine;
 import com.mumu.game.core.db.core.meta.ModelMeta;
 
 /**

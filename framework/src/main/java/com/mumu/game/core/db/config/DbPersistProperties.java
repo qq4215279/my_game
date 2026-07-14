@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import com.mumu.game.core.db.core.persist.mongo.MongoPersistEngine;
+import com.mumu.game.core.db.core.persist.engine.MongoPersistEngine;
 
 import lombok.Data;
 
