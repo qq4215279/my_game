@@ -8,11 +8,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 
 import com.mumu.game.core.db.consts.PersistOp;
+import com.mumu.game.core.db.core.BaseEntity;
 
 /**
  * DirtyTracker
  * 脏数据追踪（同一条记录仅保留一个标记）
- *
  * @author liuzhen
  * @version 1.0.0 2026/7/9
  */
@@ -21,12 +21,23 @@ public class DirtyTracker {
     /** tableName -> cacheKey -> entry */
     private final Map<String, Map<String, DirtyEntry>> dirtyMap = new ConcurrentHashMap<>();
 
-    public void mark(String tableName, String cacheKey, long routeId, PersistOp op) {
+    /**
+     * 标记脏数据
+     */
+    public void mark(String tableName, String cacheKey, long primaryRouteId, PersistOp op) {
+        mark(tableName, cacheKey, primaryRouteId, op, null, null);
+    }
+
+    /**
+     * 标记脏数据；可附带实体快照（upsert）或删除键（仅 DB 异步写）
+     */
+    public void mark(String tableName, String cacheKey, long primaryRouteId, PersistOp op,
+                     BaseEntity snapshot, Object[] deleteKeys) {
         dirtyMap.computeIfAbsent(tableName, k -> new ConcurrentHashMap<>()).compute(cacheKey, (key, old) -> {
             if (old == null) {
-                return new DirtyEntry(tableName, cacheKey, routeId, op);
+                return new DirtyEntry(tableName, cacheKey, primaryRouteId, op, snapshot, deleteKeys);
             }
-            old.mergeOp(op);
+            old.mergeOp(op, snapshot, deleteKeys);
             return old;
         });
     }
@@ -69,7 +80,7 @@ public class DirtyTracker {
         List<DirtyEntry> result = new ArrayList<>();
         for (Map<String, DirtyEntry> tableDirty : dirtyMap.values()) {
             for (DirtyEntry entry : tableDirty.values()) {
-                if (entry.getRouteId() == routeId) {
+                if (entry.getPrimaryRouteId() == routeId) {
                     result.add(entry);
                 }
             }
@@ -87,7 +98,7 @@ public class DirtyTracker {
         }
         List<DirtyEntry> result = new ArrayList<>();
         for (DirtyEntry entry : tableDirty.values()) {
-            if (entry.getRouteId() == routeId) {
+            if (entry.getPrimaryRouteId() == routeId) {
                 result.add(entry);
             }
         }
@@ -104,7 +115,7 @@ public class DirtyTracker {
         }
         List<DirtyEntry> result = new ArrayList<>();
         for (DirtyEntry entry : tableDirty.values()) {
-            if (Math.floorMod(entry.getRouteId(), portionSize) == portion) {
+            if (Math.floorMod(entry.getPrimaryRouteId(), portionSize) == portion) {
                 result.add(entry);
             }
         }

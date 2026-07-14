@@ -6,12 +6,16 @@ import java.util.function.Supplier;
 /**
  * Model
  * 数据模型对外 API，定义缓存实体的查询与写操作语义。
- * 读路径（select 系列）：同步执行，依次访问 L1 JVM 缓存 → L2 Redis → L3 DB（持久引擎）。
- *   L1/L2 未命中且表配置了 DB 时，首次查询穿透到持久层，命中后回填 L2 + L1，后续不再查 DB。
- *   玩家登录时 {@code preLoad} 表会提前预加载整分片数据，未预加载的数据依赖 select 懒加载穿透 DB。
- * 写路径（insert / update / delete）：默认异步落库（标记 dirty 后由持久化线程 flush）；{@code persistNow = true} 时同步 flush 到 Redis / DB。
+ * 读路径（select 系列）：
+ *   {@code PersistStrategy.DB}（无 JVM）：每次直查持久引擎，不回填、不预加载。
+ *   有 JVM 的策略：按 primaryRouteId 分片加载——若尚未加载则整桶从 L2 Redis 拉取，空则再从 L3 DB
+ *   {@code findList(routeId)} 回填 L1（并可回写 L2）；无论有无数据都标记「已加载」（空桶表示确认无数据），后续只查 L1。
+ *   {@code preLoad=true} 且有 JVM 时进服提前 {@code ensureRouteLoaded}；否则首次 select 懒加载。
+ * 写路径（insert / update / delete）：
+ *   仅 DB：默认异步（dirty 携带实体快照/删除键后 flush）；{@code persistNow = true} 时同步写引擎。
+ *   有 JVM：默认异步落库（标记 dirty 后由持久化线程 flush）；{@code persistNow = true} 时同步 flush 到 Redis / DB。
  * 写操作约束：
- *   update / delete(entity) 要求传入对象与 JVM 缓存中为同一引用
+ *   有 JVM 时 update / delete(entity) 要求传入对象与 JVM 缓存中为同一引用
  *   写操作需在对应 routeId 的业务线程执行（全局表可通过 {@code skipThreadCheck} 跳过）
  * 异常策略：实现侧（{@code BaseModel}）对入口做 try-catch，失败打 MODEL 错误日志；
  *   读失败返回 {@code null}/空列表，写失败直接返回，避免打断业务线程。

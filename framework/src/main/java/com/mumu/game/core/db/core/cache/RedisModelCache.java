@@ -29,12 +29,9 @@ import com.mumu.game.expcetion.ModelPersistException;
 public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
 
     /**
-     * 批量加载某个 primaryRouteId 的 Redis Hash 桶（preload 使用）
-     * @param meta 表元数据
-     * @param clazz 实体类
-     * @param primaryRouteId 主索引路由id（路由桶id）
-     * @return java.util.Map<java.lang.String, com.mumu.game.core.db.core.BaseEntity>
-     * @since 2026/7/14 12:17
+     * 批量加载某个 primaryRouteId 的 Redis 数据（preload / ensureRouteLoaded 使用）
+     *   <li>单字段主键（ONE）：整表共用一个 Hash，只取 field={primaryRouteId}</li>
+     *   <li>复合主键（MANY）：Hash 已按 route 分桶，hmget 整桶</li>
      */
     public Map<String, BaseEntity> loadRouteBucket(ModelMeta meta, Class<? extends BaseEntity> clazz, long primaryRouteId) {
         if (!meta.hasRedis()) {
@@ -42,6 +39,22 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
         }
         try {
             String redisKey = meta.buildRedisKey(primaryRouteId);
+            // 1. 单字段主键（ONE）：避免把全表 Hash 灌进某一个 route 桶
+            if (meta.isSingleFieldPrimary()) {
+                String hashField = String.valueOf(primaryRouteId);
+                String json = RedisUtil.hGet(redisKey, hashField, String::valueOf);
+                if (json == null) {
+                    return Collections.emptyMap();
+                }
+                BaseEntity entity = EntitySerializer.deserialize(meta, json, clazz);
+                if (entity == null) {
+                    return Collections.emptyMap();
+                }
+                entity.marshal();
+                return Map.of(hashField, entity);
+            }
+
+            // 2. 复合主键（MANY）
             Map<String, String> all = RedisUtil.hmget(redisKey);
             if (all.isEmpty()) {
                 return Collections.emptyMap();

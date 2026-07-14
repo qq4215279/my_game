@@ -167,6 +167,7 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
 
     /**
      * 清理指定 primaryRouteId 分桶（EXPLICIT，不触发淘汰 flush）
+     * 同时清除「已加载」标记，下次 select 会重新从 Redis/DB 拉取
      */
     public void clearRoute(long primaryRouteId) {
         routeBuckets.invalidate(primaryRouteId);
@@ -176,7 +177,25 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         routeBuckets.invalidateAll();
     }
 
-    public boolean hasRoute(long primaryRouteId) {
+    /**
+     * 该 primaryRouteId 是否已从下层加载过（含空桶：已加载但无数据）
+     */
+    public boolean isRouteLoaded(long primaryRouteId) {
+        return getBucket(primaryRouteId) != null;
+    }
+
+    /**
+     * 标记 primaryRouteId 已加载：确保桶存在（可为空）
+     * <p>空桶表示「已确认下层无数据」，后续 select 不再穿透 Redis/DB</p>
+     */
+    public void markRouteLoaded(long primaryRouteId) {
+        getOrCreateBucket(primaryRouteId);
+    }
+
+    /**
+     * 该 route 桶内是否有实体数据（不含「已加载为空」）
+     */
+    public boolean hasRouteData(long primaryRouteId) {
         IndexWrapper<Entity> bucket = getBucket(primaryRouteId);
         return bucket != null && !bucket.primaryIndex.isEmpty();
     }
@@ -272,9 +291,7 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         if (removed != null) {
             removeFromSecondary(bucket, removed);
         }
-        if (bucket.primaryIndex.isEmpty()) {
-            routeBuckets.invalidate(primaryRouteId);
-        }
+        // 删空后保留空桶，作为「已加载」标记，避免再次穿透 Redis/DB
     }
 
     @Override
@@ -284,7 +301,7 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
             throw new ModelArgException("MemoryModelCache 与 ModelMeta 表名不一致");
         }
         Entity typed = (Entity) entity;
-        typed.marshal();
+        typed.unmarshal();
         long primaryRouteId = typed.getPrimaryRouteId();
         IndexWrapper<Entity> bucket = getOrCreateBucket(primaryRouteId);
         String hashField = meta.buildHashField(typed, meta.getPrimaryIndex());
@@ -341,9 +358,7 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         }
         if (removed != null) {
             removeFromSecondary(bucket, removed);
-            if (bucket.primaryIndex.isEmpty()) {
-                routeBuckets.invalidate(primaryRouteId);
-            }
+            // 删空后保留空桶，作为「已加载」标记
         }
     }
 

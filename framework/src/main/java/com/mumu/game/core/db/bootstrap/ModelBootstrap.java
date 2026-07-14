@@ -133,7 +133,7 @@ public class ModelBootstrap implements AutoInitEvent {
         BaseModel<?> model = ModelRegistry.getModelBean(meta.getEntityClass());
         int count = 0;
         for (DirtyEntry entry : entries) {
-            persistThreadPool.submit(entry.getRouteId(), meta.getTableName(), entry.getCacheKey(),
+            persistThreadPool.submit(entry.getPrimaryRouteId(), meta.getTableName(), entry.getCacheKey(),
                     () -> model.retryFlush(entry.getCacheKey()));
             if (++count >= ModelConstants.PERSIST_BATCH_SIZE) {
                 break;
