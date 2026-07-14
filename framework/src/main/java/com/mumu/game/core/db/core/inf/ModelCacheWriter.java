@@ -31,17 +31,16 @@ public interface ModelCacheWriter {
 
     /**
      * 按完整索引键删除单条
-     * @param meta  表元数据
-     * @param index 索引元数据
+     * @param primaryRouteId 主索引路由id
+     * @param index 索引元数据（可通过 {@code ModelRegistry.getMeta(index.getEntityClass())} 取表元数据）
      * @param keys  完整索引键
      */
-    void delete(long primaryRouteId, ModelMeta meta, IndexMeta index, Object... keys);
+    void delete(long primaryRouteId, IndexMeta index, Object... keys);
 
     /**
      * 按索引左前缀批量删除
-     * @param meta  表元数据
      * @param index 索引元数据
      * @param keys  索引键（支持左前缀）
      */
-    void deleteByPrefix(ModelMeta meta, IndexMeta index, Object... keys);
+    void deleteByPrefix(IndexMeta index, Object... keys);
 }

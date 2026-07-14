@@ -31,11 +31,9 @@ import lombok.Setter;
 /**
  * MemoryModelCache
  * 内存一级缓存
- * <p>
  * 每个 primaryRouteId 分桶：{@link PrimaryIndex} 主存储 + {@link SecondaryIndex} 非主索引；
  * 外层使用 Guava Cache 管理 route 桶：maximumSize + expireAfterAccess，防止业务漏清导致泄漏；
  * 内层 {@code @ModelTable.capacity} 仍约束单桶实体数量。
- * </p>
  * @author liuzhen
  * @version 1.0.0 2026/7/9
  */
@@ -189,7 +187,8 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
     /**
      * 按完整索引键查询
      */
-    public Entity get(long primaryRouteId, IndexMeta index, Object... keys) {
+    @Override
+    public Entity getOne(long primaryRouteId, IndexMeta index, Object... keys) {
         if (!index.isFullKey(keys)) {
             return null;
         }
@@ -207,7 +206,8 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
     /**
      * 按索引键查询列表（完整键或左前缀）
      */
-    public List<Entity> getList(long primaryRouteId , IndexMeta index, Object... keys) {
+    @Override
+    public List<BaseEntity> getList(long primaryRouteId , IndexMeta index, Object... keys) {
         if (keys == null || keys.length == 0 || keys.length > index.getFields().length) {
             return Collections.emptyList();
         }
@@ -216,19 +216,13 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
             return Collections.emptyList();
         }
 
-        // 主索引：完整键 O(1)；左前缀在 route 桶内用 matchPrefix 扫描（勿对 hashField 做 startsWith）
+        // 主索引：完整键 O(1)；左前缀下沉到 PrimaryIndex#leftFind（matchPrefix 扫桶）
         if (index.isPrimary()) {
             if (index.isFullKey(keys)) {
                 Entity one = bucket.primaryIndex.getOne(meta.buildHashField(index, keys));
                 return one == null ? Collections.emptyList() : List.of(one);
             }
-            List<Entity> result = new ArrayList<>();
-            for (Entity entity : bucket.primaryIndex.values()) {
-                if (index.matchPrefix(entity, keys)) {
-                    result.add(entity);
-                }
-            }
-            return result;
+            return new ArrayList<>(bucket.primaryIndex.leftFind(index, keys));
         }
 
         // 非主索引：走副索引
@@ -238,17 +232,17 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
         }
         String indexKey = index.buildIndexKey(keys);
         if (index.isFullKey(keys)) {
-            return secondary.getAll(indexKey);
+            return new ArrayList<>(secondary.getAll(indexKey));
         }
-        return secondary.leftFind(indexKey);
+        return new ArrayList<>(secondary.leftFind(index, keys));
     }
 
     /**
      * 倒序列表（按 cacheKey 倒序）
      */
-    public List<Entity> getListReverse(long primaryRouteId, IndexMeta index, Object... secondaryKeys) {
-        List<Entity> list = new ArrayList<>(getList(primaryRouteId, index, secondaryKeys));
-        list.sort(Comparator.comparing((Entity e) -> meta.buildCacheKey(e)).reversed());
+    public List<BaseEntity> getListReverse(long primaryRouteId, IndexMeta index, Object... secondaryKeys) {
+        List<BaseEntity> list = new ArrayList<>(getList(primaryRouteId, index, secondaryKeys));
+        list.sort(Comparator.comparing((BaseEntity e) -> meta.buildCacheKey(e)).reversed());
         return list;
     }
 
@@ -331,9 +325,9 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
     /**
      * 按左前缀删除
      */
-    public List<Entity> removeAll(IndexMeta primaryIndex, Object... primaryKeys) {
-        List<Entity> matched = getList(meta.getRouteId(primaryKeys), primaryIndex, primaryKeys);
-        for (Entity entity : matched) {
+    public List<BaseEntity> removeAll(IndexMeta primaryIndex, Object... primaryKeys) {
+        List<BaseEntity> matched = getList(meta.getRouteId(primaryKeys), primaryIndex, primaryKeys);
+        for (BaseEntity entity : matched) {
             removeEntity(entity);
         }
         return matched;
@@ -342,7 +336,7 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
     /**
      * 按实体从主存储 + 副索引移除
      */
-    private void removeEntity(Entity entity) {
+    private void removeEntity(BaseEntity entity) {
         long primaryRouteId = entity.getPrimaryRouteId();
         IndexWrapper<Entity> bucket = getBucket(primaryRouteId);
         if (bucket == null) {
@@ -360,21 +354,7 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
 
 
 
-    @Override
-    public BaseEntity getOne(long primaryRouteId, ModelMeta tableMeta, IndexMeta index, Object... secondaryKeys) {
-        if (!meta.getTableName().equals(tableMeta.getTableName())) {
-            throw new ModelArgException("JvmModelCache 与 ModelMeta 表名不一致");
-        }
-        return get(primaryRouteId, index, secondaryKeys);
-    }
 
-    @Override
-    public List<BaseEntity> getList(long primaryRouteId, ModelMeta tableMeta, IndexMeta index, Object... secondaryKeys) {
-        if (!meta.getTableName().equals(tableMeta.getTableName())) {
-            throw new ModelArgException("JvmModelCache 与 ModelMeta 表名不一致");
-        }
-        return new ArrayList<>(getList(primaryRouteId, index, secondaryKeys));
-    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -397,17 +377,17 @@ public class MemoryModelCache<Entity extends BaseEntity> implements ModelCacheRe
     }
 
     @Override
-    public void delete(long primaryRouteId, ModelMeta tableMeta, IndexMeta index, Object... secondaryKeys) {
-        if (!meta.getTableName().equals(tableMeta.getTableName())) {
-            throw new ModelArgException("JvmModelCache 与 ModelMeta 表名不一致");
+    public void delete(long primaryRouteId, IndexMeta index, Object... secondaryKeys) {
+        if (!meta.getEntityClass().equals(index.getEntityClass())) {
+            throw new ModelArgException("MemoryModelCache 与 IndexMeta 实体类型不一致");
         }
         remove(primaryRouteId, index, secondaryKeys);
     }
 
     @Override
-    public void deleteByPrefix(ModelMeta tableMeta, IndexMeta index, Object... keys) {
-        if (!meta.getTableName().equals(tableMeta.getTableName())) {
-            throw new ModelArgException("JvmModelCache 与 ModelMeta 表名不一致");
+    public void deleteByPrefix(IndexMeta index, Object... keys) {
+        if (!meta.getEntityClass().equals(index.getEntityClass())) {
+            throw new ModelArgException("MemoryModelCache 与 IndexMeta 实体类型不一致");
         }
         removeAll(index, keys);
     }

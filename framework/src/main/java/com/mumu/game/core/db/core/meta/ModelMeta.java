@@ -102,13 +102,13 @@ public final class ModelMeta {
 
     /**
      * 从实体类与注解解析表元数据
-     * @param domainClass   实体类
+     * @param entityClass   实体类
      * @param table         @ModelTable 注解
      * @param persistEngine 持久化引擎名
      */
-    public static ModelMeta parse(Class<?> domainClass, ModelTable table, String persistEngine) {
+    public static ModelMeta parse(Class<?> entityClass, ModelTable table, String persistEngine) {
         Builder builder = new Builder();
-        builder.entityClass = domainClass;
+        builder.entityClass = entityClass;
         builder.tableName = table.name();
         builder.comment = table.comment();
         builder.persistStrategy = table.persistStrategy();
@@ -121,7 +121,7 @@ public final class ModelMeta {
         builder.skipThreadCheck = table.skipThreadCheck();
         com.mumu.game.core.db.anno.Index[] tableIndexes = table.indexes();
         for (int i = 0; i < tableIndexes.length; i++) {
-            builder.indexes.add(IndexMeta.from(domainClass, tableIndexes[i], i == 0));
+            builder.indexes.add(IndexMeta.from(entityClass, tableIndexes[i], i == 0));
         }
         return builder.build();
     }

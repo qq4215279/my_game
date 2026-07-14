@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.mumu.game.core.db.core.BaseEntity;
+import com.mumu.game.core.db.core.meta.IndexMeta;
 
 /**
  * MultiSecondaryIndex
@@ -18,6 +19,21 @@ import com.mumu.game.core.db.core.BaseEntity;
 public final class MultiSecondaryIndex<Entity extends BaseEntity> implements SecondaryIndex<Entity> {
 
     private final Map<String, List<Entity>> map = new HashMap<>();
+
+    @Override
+    public Entity getOne(String indexKey) {
+        List<Entity> list = map.get(indexKey);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        return list.getFirst();
+    }
+
+    @Override
+    public List<Entity> getAll(String indexKey) {
+        List<Entity> list = map.get(indexKey);
+        return list == null || list.isEmpty() ? Collections.emptyList() : List.copyOf(list);
+    }
 
     @Override
     public Entity put(String indexKey, Entity entity) {
@@ -38,23 +54,9 @@ public final class MultiSecondaryIndex<Entity extends BaseEntity> implements Sec
     }
 
     @Override
-    public Entity getOne(String indexKey) {
-        List<Entity> list = map.get(indexKey);
-        if (list == null || list.isEmpty()) {
-            return null;
-        }
-        return list.getFirst();
-    }
-
-    @Override
-    public List<Entity> getAll(String indexKey) {
-        List<Entity> list = map.get(indexKey);
-        return list == null || list.isEmpty() ? Collections.emptyList() : List.copyOf(list);
-    }
-
-    @Override
-    public List<Entity> leftFind(String prefix) {
-        if (prefix == null || prefix.isEmpty()) {
+    public List<Entity> leftFind(IndexMeta index, Object... keys) {
+        String prefix = index.buildIndexKey(keys);
+        if (prefix.isEmpty()) {
             return Collections.emptyList();
         }
         List<Entity> result = new ArrayList<>();

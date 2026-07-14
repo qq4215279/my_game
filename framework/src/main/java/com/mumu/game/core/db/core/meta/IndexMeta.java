@@ -23,7 +23,8 @@ import lombok.Getter;
  */
 @Getter
 public final class IndexMeta {
-
+    /** 实体类class */
+    private final Class<?> entityClass;
     /** 索引名称 */
     private final String name;
     /** 索引列（实体字段名） */
@@ -35,7 +36,8 @@ public final class IndexMeta {
     /** 索引字段访问器（MethodHandle，启动期构建） */
     private final IndexFieldAccessor accessor;
 
-    private IndexMeta(String name, String[] fields, boolean unique, boolean primary, IndexFieldAccessor accessor) {
+    private IndexMeta(Class<?> entityClass, String name, String[] fields, boolean unique, boolean primary, IndexFieldAccessor accessor) {
+        this.entityClass = entityClass;
         this.name = name;
         this.fields = fields;
         this.unique = unique;
@@ -45,7 +47,6 @@ public final class IndexMeta {
 
     /**
      * 从 {@link Index} 注解构建索引元数据
-     *
      * @param entityClass 实体类
      * @param index       索引注解
      * @param primary     是否主索引
@@ -61,7 +62,7 @@ public final class IndexMeta {
             name = prefix + String.join("_", fields);
         }
         IndexFieldAccessor accessor = IndexFieldAccessor.create(entityClass, fields);
-        return new IndexMeta(name, fields.clone(), index.unique(), primary, accessor);
+        return new IndexMeta(entityClass, name, fields.clone(), index.unique(), primary, accessor);
     }
 
     public boolean isFullKey(Object... keys) {

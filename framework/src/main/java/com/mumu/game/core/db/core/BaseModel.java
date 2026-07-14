@@ -66,13 +66,13 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             }
 
             // 1. 内存查询
-            Entity local = memoryCache.get(primaryRouteId, index, secondaryKeys);
+            Entity local = memoryCache.getOne(primaryRouteId, index, secondaryKeys);
             if (local != null) {
                 return local;
             }
             // 2. redis查询
             if (meta.hasRedis()) {
-                Entity redis = castEntity(redisModelCache.getOne(primaryRouteId, meta, index, secondaryKeys));
+                Entity redis = castEntity(redisModelCache.getOne(primaryRouteId, index, secondaryKeys));
                 // 缓存到内存
                 if (redis != null) {
                     memoryCache.put(redis);
@@ -148,14 +148,14 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             IndexMeta index = meta.getIndex(indexName);
             // 1. 内存查询
             if (meta.hasJVM()) {
-                List<Entity> local = memoryCache.getList(primaryRouteId, index, secondaryKeys);
+                List<Entity> local = castList(memoryCache.getList(primaryRouteId, index, secondaryKeys));
                 if (!local.isEmpty()) {
                     return local;
                 }
             }
             // 2. redis查询
             if (meta.hasRedis()) {
-                List<Entity> redisList = castList(redisModelCache.getList(primaryRouteId, meta, index, secondaryKeys));
+                List<Entity> redisList = castList(redisModelCache.getList(primaryRouteId, index, secondaryKeys));
                 // 缓存到内存
                 cache2Jvm(redisList);
                 return redisList;
@@ -237,7 +237,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
                 Entity one = selectOne(primaryRouteId, indexName, secondaryKeys);
                 return one == null ? Collections.emptyList() : List.of(one);
             }
-            List<Entity> local = memoryCache.getListReverse(primaryRouteId, index, secondaryKeys);
+            List<Entity> local = castList(memoryCache.getListReverse(primaryRouteId, index, secondaryKeys));
             if (!local.isEmpty()) {
                 return local;
             }
@@ -263,7 +263,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
                 return;
             }
             Object[] keys = meta.getPrimaryIndex().readKeyValues(entity);
-            Entity cached = memoryCache.get(primaryRouteId, meta.getPrimaryIndex(), keys);
+            Entity cached = memoryCache.getOne(primaryRouteId, meta.getPrimaryIndex(), keys);
             if (meta.hasJVM() && cached == null) {
                 LogTopic.MODEL.error("updateNotFound", "table", meta.getTableName(), "routeId", primaryRouteId, "cacheKey", meta.buildCacheKey(entity));
                 return;
@@ -299,7 +299,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
                 return;
             }
             Object[] keys = meta.getPrimaryIndex().readKeyValues(entity);
-            Entity exists = memoryCache.get(primaryRouteId, meta.getPrimaryIndex(), keys);
+            Entity exists = memoryCache.getOne(primaryRouteId, meta.getPrimaryIndex(), keys);
             if (exists != null) {
                 LogTopic.MODEL.error("insertExists", "table", meta.getTableName(), "routeId", primaryRouteId, "cacheKey", meta.buildCacheKey(entity));
                 return;
@@ -322,9 +322,9 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
         long primaryRouteId = entity.getPrimaryRouteId();
         try {
             Object[] keys = meta.getPrimaryIndex().readKeyValues(entity);
-            Entity exists = memoryCache.get(primaryRouteId, meta.getPrimaryIndex(), keys);
+            Entity exists = memoryCache.getOne(primaryRouteId, meta.getPrimaryIndex(), keys);
             if (exists == null && meta.hasRedis()) {
-                exists = castEntity(redisModelCache.getOne(primaryRouteId, meta, meta.getPrimaryIndex(), keys));
+                exists = castEntity(redisModelCache.getOne(primaryRouteId, meta.getPrimaryIndex(), keys));
                 if (exists != null) {
                     memoryCache.put(exists);
                 }
@@ -359,7 +359,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             }
 
             Object[] keys = meta.getPrimaryIndex().readKeyValues(entity);
-            Entity cached = memoryCache.get(primaryRouteId, meta.getPrimaryIndex(), keys);
+            Entity cached = memoryCache.getOne(primaryRouteId, meta.getPrimaryIndex(), keys);
             if (cached != null && cached != entity) {
                 LogTopic.MODEL.error("deleteRefMismatch", "table", meta.getTableName(), "routeId", primaryRouteId, "cacheKey", meta.buildCacheKey(entity));
                 return;
@@ -423,7 +423,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
             }
 
             // 1. 清理 JVM，并去掉这些实体上残留的 dirty，避免后续又被 upsert 回去
-            List<Entity> removeList = memoryCache.removeAll(primaryIndex, primaryKeys);
+            List<Entity> removeList = castList(memoryCache.removeAll(primaryIndex, primaryKeys));
             for (Entity entity : removeList) {
                 dirtyTracker.remove(meta.getTableName(), meta.buildCacheKey(entity));
             }
@@ -453,7 +453,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
     private void doDeleteByPrefix(IndexMeta primaryIndex, Object... primaryKeys) {
         try {
             if (meta.hasRedis()) {
-                redisModelCache.deleteByPrefix(meta, primaryIndex, primaryKeys);
+                redisModelCache.deleteByPrefix(primaryIndex, primaryKeys);
             }
             if (meta.hasDb()) {
                 persistEngineFactory.getEngine(meta).deleteByPrefix(meta, primaryIndex, primaryKeys);
@@ -627,7 +627,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
         IndexMeta index = meta.getPrimaryIndex();
         Object[] keys = parseKeysFromCacheKey(cacheKey, index);
         if (meta.hasRedis()) {
-            redisModelCache.delete(routeId, meta, index, keys);
+            redisModelCache.delete(routeId, index, keys);
         }
         if (meta.hasDb()) {
             persistEngineFactory.getEngine(meta).delete(meta, index, keys);
@@ -677,7 +677,7 @@ public abstract class BaseModel<Entity extends BaseEntity> implements Model<Enti
     }
 
     private Entity findEntityByCacheKey(String cacheKey, long routeId) {
-        List<Entity> bucket = memoryCache.getList(routeId, meta.getPrimaryIndex(), routeId);
+        List<Entity> bucket = castList(memoryCache.getList(routeId, meta.getPrimaryIndex(), routeId));
         for (Entity entity : bucket) {
             if (cacheKey.equals(meta.buildCacheKey(entity))) {
                 return entity;

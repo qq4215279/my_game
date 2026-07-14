@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.mumu.game.core.db.core.BaseEntity;
+import com.mumu.game.core.db.core.meta.IndexMeta;
 
 /**
  * ModelIndex
@@ -13,6 +14,12 @@ import com.mumu.game.core.db.core.BaseEntity;
  * @version 1.0.0 2026/7/14
  */
 interface ModelIndex<Entity extends BaseEntity> {
+
+    /** 完整键查询单条（非唯一索引取第一条） */
+    Entity getOne(String indexKey);
+
+    /** 完整键查询全部 */
+    List<Entity> getAll(String indexKey);
 
     /**
      * 写入索引
@@ -25,22 +32,27 @@ interface ModelIndex<Entity extends BaseEntity> {
      */
     void remove(String indexKey, Entity entity);
 
-    /** 完整键查询单条（非唯一索引取第一条） */
-    Entity getOne(String indexKey);
-
-    /** 完整键查询全部 */
-    List<Entity> getAll(String indexKey);
+    /**
+     * 左前缀查询
+     * <p>主索引：{@link IndexMeta#matchPrefix} 扫桶内实体；副索引：indexKey startsWith</p>
+     */
+    List<Entity> leftFind(IndexMeta index, Object... keys);
 
     /**
-     * 左前缀查询（扫索引 key 的 startsWith）
-     * <p>主索引左前缀业务查询仍建议用 {@code IndexMeta#matchPrefix} 扫 values</p>
+     * 是否为空
+     * @return boolean
      */
-    List<Entity> leftFind(String prefix);
-
     boolean isEmpty();
 
+    /**
+     * 数量
+     * @return int
+     */
     int size();
 
-    /** 桶内全部实体（主索引扫桶 / route 淘汰快照） */
+    /**
+     * 获取桶内全部实体（主索引扫桶 / route 淘汰快照）
+     * @return java.util.Collection<Entity>
+     */
     Collection<Entity> values();
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.mumu.game.core.db.core.BaseEntity;
+import com.mumu.game.core.db.core.meta.IndexMeta;
 
 /**
  * UniqueSecondaryIndex
@@ -18,6 +19,17 @@ import com.mumu.game.core.db.core.BaseEntity;
 public final class UniqueSecondaryIndex<Entity extends BaseEntity> implements SecondaryIndex<Entity> {
 
     private final Map<String, Entity> map = new HashMap<>();
+
+    @Override
+    public Entity getOne(String indexKey) {
+        return map.get(indexKey);
+    }
+
+    @Override
+    public List<Entity> getAll(String indexKey) {
+        Entity entity = map.get(indexKey);
+        return entity == null ? Collections.emptyList() : List.of(entity);
+    }
 
     @Override
     public Entity put(String indexKey, Entity entity) {
@@ -33,19 +45,9 @@ public final class UniqueSecondaryIndex<Entity extends BaseEntity> implements Se
     }
 
     @Override
-    public Entity getOne(String indexKey) {
-        return map.get(indexKey);
-    }
-
-    @Override
-    public List<Entity> getAll(String indexKey) {
-        Entity entity = map.get(indexKey);
-        return entity == null ? Collections.emptyList() : List.of(entity);
-    }
-
-    @Override
-    public List<Entity> leftFind(String prefix) {
-        if (prefix == null || prefix.isEmpty()) {
+    public List<Entity> leftFind(IndexMeta index, Object... keys) {
+        String prefix = index.buildIndexKey(keys);
+        if (prefix.isEmpty()) {
             return Collections.emptyList();
         }
         List<Entity> result = new ArrayList<>();

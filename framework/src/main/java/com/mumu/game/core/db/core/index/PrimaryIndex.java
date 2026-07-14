@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 
 import com.mumu.game.collection.LRULinkedHashMap;
 import com.mumu.game.core.db.core.BaseEntity;
+import com.mumu.game.core.db.core.meta.IndexMeta;
 
 /**
  * PrimaryIndex
@@ -38,6 +39,17 @@ public final class PrimaryIndex<Entity extends BaseEntity> implements ModelIndex
     }
 
     @Override
+    public Entity getOne(String indexKey) {
+        return store.get(indexKey);
+    }
+
+    @Override
+    public List<Entity> getAll(String indexKey) {
+        Entity entity = store.get(indexKey);
+        return entity == null ? Collections.emptyList() : List.of(entity);
+    }
+
+    @Override
     public Entity put(String indexKey, Entity entity) {
         return store.put(indexKey, entity);
     }
@@ -58,25 +70,15 @@ public final class PrimaryIndex<Entity extends BaseEntity> implements ModelIndex
     }
 
     @Override
-    public Entity getOne(String indexKey) {
-        return store.get(indexKey);
-    }
-
-    @Override
-    public List<Entity> getAll(String indexKey) {
-        Entity entity = store.get(indexKey);
-        return entity == null ? Collections.emptyList() : List.of(entity);
-    }
-
-    @Override
-    public List<Entity> leftFind(String prefix) {
-        if (prefix == null || prefix.isEmpty()) {
+    public List<Entity> leftFind(IndexMeta index, Object... keys) {
+        if (keys == null || keys.length == 0) {
             return Collections.emptyList();
         }
+        // 主索引左前缀：用字段 matchPrefix 扫实体，勿对 hashField 做 startsWith
         List<Entity> result = new ArrayList<>();
-        for (Map.Entry<String, Entity> entry : store.entrySet()) {
-            if (entry.getKey().startsWith(prefix)) {
-                result.add(entry.getValue());
+        for (Entity entity : store.values()) {
+            if (index.matchPrefix(entity, keys)) {
+                result.add(entity);
             }
         }
         return result;

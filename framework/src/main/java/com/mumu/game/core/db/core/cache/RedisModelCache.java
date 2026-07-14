@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.mumu.game.core.db.bootstrap.ModelRegistry;
 import com.mumu.game.core.db.core.inf.ModelCacheReader;
 import com.mumu.game.core.db.core.inf.ModelCacheWriter;
 import org.springframework.stereotype.Component;
@@ -61,7 +62,8 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
     }
 
     @Override
-    public BaseEntity getOne(long primaryRouteId, ModelMeta meta, IndexMeta index, Object... keys) {
+    public BaseEntity getOne(long primaryRouteId, IndexMeta index, Object... keys) {
+        ModelMeta meta = ModelRegistry.getMeta(index.getEntityClass());
         if (!meta.hasRedis() || !index.isFullKey(keys)) {
             return null;
         }
@@ -92,7 +94,8 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
     }
 
     @Override
-    public List<BaseEntity> getList(long primaryRouteId, ModelMeta meta, IndexMeta index, Object... keys) {
+    public List<BaseEntity> getList(long primaryRouteId, IndexMeta index, Object... keys) {
+        ModelMeta meta = ModelRegistry.getMeta(index.getEntityClass());
         if (!meta.hasRedis()) {
             return Collections.emptyList();
         }
@@ -188,7 +191,8 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
     }
 
     @Override
-    public void delete(long primaryRouteId, ModelMeta meta, IndexMeta index, Object... keys) {
+    public void delete(long primaryRouteId, IndexMeta index, Object... keys) {
+        ModelMeta meta = ModelRegistry.getMeta(index.getEntityClass());
         if (!meta.hasRedis() || !index.isFullKey(keys)) {
             return;
         }
@@ -210,7 +214,8 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
     }
 
     @Override
-    public void deleteByPrefix(ModelMeta meta, IndexMeta index, Object... keys) {
+    public void deleteByPrefix(IndexMeta index, Object... keys) {
+        ModelMeta meta = ModelRegistry.getMeta(index.getEntityClass());
         if (!meta.hasRedis() || keys == null || keys.length == 0) {
             return;
         }

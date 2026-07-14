@@ -19,9 +19,9 @@ import com.mumu.game.core.db.core.meta.ModelMeta;
 public final class ModelRegistry {
 
     /** 实体类 -> 表元数据 */
-    private static final Map<Class<?>, ModelMeta> DOMAIN_META = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, ModelMeta> ENTITY_META = new ConcurrentHashMap<>();
     /** 实体类 -> Model 实例 */
-    private static final Map<Class<?>, BaseModel<?>> DOMAIN_MODEL = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, BaseModel<?>> ENTITY_MODEL = new ConcurrentHashMap<>();
     /** 表名 -> 表元数据 */
     private static final Map<String, ModelMeta> TABLE_META = new ConcurrentHashMap<>();
 
@@ -32,7 +32,7 @@ public final class ModelRegistry {
      * 注册实体元数据
      */
     public static void registerEntity(ModelMeta meta) {
-        DOMAIN_META.put(meta.getEntityClass(), meta);
+        ENTITY_META.put(meta.getEntityClass(), meta);
         TABLE_META.put(meta.getTableName(), meta);
     }
 
@@ -40,16 +40,16 @@ public final class ModelRegistry {
      * 注册 Model Bean
      */
     public static void registerModel(Class<? extends BaseEntity> domainClass, BaseModel<?> model) {
-        DOMAIN_MODEL.put(domainClass, model);
+        ENTITY_MODEL.put(domainClass, model);
     }
 
     /**
      * 按实体类获取元数据
      */
-    public static ModelMeta getMeta(Class<?> domainClass) {
-        ModelMeta meta = DOMAIN_META.get(domainClass);
+    public static ModelMeta getMeta(Class<?> entityClass) {
+        ModelMeta meta = ENTITY_META.get(entityClass);
         if (meta == null) {
-            throw new IllegalStateException("未注册实体元数据: " + domainClass.getName());
+            throw new IllegalStateException("未注册实体元数据: " + entityClass.getName());
         }
         return meta;
     }
@@ -77,7 +77,7 @@ public final class ModelRegistry {
      * 按实体类获取 Model
      */
     public static BaseModel<?> getModelBean(Class<?> domainClass) {
-        BaseModel<?> model = DOMAIN_MODEL.get(domainClass);
+        BaseModel<?> model = ENTITY_MODEL.get(domainClass);
         if (model == null) {
             throw new IllegalStateException("未注册 Model: " + domainClass.getName());
         }
@@ -88,6 +88,6 @@ public final class ModelRegistry {
      * 获取全部已注册表元数据
      */
     public static Collection<ModelMeta> allMeta() {
-        return DOMAIN_META.values();
+        return ENTITY_META.values();
     }
 }
