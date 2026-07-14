@@ -12,6 +12,7 @@ import com.mumu.game.core.db.meta.IndexMeta;
 import com.mumu.game.core.db.meta.ModelMeta;
 import com.mumu.game.core.db.util.EntitySerializer;
 import com.mumu.game.core.log.LogTopic;
+import com.mumu.game.expcetion.ModelPersistException;
 
 /**
  * MongoPersistEngine
@@ -52,7 +53,7 @@ public class MongoPersistEngine implements PersistEngine {
             // TODO 接入 MongoTemplate 后实现真实 upsert
         } catch (Exception e) {
             LogTopic.MODEL.error(e, "mongoUpsert", "table", meta.getTableName());
-            throw new IllegalStateException("MongoDB 写入失败: " + meta.getTableName(), e);
+            throw new ModelPersistException("MongoDB 写入失败: " + meta.getTableName(), e);
         }
     }
 

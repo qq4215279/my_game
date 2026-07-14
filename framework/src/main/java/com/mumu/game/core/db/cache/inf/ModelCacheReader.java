@@ -16,21 +16,21 @@ public interface ModelCacheReader {
 
     /**
      * 按完整索引键查询单条
+     * @param primaryRouteId   主索引路由id（路由桶id）
      * @param meta  表元数据
      * @param index 索引元数据
-     * @param clazz 实体类型
      * @param keys  完整索引键
      * @return 实体，不存在返回 null
      */
-    <Entity extends BaseEntity> Entity getOne(ModelMeta meta, IndexMeta index, Class<Entity> clazz, Object... keys);
+    BaseEntity getOne(long primaryRouteId, ModelMeta meta, IndexMeta index, Object... keys);
 
     /**
      * 按索引左前缀查询列表
+     * @param primaryRouteId   主索引路由id（路由桶id）
      * @param meta  表元数据
      * @param index 索引元数据
-     * @param clazz 实体类型
      * @param keys  索引键（支持左前缀）
      * @return 匹配列表，无数据返回空列表
      */
-    <Entity extends BaseEntity> List<Entity> getList(ModelMeta meta, IndexMeta index, Class<Entity> clazz, Object... keys);
+    List<BaseEntity> getList(long primaryRouteId, ModelMeta meta, IndexMeta index, Object... keys);
 }

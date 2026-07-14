@@ -6,20 +6,15 @@ import java.util.function.Supplier;
 /**
  * Model
  * 数据模型对外 API，定义缓存实体的查询与写操作语义。
- * <p>
  * 读路径（select 系列）：同步执行，依次访问 L1 JVM 缓存 → L2 Redis → L3 DB（持久引擎）。
- * L1/L2 未命中且表配置了 DB 时，首次查询穿透到持久层，命中后回填 L2 + L1，后续不再查 DB。
- * 玩家登录时 {@code preLoad} 表会提前预加载整分片数据，未预加载的数据依赖 select 懒加载穿透 DB。
- * <p>
- * 写路径（insert / update / delete）：默认异步落库（标记 dirty 后由持久化线程 flush）；
- * {@code persistNow = true} 时同步 flush 到 Redis / DB。
- * <p>
+ *   L1/L2 未命中且表配置了 DB 时，首次查询穿透到持久层，命中后回填 L2 + L1，后续不再查 DB。
+ *   玩家登录时 {@code preLoad} 表会提前预加载整分片数据，未预加载的数据依赖 select 懒加载穿透 DB。
+ * 写路径（insert / update / delete）：默认异步落库（标记 dirty 后由持久化线程 flush）；{@code persistNow = true} 时同步 flush 到 Redis / DB。
  * 写操作约束：
- * <ul>
- *   <li>update / delete(entity) 要求传入对象与 JVM 缓存中为同一引用</li>
- *   <li>写操作需在对应 routeId 的业务线程执行（全局表可通过 {@code skipThreadCheck} 跳过）</li>
- * </ul>
- *
+ *   update / delete(entity) 要求传入对象与 JVM 缓存中为同一引用
+ *   写操作需在对应 routeId 的业务线程执行（全局表可通过 {@code skipThreadCheck} 跳过）
+ * 异常策略：实现侧（{@code BaseModel}）对入口做 try-catch，失败打 MODEL 错误日志；
+ *   读失败返回 {@code null}/空列表，写失败直接返回，避免打断业务线程。
  * @param <Entity> 实体类型
  * @author liuzhen
  * @version 1.0.0 2026/7/9
@@ -28,29 +23,25 @@ public interface Model<Entity extends BaseEntity> {
 
     /**
      * 按主索引完整键查询单条记录。
-     * <p>读路径：L1 JVM → L2 Redis → L3 DB；命中时回填上层缓存。</p>
-     *
+     * 读路径：L1 JVM → L2 Redis → L3 DB；命中时回填上层缓存。
      * @param primaryKeys 主索引完整键（键数量须与主索引字段数一致）
-     * @return 实体对象，不存在返回 {@code null}
-     * @throws IllegalArgumentException 索引键不完整时抛出
+     * @return 实体对象，不存在或失败返回 {@code null}
      */
     Entity selectOne(Object... primaryKeys);
 
     /**
      * 按指定索引完整键查询单条记录。
-     * <p>读路径：L1 JVM → L2 Redis → L3 DB；命中时回填上层缓存。</p>
-     *
+     * 读路径：L1 JVM → L2 Redis → L3 DB；命中时回填上层缓存。
+     * @param primaryRouteId   主索引路由id（路由桶id）
      * @param indexName   索引名称（对应 {@code @Index.name}）
-     * @param primaryKeys 索引完整键（键数量须与该索引字段数一致）
-     * @return 实体对象，不存在返回 {@code null}
-     * @throws IllegalArgumentException 索引键不完整时抛出
+     * @param secondaryKeys 索引完整键（键数量须与该索引字段数一致）
+     * @return 实体对象，不存在或失败返回 {@code null}
      */
-    Entity selectOne(String indexName, Object... primaryKeys);
+    Entity selectOne(long primaryRouteId, String indexName, Object... secondaryKeys);
 
     /**
      * 查询单条记录，不存在则创建并插入。
-     * <p>默认异步持久化，等价于 {@code selectOrCreate(builder, false, primaryKeys)}。</p>
-     *
+     * 默认异步持久化，等价于 {@code selectOrCreate(builder, false, primaryKeys)}。
      * @param builder     记录不存在时的实体构造器
      * @param primaryKeys 主索引完整键
      * @return 已存在或新创建的实体
@@ -61,7 +52,6 @@ public interface Model<Entity extends BaseEntity> {
 
     /**
      * 查询单条记录，不存在则创建并插入。
-     *
      * @param builder     记录不存在时的实体构造器
      * @param persistNow  是否同步持久化（{@code true} 立即 flush 到 Redis / DB）
      * @param primaryKeys 主索引完整键
@@ -78,15 +68,15 @@ public interface Model<Entity extends BaseEntity> {
 
     /**
      * 按指定索引查询单条记录，不存在则创建并插入。
-     *
      * @param builder     记录不存在时的实体构造器
+     * @param primaryRouteId   主索引路由id（路由桶id）
      * @param persistNow  是否同步持久化（{@code true} 立即 flush 到 Redis / DB）
      * @param indexName   索引名称（对应 {@code @Index.name}）
-     * @param primaryKeys 索引完整键
+     * @param secondaryKeys 索引完整键
      * @return 已存在或新创建的实体
      */
-    default Entity selectOrCreate(Supplier<Entity> builder, boolean persistNow, String indexName, Object... primaryKeys) {
-        Entity entity = selectOne(indexName, primaryKeys);
+    default Entity selectOrCreate(Supplier<Entity> builder, long primaryRouteId, boolean persistNow, String indexName, Object... secondaryKeys) {
+        Entity entity = selectOne(primaryRouteId, indexName, secondaryKeys);
         if (entity == null) {
             entity = builder.get();
             insert(entity, persistNow);
@@ -96,12 +86,9 @@ public interface Model<Entity extends BaseEntity> {
 
     /**
      * 按主索引键查询列表。
-     * <p>
      * 完整键时等价于 {@code selectOne} 的单条结果；
      * 左前缀键（键数量小于索引字段数）时返回该前缀下所有匹配记录。
      * 读路径：L1 JVM → L2 Redis → L3 DB；命中时回填上层缓存。
-     * </p>
-     *
      * @param primaryKeys 索引键（完整键或左前缀）
      * @return 匹配列表，无数据返回空列表
      */
@@ -109,22 +96,19 @@ public interface Model<Entity extends BaseEntity> {
 
     /**
      * 按指定索引键查询列表。
-     * <p>
      * 完整键时等价于 {@code selectOne} 的单条结果；
      * 左前缀键时返回该前缀下所有匹配记录。
      * 读路径：L1 JVM → L2 Redis → L3 DB；命中时回填上层缓存。
-     * </p>
-     *
+     * @param primaryRouteId   主索引路由id（路由桶id）
      * @param indexName   索引名称（对应 {@code @Index.name}）
-     * @param primaryKeys 索引键（完整键或左前缀）
+     * @param secondaryKeys 索引键（完整键或左前缀）
      * @return 匹配列表，无数据返回空列表
      */
-    List<Entity> selectList(String indexName, Object... primaryKeys);
+    List<Entity> selectList(long primaryRouteId, String indexName, Object... secondaryKeys);
 
     /**
      * 按主索引键查询列表，结果按 cacheKey 倒序排列。
-     * <p>语义同 {@link #selectList(Object...)}，仅排序方式不同。</p>
-     *
+     * 语义同 {@link #selectList(Object...)}，仅排序方式不同。
      * @param primaryKeys 索引键（完整键或左前缀）
      * @return 倒序匹配列表，无数据返回空列表
      */
@@ -132,117 +116,89 @@ public interface Model<Entity extends BaseEntity> {
 
     /**
      * 按指定索引键查询列表，结果按 cacheKey 倒序排列。
-     * <p>语义同 {@link #selectList(String, Object...)}，仅排序方式不同。</p>
-     *
+     * @param primaryRouteId   主索引路由id（路由桶id）
      * @param indexName   索引名称（对应 {@code @Index.name}）
-     * @param primaryKeys 索引键（完整键或左前缀）
+     * @param secondaryKeys 索引键（完整键或左前缀）
      * @return 倒序匹配列表，无数据返回空列表
      */
-    List<Entity> selectListReverse(String indexName, Object... primaryKeys);
-
+    List<Entity> selectListReverse(long primaryRouteId, String indexName, Object... secondaryKeys);
 
     /**
      * 更新实体（异步持久化）。
-     * <p>
      * 实体须已存在于 JVM 缓存，且传入对象与缓存中为同一引用。
      * 多次 update 同一记录仅标记一次 dirty，flush 时读取 JVM 最新对象。
-     * </p>
-     *
      * @param entity 待更新实体（须为 JVM 缓存中的同一引用）
-     * @throws IllegalStateException 记录不存在或引用不一致时抛出
      */
     void update(Entity entity);
 
     /**
      * 更新实体。
-     *
      * @param entity     待更新实体（须为 JVM 缓存中的同一引用）
      * @param persistNow 是否同步持久化（{@code true} 立即 flush 到 Redis / DB）
-     * @throws IllegalStateException 记录不存在或引用不一致时抛出
      */
     void update(Entity entity, boolean persistNow);
 
     /**
      * 插入新记录（异步持久化）。
-     * <p>记录已存在时抛出异常；写入 JVM 缓存并标记 dirty。</p>
-     *
+     * 记录已存在时记录错误日志并返回；写入 JVM 缓存并标记 dirty。
      * @param entity 待插入实体
-     * @throws IllegalStateException 记录已存在时抛出
      */
     void insert(Entity entity);
 
     /**
      * 插入新记录。
-     *
      * @param entity     待插入实体
      * @param persistNow 是否同步持久化（{@code true} 立即 flush 到 Redis / DB）
-     * @throws IllegalStateException 记录已存在时抛出
      */
     void insert(Entity entity, boolean persistNow);
 
     /**
      * 插入或更新（异步持久化）。
-     * <p>
      * 记录不存在时执行 insert；已存在时执行 update。
      * 存在性判断路径：L1 JVM → L2 Redis → L3 DB，命中后回填上层缓存。
      * update 分支要求传入对象与 JVM 缓存中为同一引用。
-     * </p>
-     *
      * @param entity 待写入实体
-     * @throws IllegalStateException update 时引用不一致时抛出
      */
     void insertOrUpdate(Entity entity);
 
     /**
      * 按实体对象删除（异步持久化）。
-     * <p>
      * 从 JVM 缓存移除记录并标记 DELETE dirty。
      * 若缓存中仍有该记录，传入对象须与缓存中为同一引用。
-     * </p>
-     *
      * @param entity 待删除实体
-     * @throws IllegalStateException 引用不一致时抛出
      */
     void delete(Entity entity);
 
     /**
      * 按实体对象删除。
-     *
      * @param entity     待删除实体
      * @param persistNow 是否同步持久化（{@code true} 立即 flush 到 Redis / DB）
-     * @throws IllegalStateException 引用不一致时抛出
      */
     void delete(Entity entity, boolean persistNow);
 
     /**
      * 按主索引完整键删除单条记录（异步持久化）。
-     * <p>无需传入实体对象，直接从 JVM 缓存移除并标记 DELETE dirty。</p>
-     *
+     * 无需传入实体对象，直接从 JVM 缓存移除并标记 DELETE dirty。
      * @param primaryKeys 主索引完整键
-     * @throws IllegalArgumentException 索引键不完整时抛出
      */
     void deleteOne(Object... primaryKeys);
 
     /**
      * 按主索引完整键删除单条记录。
-     *
      * @param persistNow  是否同步持久化（{@code true} 立即 flush 到 Redis / DB）
      * @param primaryKeys 主索引完整键
-     * @throws IllegalArgumentException 索引键不完整时抛出
      */
     void deleteOne(boolean persistNow, Object... primaryKeys);
 
     /**
      * 按主索引左前缀批量删除（异步持久化）。
-     * <p>删除 JVM 缓存中该前缀下所有匹配记录，并逐条标记 DELETE dirty。</p>
-     *
+     * 删除 JVM 缓存中该前缀下所有匹配记录，并逐条标记 DELETE dirty。
      * @param primaryKeys 索引键（左前缀，至少包含 routeId）
      */
     void deleteAll(Object... primaryKeys);
 
     /**
      * 按指定索引左前缀批量删除（异步持久化）。
-     *
      * @param persistNow   索引名称（对应 {@code @Index.name}）
      * @param primaryKeys 索引键（左前缀，至少包含 routeId）
      */

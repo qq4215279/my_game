@@ -35,7 +35,7 @@ public interface ModelCacheWriter {
      * @param index 索引元数据
      * @param keys  完整索引键
      */
-    void delete(ModelMeta meta, IndexMeta index, Object... keys);
+    void delete(long primaryRouteId, ModelMeta meta, IndexMeta index, Object... keys);
 
     /**
      * 按索引左前缀批量删除

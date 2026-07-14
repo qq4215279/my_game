@@ -9,6 +9,7 @@ import com.mumu.game.core.db.consts.PersistStrategy;
 import com.mumu.game.core.db.core.BaseEntity;
 import com.mumu.game.core.redis.constants.RedisKey;
 import com.mumu.game.core.redis.constants.SerializerType;
+import com.mumu.game.expcetion.ModelArgException;
 
 import lombok.Data;
 import lombok.Getter;
@@ -146,7 +147,7 @@ public final class ModelMeta {
                 return index;
             }
         }
-        throw new IllegalArgumentException("表 " + tableName + " 不存在索引: " + indexName);
+        throw new ModelArgException("表 " + tableName + " 不存在索引: " + indexName);
     }
 
     /** 是否使用 JVM 缓存 */
@@ -191,7 +192,7 @@ public final class ModelMeta {
      */
     public long getRouteId(Object... keys) {
         if (keys == null || keys.length == 0) {
-            throw new IllegalArgumentException("路由键不能为空");
+            throw new ModelArgException("路由键不能为空");
         }
         Object value = keys[0];
         if (value instanceof Number number) {

@@ -1,5 +1,6 @@
 package com.mumu.game.core.db.cache;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +16,11 @@ import com.mumu.game.core.db.meta.ModelMeta;
 import com.mumu.game.core.db.util.EntitySerializer;
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.redis.RedisUtil;
+import com.mumu.game.expcetion.ModelPersistException;
 
 /**
  * RedisModelCache
- * Redis 二级缓存
- *
+ * Redis 二级缓存（共享层，统一使用 {@link BaseEntity}，不做业务泛型）
  * @author liuzhen
  * @version 1.0.0 2026/7/9
  */
@@ -27,21 +28,26 @@ import com.mumu.game.core.redis.RedisUtil;
 public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
 
     /**
-     * 批量加载某个 routeId 的 Redis Hash 桶（preload 使用）
+     * 批量加载某个 primaryRouteId 的 Redis Hash 桶（preload 使用）
+     * @param meta 表元数据
+     * @param clazz 实体类
+     * @param primaryRouteId 主索引路由id（路由桶id）
+     * @return java.util.Map<java.lang.String, com.mumu.game.core.db.core.BaseEntity>
+     * @since 2026/7/14 12:17
      */
-    public <Entity extends BaseEntity> Map<String, Entity> loadRouteBucket(ModelMeta meta, Class<Entity> clazz, long routeId) {
+    public Map<String, BaseEntity> loadRouteBucket(ModelMeta meta, Class<? extends BaseEntity> clazz, long primaryRouteId) {
         if (!meta.hasRedis()) {
             return Collections.emptyMap();
         }
         try {
-            String redisKey = meta.buildRedisKey(routeId);
+            String redisKey = meta.buildRedisKey(primaryRouteId);
             Map<String, String> all = RedisUtil.hmget(redisKey);
             if (all.isEmpty()) {
                 return Collections.emptyMap();
             }
-            Map<String, Entity> result = new HashMap<>(all.size());
+            Map<String, BaseEntity> result = new HashMap<>(all.size());
             for (Map.Entry<String, String> entry : all.entrySet()) {
-                Entity entity = EntitySerializer.deserialize(meta, entry.getValue(), clazz);
+                BaseEntity entity = EntitySerializer.deserialize(meta, entry.getValue(), clazz);
                 if (entity != null) {
                     entity.marshal();
                     result.put(entry.getKey(), entity);
@@ -49,20 +55,20 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
             }
             return result;
         } catch (Exception e) {
-            LogTopic.MODEL.error(e, "redisLoadRoute", "table", meta.getTableName(), "routeId", routeId);
+            LogTopic.MODEL.error(e, "redisLoadRouteBucket", "table", meta.getTableName(), "routeId", primaryRouteId);
             return Collections.emptyMap();
         }
     }
 
     @Override
-    public <T extends BaseEntity> T getOne(ModelMeta meta, IndexMeta index, Class<T> clazz, Object... keys) {
+    public BaseEntity getOne(long primaryRouteId, ModelMeta meta, IndexMeta index, Object... keys) {
         if (!meta.hasRedis() || !index.isFullKey(keys)) {
             return null;
         }
         // 非主索引
         if (!index.isPrimary()) {
             LogTopic.MODEL.error("redisGetOne", "非主索引无法从redis中查询", "table", meta.getTableName(), "index",
-                    index.getName());
+                    index.getName(), "routeId", primaryRouteId);
             return null;
         }
 
@@ -74,26 +80,26 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
             if (json == null) {
                 return null;
             }
-            T entity = EntitySerializer.deserialize(meta, json, clazz);
+            BaseEntity entity = EntitySerializer.deserialize(meta, json, entityClass(meta));
             if (entity != null) {
                 entity.marshal();
             }
             return entity;
         } catch (Exception e) {
-            LogTopic.MODEL.error(e, "redisGet", "table", meta.getTableName(), "index", index.getName());
+            LogTopic.MODEL.error(e, "redisGet", "table", meta.getTableName(), "index", index.getName(), "routeId", primaryRouteId);
             return null;
         }
     }
 
     @Override
-    public <T extends BaseEntity> List<T> getList(ModelMeta meta, IndexMeta index, Class<T> clazz, Object... keys) {
+    public List<BaseEntity> getList(long primaryRouteId, ModelMeta meta, IndexMeta index, Object... keys) {
         if (!meta.hasRedis()) {
             return Collections.emptyList();
         }
         // 非主索引
         if (!index.isPrimary()) {
             LogTopic.MODEL.error("redisGetList", "非主索引无法从redis中查询", "table", meta.getTableName(), "index",
-                    index.getName());
+                    index.getName(), "routeId", primaryRouteId);
             return Collections.emptyList();
         }
 
@@ -104,20 +110,22 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
             if (all.isEmpty()) {
                 return Collections.emptyList();
             }
-            Map<String, T> matched = new HashMap<>();
+
+            Class<? extends BaseEntity> clazz = entityClass(meta);
+            List<BaseEntity> matched = new ArrayList<>();
             for (Map.Entry<String, String> entry : all.entrySet()) {
-                T entity = EntitySerializer.deserialize(meta, entry.getValue(), clazz);
+                BaseEntity entity = EntitySerializer.deserialize(meta, entry.getValue(), clazz);
                 if (entity == null) {
                     continue;
                 }
                 entity.marshal();
                 if (index.matchPrefix(entity, keys)) {
-                    matched.put(entry.getKey(), entity);
+                    matched.add(entity);
                 }
             }
-            return List.copyOf(matched.values());
+            return matched;
         } catch (Exception e) {
-            LogTopic.MODEL.error(e, "redisGetList", "table", meta.getTableName(), "index", index.getName());
+            LogTopic.MODEL.error(e, "redisGetList", "table", meta.getTableName(), "index", index.getName(), "routeId", primaryRouteId);
             return Collections.emptyList();
         }
     }
@@ -127,25 +135,28 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
         if (!meta.hasRedis()) {
             return;
         }
+        long routeId = 0L;
         try {
             entity.unmarshal();
-            long routeId = entity.getPrimaryRouteId();
+            routeId = entity.getPrimaryRouteId();
             String redisKey = meta.buildRedisKey(routeId);
             String hashField = meta.buildHashField(entity, meta.getPrimaryIndex());
             String json = EntitySerializer.serialize(meta, entity);
             boolean success = RedisUtil.hset(redisKey, hashField, json, meta.getExpire());
             if (!success) {
-                LogTopic.MODEL.error("redisSaveFail", "table", meta.getTableName(), "key", redisKey, "field", hashField);
+                LogTopic.MODEL.error("redisSaveFail", "table", meta.getTableName(), "routeId", routeId, "key", redisKey,
+                        "field", hashField);
             }
         } catch (Exception e) {
-            LogTopic.MODEL.error(e, "redisSave", "table", meta.getTableName());
-            throw new IllegalStateException("Redis 写入失败: " + meta.getTableName(), e);
+            LogTopic.MODEL.error(e, "redisSave", "table", meta.getTableName(), "routeId", routeId);
+            throw new ModelPersistException("Redis 写入失败: " + meta.getTableName(), e);
         }
     }
 
     /**
      * 批量保存到 Redis（同一 routeId 桶一次 hmset）
      */
+    @Override
     public void saveBatch(ModelMeta meta, List<? extends BaseEntity> entities) {
         if (!meta.hasRedis() || entities == null || entities.isEmpty()) {
             return;
@@ -172,18 +183,18 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
             }
         } catch (Exception e) {
             LogTopic.MODEL.error(e, "redisSaveBatch", "table", meta.getTableName());
-            throw new IllegalStateException("Redis 批量写入失败: " + meta.getTableName(), e);
+            throw new ModelPersistException("Redis 批量写入失败: " + meta.getTableName(), e);
         }
     }
 
     @Override
-    public void delete(ModelMeta meta, IndexMeta index, Object... keys) {
+    public void delete(long primaryRouteId, ModelMeta meta, IndexMeta index, Object... keys) {
         if (!meta.hasRedis() || !index.isFullKey(keys)) {
             return;
         }
         // 仅支持主索引完整键删除（Redis Hash Field 按主索引构建）
         if (!index.isPrimary()) {
-            LogTopic.MODEL.error("redisDelete", "仅支持主索引删除", "table", meta.getTableName(), "index", index.getName());
+            LogTopic.MODEL.error("redisDelete", "仅支持主索引删除", "table", meta.getTableName(), "routeId", primaryRouteId, "index", index.getName());
             return;
         }
 
@@ -193,8 +204,8 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
             String hashField = meta.buildHashField(index, keys);
             RedisUtil.hdel(redisKey, hashField);
         } catch (Exception e) {
-            LogTopic.MODEL.error(e, "redisDelete", "table", meta.getTableName(), "index", index.getName());
-            throw new IllegalStateException("Redis 删除失败: " + meta.getTableName(), e);
+            LogTopic.MODEL.error(e, "redisDelete", "table", meta.getTableName(), "index", index.getName(), "routeId", primaryRouteId);
+            throw new ModelPersistException("Redis 删除失败: " + meta.getTableName(), e);
         }
     }
 
@@ -230,7 +241,7 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
             }
         } catch (Exception e) {
             LogTopic.MODEL.error(e, "redisDeleteByPrefix", "table", meta.getTableName(), "index", index.getName());
-            throw new IllegalStateException("Redis 批量删除失败: " + meta.getTableName(), e);
+            throw new ModelPersistException("Redis 批量删除失败: " + meta.getTableName(), e);
         }
     }
 
@@ -270,5 +281,12 @@ public class RedisModelCache implements ModelCacheReader, ModelCacheWriter {
             }
         }
         return true;
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    private Class<? extends BaseEntity> entityClass(ModelMeta meta) {
+        return (Class<? extends BaseEntity>) meta.getEntityClass();
     }
 }

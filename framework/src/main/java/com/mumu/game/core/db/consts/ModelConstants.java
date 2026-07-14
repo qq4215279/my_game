@@ -7,10 +7,10 @@ package com.mumu.game.core.db.consts;
  * @version 1.0.0 2026/6/21 14:19
  */
 public interface ModelConstants {
-    /** 默认缓存天数 */
-    int CACHE_DAY = 7;
+    /** 默认缓存天数（JVM route 桶 expireAfterAccess） */
+    int CACHE_DAY = 1;
 
-    /** 默认保留缓存大小 */
+    /** 默认 route 桶数量上限（JVM Guava Cache maximumSize） */
     int CACHE_SIZE = 200000;
 
     /** 批量同步比例 */

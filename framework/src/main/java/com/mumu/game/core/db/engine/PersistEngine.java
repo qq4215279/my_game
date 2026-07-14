@@ -3,7 +3,6 @@ package com.mumu.game.core.db.engine;
 import java.util.Collection;
 import java.util.List;
 
-import com.mumu.game.core.db.cache.inf.ModelCacheReader;
 import com.mumu.game.core.db.core.BaseEntity;
 import com.mumu.game.core.db.meta.IndexMeta;
 import com.mumu.game.core.db.meta.ModelMeta;
