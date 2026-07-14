@@ -1,4 +1,4 @@
-package com.mumu.game.core.db.pool;
+package com.mumu.game.core.db.lifecycle;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**

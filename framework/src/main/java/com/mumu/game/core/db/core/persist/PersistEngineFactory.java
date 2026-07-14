@@ -1,4 +1,4 @@
-package com.mumu.game.core.db.engine;
+package com.mumu.game.core.db.core.persist;
 
 import java.util.HashMap;
 import java.util.List;
@@ -7,8 +7,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.mumu.game.core.db.engine.mongo.MongoPersistEngine;
-import com.mumu.game.core.db.meta.ModelMeta;
+import com.mumu.game.core.db.core.persist.mongo.MongoPersistEngine;
+import com.mumu.game.core.db.core.meta.ModelMeta;
 
 /**
  * PersistEngineFactory

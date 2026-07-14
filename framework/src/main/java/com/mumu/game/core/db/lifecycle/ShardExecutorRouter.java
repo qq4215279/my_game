@@ -1,11 +1,10 @@
-package com.mumu.game.core.db.pool;
+package com.mumu.game.core.db.lifecycle;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.mumu.game.core.thread.ThreadPoolRouter;

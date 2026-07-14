@@ -1,8 +1,8 @@
-package com.mumu.game.core.db.cache.inf;
+package com.mumu.game.core.db.core.inf;
 
 import com.mumu.game.core.db.core.BaseEntity;
-import com.mumu.game.core.db.meta.IndexMeta;
-import com.mumu.game.core.db.meta.ModelMeta;
+import com.mumu.game.core.db.core.meta.IndexMeta;
+import com.mumu.game.core.db.core.meta.ModelMeta;
 
 import java.util.List;
 

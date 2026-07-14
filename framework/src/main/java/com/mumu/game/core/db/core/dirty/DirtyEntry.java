@@ -1,4 +1,4 @@
-package com.mumu.game.core.db.dirty;
+package com.mumu.game.core.db.core.dirty;
 
 import com.mumu.game.core.db.consts.PersistOp;
 

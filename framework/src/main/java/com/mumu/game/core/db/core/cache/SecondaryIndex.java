@@ -1,4 +1,4 @@
-package com.mumu.game.core.db.cache;
+package com.mumu.game.core.db.core.cache;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,13 +11,12 @@ import com.mumu.game.core.db.core.BaseEntity;
 /**
  * SecondaryIndex
  * 路由桶内非主索引（空间换时间，完整键 O(1)，左前缀扫索引 key）
- * <p>只存实体引用，不拷贝对象</p>
- *
+ * 只存实体引用，不拷贝对象
  * @author liuzhen
  * @version 1.0.0 2026/7/13
  */
 final class SecondaryIndex<Entity extends BaseEntity> {
-
+    /** 唯一索引 */
     private final boolean unique;
     /** 唯一索引：indexKey → entity */
     private final Map<String, Entity> uniqueMap;
@@ -26,7 +25,7 @@ final class SecondaryIndex<Entity extends BaseEntity> {
 
     SecondaryIndex(boolean unique) {
         this.unique = unique;
-        if (unique) {
+        if (this.unique) {
             this.uniqueMap = new HashMap<>();
             this.multiMap = null;
         } else {

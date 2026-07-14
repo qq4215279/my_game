@@ -1,12 +1,11 @@
 package com.mumu.game.core.db.lifecycle;
 
+import com.mumu.game.core.db.bootstrap.ModelRegistry;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import com.mumu.game.core.db.core.BaseModel;
-import com.mumu.game.core.db.meta.ModelMeta;
-import com.mumu.game.core.db.meta.ModelRegistry;
-import com.mumu.game.core.db.pool.ShardExecutorRouter;
+import com.mumu.game.core.db.core.meta.ModelMeta;
 import com.mumu.game.core.log.LogTopic;
 
 /**

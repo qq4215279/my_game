@@ -1,4 +1,4 @@
-package com.mumu.game.core.db.meta;
+package com.mumu.game.core.db.core.meta;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,11 +7,11 @@ import java.util.List;
 import com.mumu.game.core.db.anno.ModelTable;
 import com.mumu.game.core.db.consts.PersistStrategy;
 import com.mumu.game.core.db.core.BaseEntity;
+import com.mumu.game.core.db.util.ReflectFieldUtil;
 import com.mumu.game.core.redis.constants.RedisKey;
 import com.mumu.game.core.redis.constants.SerializerType;
 import com.mumu.game.expcetion.ModelArgException;
 
-import lombok.Data;
 import lombok.Getter;
 
 /**
@@ -45,16 +45,11 @@ public final class ModelMeta {
     private final String comment;
     /** 持久化策略（JVM / REDIS / DB / REDIS_DB） */
     private final PersistStrategy persistStrategy;
-
-
-    /** 全部索引（第一个为主索引） */
-    // private final List<IndexMeta> indexes;
+    // 索引信息
     /** 主索引（indexes[0]，必须唯一） */
     private final IndexMeta primaryIndex;
     /** 非主索引列表（启动期从 indexes 过滤，JVM 副索引维护用） */
     private final List<IndexMeta> secondaryIndexes;
-
-
     /** 路由字段名（主索引第一个字段） 用于：业务线程路由、Redis MANY 模式分桶、dirty 重试路由 */
     private final String routeField;
     /** 主索引是否仅由一个字段构成（决定 Redis ONE / MANY 模式） */
@@ -76,13 +71,12 @@ public final class ModelMeta {
 
 
     private ModelMeta(Builder builder) {
-        this.entityClass = builder.domainClass;
+        this.entityClass = builder.entityClass;
         this.tableName = builder.tableName;
         this.comment = builder.comment;
         this.persistStrategy = builder.persistStrategy;
 
         // 索引信息
-        // this.indexes = Collections.unmodifiableList(builder.indexes);
         // 主索引
         List<IndexMeta> indexes = Collections.unmodifiableList(builder.indexes);
         this.primaryIndex = builder.indexes.getFirst();
@@ -108,14 +102,13 @@ public final class ModelMeta {
 
     /**
      * 从实体类与注解解析表元数据
-     *
      * @param domainClass   实体类
      * @param table         @ModelTable 注解
      * @param persistEngine 持久化引擎名
      */
     public static ModelMeta parse(Class<?> domainClass, ModelTable table, String persistEngine) {
         Builder builder = new Builder();
-        builder.domainClass = domainClass;
+        builder.entityClass = domainClass;
         builder.tableName = table.name();
         builder.comment = table.comment();
         builder.persistStrategy = table.persistStrategy();
@@ -181,13 +174,6 @@ public final class ModelMeta {
     }
 
     /**
-     * 从实体提取路由分片 id（走 {@link BaseEntity#getPrimaryRouteId()}，无反射）
-     */
-    public long getRouteId(BaseEntity entity) {
-        return entity.getPrimaryRouteId();
-    }
-
-    /**
      * 从查询键提取路由分片 id（取 keys 第一个值）
      */
     public long getRouteId(Object... keys) {
@@ -203,17 +189,17 @@ public final class ModelMeta {
 
     /**
      * 构建 Redis Hash Key
-     * <p>单字段主键：model:{tableName}；复合主键：model:{tableName}:{routeId}</p>
+     * <p>单字段主键：model:{tableName}；复合主键：model:{tableName}:{primaryRouteId}</p>
      */
-    public String buildRedisKey(long routeId) {
+    public String buildRedisKey(long primaryRouteId) {
         if (singleFieldPrimary) {
             return RedisKey.AUTO_MODEL_CACHE_ONE.buildKey(tableName);
         }
-        return RedisKey.AUTO_MODEL_CACHE_MANY.buildKey(tableName, routeId);
+        return RedisKey.AUTO_MODEL_CACHE_MANY.buildKey(tableName, primaryRouteId);
     }
 
     public String buildRedisKey(BaseEntity entity) {
-        return buildRedisKey(getRouteId(entity));
+        return buildRedisKey(entity.getPrimaryRouteId());
     }
 
     /**
@@ -270,9 +256,12 @@ public final class ModelMeta {
         return tableName + ':' + index.getName() + ':' + index.buildKeyString(keys);
     }
 
-    /** 内部构建器，build 前执行 {@link ModelMetaValidator} 校验 */
+
+
+
+    /** 内部构建器，build  */
     private static final class Builder {
-        private Class<?> domainClass;
+        private Class<?> entityClass;
         private String tableName;
         private String comment;
         private PersistStrategy persistStrategy;
@@ -285,9 +274,38 @@ public final class ModelMeta {
         private String persistEngine;
         private boolean skipThreadCheck;
 
+        /** 构建模型元数据 */
         private ModelMeta build() {
-            ModelMetaValidator.validate(this.domainClass, this.indexes);
+            // 1. 校验
+            validate(this.entityClass, this.indexes);
+            // 2. 创建
             return new ModelMeta(this);
+        }
+
+        /** 模型元数据启动校验 */
+        private void validate(Class<?> domainClass, List<IndexMeta> indexes) {
+            if (!BaseEntity.class.isAssignableFrom(domainClass)) {
+                throw new IllegalStateException("实体 " + domainClass.getSimpleName() + " 必须继承 BaseEntity");
+            }
+            if (indexes == null || indexes.isEmpty()) {
+                throw new IllegalStateException("实体 " + domainClass.getSimpleName() + " 未定义 @ModelTable.indexes");
+            }
+            IndexMeta primary = indexes.get(0);
+            if (!primary.isUnique()) {
+                throw new IllegalStateException(
+                        "实体 " + domainClass.getSimpleName() + " 第一个索引必须是唯一索引: " + primary.getName());
+            }
+            if (!primary.isPrimary()) {
+                throw new IllegalStateException("实体 " + domainClass.getSimpleName() + " 第一个索引必须标记为主索引");
+            }
+            for (IndexMeta index : indexes) {
+                for (String field : index.getFields()) {
+                    if (!ReflectFieldUtil.hasField(domainClass, field)) {
+                        throw new IllegalStateException(
+                                "实体 " + domainClass.getSimpleName() + " 索引字段不存在: " + field);
+                    }
+                }
+            }
         }
     }
 }

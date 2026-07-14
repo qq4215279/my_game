@@ -1,6 +1,6 @@
 package com.mumu.game.core.db.core;
 
-import com.mumu.game.core.db.meta.ModelMeta;
+import com.mumu.game.core.db.core.meta.ModelMeta;
 
 /**
  * ModelHook

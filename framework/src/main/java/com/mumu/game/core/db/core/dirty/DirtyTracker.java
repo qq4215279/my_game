@@ -1,4 +1,4 @@
-package com.mumu.game.core.db.dirty;
+package com.mumu.game.core.db.core.dirty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,6 @@ import com.mumu.game.core.db.consts.PersistOp;
  */
 @Component
 public class DirtyTracker {
-
     /** tableName -> cacheKey -> entry */
     private final Map<String, Map<String, DirtyEntry>> dirtyMap = new ConcurrentHashMap<>();
 

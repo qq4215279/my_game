@@ -1,4 +1,4 @@
-package com.mumu.game.core.db.meta;
+package com.mumu.game.core.db.bootstrap;
 
 import java.util.Collection;
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.mumu.game.core.db.core.BaseEntity;
 import com.mumu.game.core.db.core.BaseModel;
+import com.mumu.game.core.db.core.meta.ModelMeta;
 
 /**
  * ModelRegistry
@@ -19,10 +20,8 @@ public final class ModelRegistry {
 
     /** 实体类 -> 表元数据 */
     private static final Map<Class<?>, ModelMeta> DOMAIN_META = new ConcurrentHashMap<>();
-
     /** 实体类 -> Model 实例 */
     private static final Map<Class<?>, BaseModel<?>> DOMAIN_MODEL = new ConcurrentHashMap<>();
-
     /** 表名 -> 表元数据 */
     private static final Map<String, ModelMeta> TABLE_META = new ConcurrentHashMap<>();
 

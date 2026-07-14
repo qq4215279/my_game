@@ -1,6 +1,6 @@
 package com.mumu.game.core.db.util;
 
-import com.mumu.game.core.db.meta.ModelMeta;
+import com.mumu.game.core.db.core.meta.ModelMeta;
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.redis.constants.SerializerType;
 import com.mumu.game.utils.JsonUtil;

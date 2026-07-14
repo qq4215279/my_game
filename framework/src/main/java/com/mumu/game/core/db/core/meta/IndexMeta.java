@@ -1,4 +1,4 @@
-package com.mumu.game.core.db.meta;
+package com.mumu.game.core.db.core.meta;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;

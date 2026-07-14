@@ -3,7 +3,7 @@ package com.mumu.game.core.db.util;
 import org.springframework.stereotype.Component;
 
 import com.mumu.game.core.db.config.DbPersistProperties;
-import com.mumu.game.core.db.meta.ModelMeta;
+import com.mumu.game.core.db.core.meta.ModelMeta;
 import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.core.thread.ThreadPoolRouter;
 
