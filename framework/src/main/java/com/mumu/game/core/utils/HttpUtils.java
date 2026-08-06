@@ -11,7 +11,7 @@ import com.mumu.game.core.log.LogTopic;
 import com.mumu.game.http.HttpResult;
 import com.mumu.game.utils.JsonUtil;
 
-/** http请求工具类 @Date: 2024/8/12 20:21 @Author: xu.hai */
+/** http请求工具类 @Date: 2024/8/12 20:21  */
 public class HttpUtils {
   public static ThreadPoolExecutor executor =
       ThreadPoolUtil.newExecutor(ThreadConstants.THREAD_PREFIX_HTTP, 8, 16, 30000, 1000);

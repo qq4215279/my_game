@@ -2,7 +2,7 @@ package com.mumu.game.core.lock;
 
 import java.util.concurrent.TimeUnit;
 
-/** 锁对象 @Date: 2025/7/16 下午3:35 @Author: xu.hai */
+/** 锁对象 @Date: 2025/7/16 下午3:35  */
 public enum Locker {
   /** 转盘抽奖 */
   TURNTABLE_DRAW_LOCK,

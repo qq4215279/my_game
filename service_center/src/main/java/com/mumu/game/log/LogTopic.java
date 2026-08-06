@@ -1,0 +1,190 @@
+/*
+ * Copyright 2020-2026, mumu without 996.
+ * All Right Reserved.
+ */
+
+package com.mumu.game.log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.mumu.game.constants.Symbol;
+
+import cn.hutool.core.util.ArrayUtil;
+
+/**
+ * LogTopic
+ * log 日志主题类别
+ * @author liuzhen
+ * @version 1.0.0 2025/3/16 15:09
+ */
+public enum LogTopic {
+    /** 通用日志 */
+    ACTION,
+    /** 充值相关 */
+    CHARGE,
+    ;
+
+    /** 普通日志 */
+    private static final String PATTERN = "{}";
+
+    /** 玩家维度日志 */
+    private static final String PATTERN_PLAYER =
+            "{}#playerId#{}#gameId#{}#roomId#{}#tableId#{}#seatId#{}#gold#{}#diamond#{}";
+
+    /** 玩家ID维度日志 */
+    private static final String PATTERN_PLAYER_ID = "{}#playerId#{}";
+
+    /** 日志对象 */
+    private final Logger log;
+
+    LogTopic() {
+        this.log = LoggerFactory.getLogger(this.name());
+    }
+
+    /**
+     * 异常行为日志
+     */
+    public void error(Throwable e, String action, Object... extras) {
+        log.error(getStatisticsKey(PATTERN, extras), action, e);
+    }
+
+    /**
+     * 异常行为日志
+     */
+    public void error(String action, Object... extras) {
+        log.error(getStatisticsKey(PATTERN, extras), action);
+    }
+
+    /**
+     * 警告行为日志
+     */
+    public void warn(String action, Object... extras) {
+        log.warn(getStatisticsKey(PATTERN, extras), action);
+    }
+
+
+    /**
+     * 警告行为日志（玩家维度）
+     */
+    public void warn(long playerId, String action, Object... args) {
+        // Player player = PlayerManager.self().getPlayerOrNullable(playerId);
+        /*// TODO
+        Player player = new Player();
+        if (player != null) {
+            warn(player, action, args);
+        } else {
+            log.warn(getStatisticsKey(PATTERN_PLAYER_ID, args), action, playerId);
+        }*/
+        log.warn(getStatisticsKey(PATTERN_PLAYER_ID, args), action, playerId);
+    }
+
+    /**
+     * 普通日志（玩家维度）
+     */
+    public void info(long playerId, String action, Object... args) {
+        // Player player = PlayerManager.self().getPlayerOrNullable(playerId);
+        // TODO
+        /*Player player = new Player();
+        if (player != null) {
+            info(player, action, args);
+        } else {
+            log.info(getStatisticsKey(PATTERN_PLAYER_ID, args), action, playerId);
+        }*/
+        log.info(getStatisticsKey(PATTERN_PLAYER_ID, args), action, playerId);
+    }
+
+    /**
+     * 普通日志（玩家维度）
+     */
+    /*public void info(Player player, String action, Object... args) {
+        log.info(
+                getStatisticsKey(PATTERN_PLAYER, args),
+                action,
+                player.getPlayerId()
+                // player.getGameId(),
+                // player.getRoomId(),
+                // player.getTableId(),
+                // player.getSeatId(),
+                // player.getGold(),
+                // player.getDiamond()
+        );
+    }*/
+
+    /**
+     * 普通日志
+     */
+    public void info(String action, Object... args) {
+        log.info(getStatisticsKey(PATTERN, args), action);
+    }
+
+    /** 普通日志（模块开关控制） */
+    // public void debug(LogSwitch switchEnum, String action, Object... args) {
+    //   if (switchEnum.getBool()) info(action, args);
+    // }
+
+    /**
+     * 普通日志（玩家开关控制）
+     */
+    public void debug(long playerId, String action, Object... args) {
+        // TODO
+        // if (LogSwitch.isDebug(playerId)) info(playerId, action, args);
+    }
+
+    /**
+     * 普通日志（玩家开关控制）
+     */
+    // public void debug(Player player, String action, Object... args) {
+    //     debug(player.getPlayerId(), action, args);
+    // }
+
+    /** 普通日志（模块开关 || 玩家开关） */
+    // public void debug(long playerId, LogSwitch switchEnum, String action, Object... args) {
+    //   if (switchEnum.getBool() || LogSwitch.isDebug(playerId)) info(playerId, action, args);
+    // }
+
+    /** 普通日志（模块开关 || 玩家开关） */
+    // public void debug(Player player, LogSwitch switchEnum, String action, Object... args) {
+    //   debug(player.getId(), switchEnum, action, args);
+    // }
+
+    /**
+     * 拼接日志kv参数
+     */
+    public static String getStatisticsKey(String statistics, Object... extras) {
+        return statistics + join(extras);
+    }
+
+    public static String join(Object... extras) {
+        StringBuilder sb = new StringBuilder();
+        for (Object param : extras) {
+            sb.append(Symbol.SPLIT_NUMBER)
+                    .append(ArrayUtil.isArray(param) ? ArrayUtil.toString(param) : param);
+        }
+        return sb.toString();
+    }
+
+    /** 获取堆栈信息日志 */
+    /**
+     * 目的：获取线程的调用堆栈信息
+     * 输入：一个线程对象
+     * 输出：堆栈跟踪字符串（String）
+     * 场景：记录代码执行路径，用于调试和追踪调用来源 
+     * @return java.lang.String
+     * @author liuzhen
+     * @date 2026/5/26 16:38
+     */
+    public static String getStackTrace() {
+        return getStackTrace(Thread.currentThread());
+    }
+
+    /** 获取指定线程堆栈信息日志 */
+    public static String getStackTrace(Thread thread) {
+        StringBuilder sb = new StringBuilder();
+        StackTraceElement[] stackTrace = thread.getStackTrace();
+        for (int i = 3; i < stackTrace.length; i++) {
+            sb.append(Symbol.NEW_LINE_TAB).append(stackTrace[i]);
+        }
+        return sb.toString();
+    }
+}

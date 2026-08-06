@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.mumu.game.core.utils.CovertUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;
@@ -407,6 +408,7 @@ public class RedisUtil {
     public static void batchHSet(String key, Map<String, String> map, int eachCount) {
         CovertUtil.partition(map, eachCount).forEach(eachMap -> hmset(key, eachMap));
     }
+
 
     /**
      * HashSet

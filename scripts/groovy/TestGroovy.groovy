@@ -4,7 +4,7 @@ import com.game.groovy.IGroovyExecutor
 
 /**
  * @since 2024/12/18 下午8:17
- * @Author: xu.hai
+ * 
  */
 class TestGroovy implements IGroovyExecutor {
 

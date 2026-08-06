@@ -6,6 +6,12 @@
 package com.mumu.game.core.cmd.enums;
 
 import com.mumu.game.core.net.consts.ServiceType;
+import com.mumu.game.proto.charge.CWChargeByFakeMessage;
+import com.mumu.game.proto.charge.CWCreateOrderMessage;
+import com.mumu.game.proto.charge.CWGetOrderInfoMessage;
+import com.mumu.game.proto.charge.WCChargeByFakeMessage;
+import com.mumu.game.proto.charge.WCCreateOrderMessage;
+import com.mumu.game.proto.charge.WCGetOrderInfoMessage;
 import com.mumu.game.proto.message.gate.core.ConnectConfirmMsgCE;
 import com.mumu.game.proto.message.gate.core.ConnectConfirmMsgEC;
 import com.mumu.game.proto.message.gate.core.HeartbeatMsgCE;
@@ -15,6 +21,15 @@ import com.mumu.game.proto.message.server.ReconnectServerMsgEA;
 import com.mumu.game.proto.message.system.message.GameMessageHeader;
 import com.mumu.game.proto.message.system.message.MessageTypeEnum;
 
+import com.mumu.game.proto.shop.CWBuyShopGoodsMessage;
+import com.mumu.game.proto.shop.CWGetShopGoodsByGoodsIdMessage;
+import com.mumu.game.proto.shop.CWGetShopGoodsByTypeMessage;
+import com.mumu.game.proto.shop.CWGetShopGoodsMessage;
+import com.mumu.game.proto.shop.OnPushPopGoodsMessage;
+import com.mumu.game.proto.shop.WCBuyShopGoodsMessage;
+import com.mumu.game.proto.shop.WCGetShopGoodsByGoodsIdMessage;
+import com.mumu.game.proto.shop.WCGetShopGoodsByTypeMessage;
+import com.mumu.game.proto.shop.WCGetShopGoodsMessage;
 import lombok.Getter;
 
 /**
@@ -39,8 +54,30 @@ public enum Cmd implements ICmd {
     /** 连接验证消息 */
     ConnectConfirmMsg(ServiceType.GATEWAY, ConnectConfirmMsgCE.class, ConnectConfirmMsgEC.class),
     /** 连接服务器 */
-    ReconnectServerMsg(ServiceType.ALL, ReconnectServerMsgEA.class, ReconnectServerMsgAE.class)
+    ReconnectServerMsg(ServiceType.ALL, ReconnectServerMsgEA.class, ReconnectServerMsgAE.class),
 
+
+    // --------------------- 玩家商城相关 ------------------------
+    /** 请求商品信息列表 */
+    CWGetShopGoods(ServiceType.WORLD, CWGetShopGoodsMessage.class, WCGetShopGoodsMessage.class),
+    /** 请求商品信息列表ByType */
+    CWGetShopGoodsByType(ServiceType.WORLD, CWGetShopGoodsByTypeMessage.class, WCGetShopGoodsByTypeMessage.class),
+    /** 请求商品信息 */
+    CWGetShopGoodsByGoodsId(ServiceType.WORLD, CWGetShopGoodsByGoodsIdMessage.class, WCGetShopGoodsByGoodsIdMessage.class),
+    /** 请求购买商品 */
+    CWBuyShopGoods(ServiceType.WORLD, CWBuyShopGoodsMessage.class, WCBuyShopGoodsMessage.class),
+    // /** 请求发送推送弹窗礼包 */
+    // AWSendOnPushPopGoods(AWSendOnPushPopGoodsMessage.class),
+    /** 推送弹窗礼包 */
+    OnPushPopGoods(ServiceType.WORLD, null, OnPushPopGoodsMessage.class),
+
+    // --------------------- 玩家充值相关 ------------------------
+    /** 请求创建订单 */
+    CWCreateOrder(ServiceType.WORLD, CWCreateOrderMessage.class, WCCreateOrderMessage.class),
+    /** 请求查询订单信息 */
+    CWGetOrderInfo(ServiceType.WORLD, CWGetOrderInfoMessage.class, WCGetOrderInfoMessage.class),
+    /** 请求假购 */
+    CWChargeByFake(ServiceType.WORLD, CWChargeByFakeMessage.class, WCChargeByFakeMessage.class),
     ;
 
     /** 消息所属服务id组 */
