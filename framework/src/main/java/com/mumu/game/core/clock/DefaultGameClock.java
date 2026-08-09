@@ -237,7 +237,7 @@ public class DefaultGameClock implements GameClock {
 
     /** 校验当前进程是否允许修改时间 */
     private void checkMutationAllowed() {
-        if (SystemSwitch.GM.notGM()) {
+        if (SystemSwitch.notGM()) {
             throw new IllegalStateException("游戏时间GM修改开关未开启");
         }
     }

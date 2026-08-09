@@ -7,6 +7,7 @@ package com.mumu.game.core.clock.controller;
 
 import java.util.function.Supplier;
 
+import com.mumu.game.business.system.luban.SystemSwitch;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +45,7 @@ public class GameClockController {
     @GetMapping("/game")
     public HttpResult getGameTime() {
         return HttpResult.success()
-            .add("gmEnabled", gameClock.isGmEnabled())
+            .add("gmEnabled", SystemSwitch.isGM())
             .add("clock", gameClock.gameSnapshot());
     }
 
