@@ -39,6 +39,23 @@ public class GameClockController {
     private GameClock gameClock;
 
     /**
+     * 获取当前系统时间、游戏时间和指定玩家时间
+     * @param playerId 玩家ID
+     * @return HTTP响应
+     */
+    @GetMapping("/current/{playerId}")
+    public HttpResult getCurrentTime(@PathVariable long playerId) {
+        if (playerId <= 0L) {
+            return HttpResult.error("玩家ID必须大于0");
+        }
+        return HttpResult.success()
+                .add("playerId", playerId)
+                .add("systemTime", gameClock.systemTimeMillis())
+                .add("gameTime", gameClock.gameTimeMillis())
+                .add("playerTime", gameClock.playerTimeMillis(playerId));
+    }
+
+    /**
      * 获取游戏时间
      * @return HTTP响应
      */

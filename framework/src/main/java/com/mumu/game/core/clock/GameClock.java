@@ -18,7 +18,7 @@ import com.mumu.game.core.clock.vo.ClockInfoVO;
 public interface GameClock {
 
     /**
-     * 获取系统时间
+     * 获取系统时间（真实时间）
      * @return 系统时间戳
      */
     long systemTimeMillis();

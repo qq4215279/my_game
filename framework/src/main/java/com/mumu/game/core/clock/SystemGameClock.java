@@ -10,7 +10,7 @@ import com.mumu.game.core.clock.consts.ClockSource;
 
 /**
  * SystemGameClock
- * 仅使用系统时间的只读实现，主要用于脱离Spring容器的测试场景
+ * 仅使用系统时间的只读实现
  * @author liuzhen
  * @version 1.0.0 2026/8/9 16:00
  */

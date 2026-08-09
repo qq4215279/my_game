@@ -6,6 +6,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -16,6 +18,7 @@ import com.mumu.game.core.clock.consts.ClockSource;
 import com.mumu.game.core.clock.event.GameClockChangedEvent;
 import com.mumu.game.core.clock.event.PlayerClockChangedEvent;
 import com.mumu.game.core.utils.SpringContextUtils;
+import com.mumu.game.business.system.luban.SystemSwitch;
 
 /**
  * DefaultGameClockTest
@@ -84,9 +87,12 @@ public class DefaultGameClockTest {
         GameClockProperties properties = new GameClockProperties();
         DefaultGameClock disabledClock = new DefaultGameClock(properties, systemClock);
 
-        IllegalStateException error = Assert.expectThrows(IllegalStateException.class,
-            () -> disabledClock.setGameTime(5_000L, "不允许的修改"));
-        Assert.assertTrue(error.getMessage().contains("未开启"));
+        try (MockedStatic<SystemSwitch> systemSwitch = Mockito.mockStatic(SystemSwitch.class)) {
+            systemSwitch.when(SystemSwitch::notGM).thenReturn(true);
+            IllegalStateException error = Assert.expectThrows(IllegalStateException.class,
+                () -> disabledClock.setGameTime(5_000L, "不允许的修改"));
+            Assert.assertTrue(error.getMessage().contains("未开启"));
+        }
     }
 
     /**

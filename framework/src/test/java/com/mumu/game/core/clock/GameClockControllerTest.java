@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.mumu.game.business.system.luban.SystemSwitch;
 import com.mumu.game.core.clock.vo.ClockInfoVO;
 import com.mumu.game.core.clock.consts.ClockSource;
 import com.mumu.game.core.clock.controller.GameClockController;
@@ -46,13 +47,12 @@ public class GameClockControllerTest {
     @Test
     public void gameEndpoints_queryAndUpdateGameTime() throws Exception {
         ClockInfoVO snapshot = snapshot(null, ClockSource.GAME, 5_000L);
-        when(true).thenReturn(true);
         when(gameClock.gameSnapshot()).thenReturn(snapshot);
         when(gameClock.setGameTime(5_000L, "测试")).thenReturn(snapshot);
 
         mockMvc.perform(get("/admin/clock/game"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.gmEnabled").value(true))
+            .andExpect(jsonPath("$.data.gmEnabled").value(SystemSwitch.isGM()))
             .andExpect(jsonPath("$.data.clock.effectiveTime").value(5_000L));
 
         mockMvc.perform(put("/admin/clock/game")
@@ -64,6 +64,24 @@ public class GameClockControllerTest {
             .andExpect(jsonPath("$.code").value(0));
 
         verify(gameClock).setGameTime(5_000L, "测试");
+    }
+
+    /** 验证能够同时查询系统、游戏和指定玩家的当前时间 */
+    @Test
+    public void currentTime_returnsAllClockTimes() throws Exception {
+        when(gameClock.systemTimeMillis()).thenReturn(1_000L);
+        when(gameClock.gameTimeMillis()).thenReturn(5_000L);
+        when(gameClock.playerTimeMillis(1001L)).thenReturn(8_000L);
+
+        mockMvc.perform(get("/admin/clock/current/1001"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(0))
+            .andExpect(jsonPath("$.data.playerId").value(1001L))
+            .andExpect(jsonPath("$.data.systemTime").value(1_000L))
+            .andExpect(jsonPath("$.data.gameTime").value(5_000L))
+            .andExpect(jsonPath("$.data.playerTime").value(8_000L));
+
+        verify(gameClock).playerTimeMillis(1001L);
     }
 
     /** 验证玩家时间修改和全部重置接口 */
