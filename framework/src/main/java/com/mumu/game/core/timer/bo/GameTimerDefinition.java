@@ -5,6 +5,7 @@
 
 package com.mumu.game.core.timer.bo;
 
+import com.mumu.game.core.clock.consts.ClockType;
 import com.mumu.game.core.timer.core.trigger.TimerTrigger;
 
 /**
@@ -16,6 +17,7 @@ import com.mumu.game.core.timer.core.trigger.TimerTrigger;
  * @param trigger 任务触发规则
  * @param initialDelayMillis 首次执行延迟毫秒数
  * @param maxConsecutiveFailures 最大连续失败次数，0表示不限制
+ * @param clockType 任务使用的时间类型
  * @author liuzhen
  * @version 2.0.0 2026/8/9 12:19
  */
@@ -25,7 +27,8 @@ public record GameTimerDefinition(
     Runnable task,
     TimerTrigger trigger,
     long initialDelayMillis,
-    int maxConsecutiveFailures) {
+    int maxConsecutiveFailures,
+    ClockType clockType) {
 
     /** 校验并标准化动态任务定义 */
     public GameTimerDefinition {
@@ -44,8 +47,30 @@ public record GameTimerDefinition(
         if (maxConsecutiveFailures < 0) {
             throw new IllegalArgumentException("游戏周期性任务最大连续失败次数不能小于0: " + key);
         }
+        if (clockType == null) {
+            throw new IllegalArgumentException("游戏周期性任务时间类型不能为空: " + key);
+        }
         key = key.trim();
         description = description == null || description.isBlank() ? key : description.trim();
+    }
+
+    /**
+     * 创建默认使用游戏时间的动态任务定义
+     * @param key 任务唯一标识
+     * @param description 任务描述
+     * @param task 任务执行逻辑
+     * @param trigger 任务触发规则
+     * @param initialDelayMillis 首次执行延迟毫秒数
+     * @param maxConsecutiveFailures 最大连续失败次数
+     */
+    public GameTimerDefinition(
+        String key,
+        String description,
+        Runnable task,
+        TimerTrigger trigger,
+        long initialDelayMillis,
+        int maxConsecutiveFailures) {
+        this(key, description, task, trigger, initialDelayMillis, maxConsecutiveFailures, ClockType.GAME);
     }
 
     /**
@@ -56,6 +81,6 @@ public record GameTimerDefinition(
      * @return 动态任务定义
      */
     public static GameTimerDefinition of(String key, Runnable task, TimerTrigger trigger) {
-        return new GameTimerDefinition(key, key, task, trigger, 0L, 0);
+        return new GameTimerDefinition(key, key, task, trigger, 0L, 0, ClockType.GAME);
     }
 }

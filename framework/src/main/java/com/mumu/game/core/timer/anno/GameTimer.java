@@ -13,6 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
+import com.mumu.game.core.clock.consts.ClockType;
 import com.mumu.game.core.net.consts.ServiceType;
 import com.mumu.game.core.timer.core.NextExecutionTimeProvider;
 import org.springframework.stereotype.Component;
@@ -47,6 +48,9 @@ public @interface GameTimer {
 
     /** Cron 时区，空字符串表示使用系统默认时区 */
     String zone() default "";
+
+    /** 任务使用的时间类型，固定延迟任务始终按真实流逝时间执行 */
+    ClockType clockType() default ClockType.GAME;
 
     /** 允许运行任务的服务类型 */
     ServiceType[] services() default {ServiceType.ALL};

@@ -1,12 +1,18 @@
 package com.mumu.game.core.timer;
 
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
 
+import com.mumu.game.core.clock.GameClock;
+import com.mumu.game.core.clock.consts.ClockType;
+import com.mumu.game.core.clock.event.GameClockChangedEvent;
 import com.mumu.game.core.timer.bo.GameTimerContext;
 import com.mumu.game.core.timer.consts.GameTimerState;
 import com.mumu.game.core.timer.bo.GameTimerDefinition;
@@ -16,6 +22,7 @@ import com.mumu.game.core.timer.bo.GameTimerTaskSnapshot;
 import com.mumu.game.core.timer.core.trigger.FixedDelayTimerTrigger;
 import com.mumu.game.core.timer.core.NextExecutionTimeProvider;
 import org.springframework.context.support.GenericApplicationContext;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -41,6 +48,8 @@ public class GameTimerManagerTest {
     private TestTimerBean timerBean;
     /** 测试执行拦截器 */
     private TestTimerInterceptor interceptor;
+    /** 测试游戏时间 */
+    private AtomicLong gameTime;
 
     /** 初始化测试环境 */
     @BeforeMethod
@@ -53,8 +62,13 @@ public class GameTimerManagerTest {
         timerBean = context.getBean(TestTimerBean.class);
         interceptor = new TestTimerInterceptor();
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+        long currentTime = System.currentTimeMillis();
+        gameTime = new AtomicLong(currentTime);
+        GameClock gameClock = Mockito.mock(GameClock.class);
+        when(gameClock.systemTimeMillis()).thenAnswer(invocation -> System.currentTimeMillis());
+        when(gameClock.gameTimeMillis()).thenAnswer(invocation -> gameTime.get());
         // 使用直接执行器，让管理API测试不依赖异步等待。
-        manager = new GameTimerManager(context, scheduledExecutor, Runnable::run, List.of(interceptor));
+        manager = new GameTimerManager(context, scheduledExecutor, Runnable::run, List.of(interceptor), gameClock);
         manager.autoInit();
     }
 
@@ -151,6 +165,34 @@ public class GameTimerManagerTest {
         Assert.assertNotNull(snapshot);
         Assert.assertTrue(snapshot.expression().startsWith("dynamic:"));
         Assert.assertEquals(snapshot.state(), GameTimerState.SCHEDULED);
+        Assert.assertEquals(snapshot.clockType(), ClockType.GAME);
+    }
+
+    /** 验证游戏时间向前跨过触发点时仅补执行一次，并在回拨后跳过已执行点 */
+    @Test
+    public void gameClockChange_fireOnceAndAvoidDuplicateAfterRollback() {
+        GameTimerTaskSnapshot initial = manager.getTask("timer_test_dynamic");
+        long systemTaskNextTime = manager.getTask("timer_test_system_clock").nextExecutionTime();
+        long oldTime = gameTime.get();
+        long forwardTime = initial.nextExecutionTime() + 1L;
+        gameTime.set(forwardTime);
+
+        manager.onGameClockChanged(new GameClockChangedEvent(oldTime, forwardTime, 1L, "向前调整"));
+
+        GameTimerTaskSnapshot afterForward = manager.getTask("timer_test_dynamic");
+        Assert.assertEquals(timerBean.dynamicCount.get(), 1);
+        Assert.assertEquals(afterForward.executionCount(), 1L);
+        Assert.assertEquals(afterForward.manualExecutionCount(), 0L);
+        Assert.assertEquals(afterForward.state(), GameTimerState.SCHEDULED);
+        Assert.assertEquals(afterForward.lastExecutedScheduledTime(), initial.nextExecutionTime());
+        Assert.assertEquals(manager.getTask("timer_test_system_clock").nextExecutionTime(), systemTaskNextTime);
+
+        gameTime.set(oldTime);
+        manager.onGameClockChanged(new GameClockChangedEvent(forwardTime, oldTime, 2L, "向后调整"));
+
+        GameTimerTaskSnapshot afterRollback = manager.getTask("timer_test_dynamic");
+        Assert.assertEquals(timerBean.dynamicCount.get(), 1);
+        Assert.assertTrue(afterRollback.nextExecutionTime() > afterRollback.lastExecutedScheduledTime());
     }
 
     /** 验证连续失败达到阈值后任务自动暂停 */
@@ -196,6 +238,8 @@ public class GameTimerManagerTest {
 
         /** 成功任务执行次数 */
         private final AtomicInteger successCount = new AtomicInteger();
+        /** 动态时间任务执行次数 */
+        private final AtomicInteger dynamicCount = new AtomicInteger();
 
         /** 正常执行的测试任务 */
         @GameTimer(key = "timer_test_success", fixedDelay = 1L, initialDelay = 1L,
@@ -214,6 +258,13 @@ public class GameTimerManagerTest {
         /** 使用动态时间提供者的测试任务 */
         @GameTimer(key = "timer_test_dynamic", nextTimeProvider = TestNextTimeProvider.class)
         public void dynamicTask() {
+            dynamicCount.incrementAndGet();
+        }
+
+        /** 使用系统时间且不响应游戏时间调整的任务 */
+        @GameTimer(key = "timer_test_system_clock", nextTimeProvider = TestNextTimeProvider.class,
+            clockType = ClockType.SYSTEM)
+        public void systemClockTask() {
         }
     }
 

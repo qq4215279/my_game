@@ -80,7 +80,10 @@ public class SpringContextUtils implements ApplicationContextAware {
         return context.getBeansOfType(type);
     }
 
-    /** 发布事件 */
+    /**
+     * 发布Spring事件
+     * @param event 待发布事件
+     */
     public static void publishEvent(ApplicationEvent event) {
         try {
             publisher.publishEvent(event);

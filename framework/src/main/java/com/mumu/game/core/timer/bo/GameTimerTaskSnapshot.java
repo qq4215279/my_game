@@ -5,6 +5,7 @@
 
 package com.mumu.game.core.timer.bo;
 
+import com.mumu.game.core.clock.consts.ClockType;
 import com.mumu.game.core.timer.consts.GameTimerState;
 
 /**
@@ -13,9 +14,11 @@ import com.mumu.game.core.timer.consts.GameTimerState;
  * @param key 任务唯一标识
  * @param method 任务方法
  * @param expression 触发规则
+ * @param clockType 任务使用的时间类型
  * @param state 当前状态
  * @param nextExecutionTime 下次执行时间戳
  * @param lastScheduledTime 上次计划执行时间戳
+ * @param lastExecutedScheduledTime 上次已经执行的计划时间戳
  * @param lastStartTime 上次开始时间戳
  * @param lastCompleteTime 上次完成时间戳
  * @param lastExecutionDuration 上次执行耗时
@@ -37,9 +40,11 @@ public record GameTimerTaskSnapshot(
     String key,
     String method,
     String expression,
+    ClockType clockType,
     GameTimerState state,
     long nextExecutionTime,
     long lastScheduledTime,
+    long lastExecutedScheduledTime,
     long lastStartTime,
     long lastCompleteTime,
     long lastExecutionDuration,

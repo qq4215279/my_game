@@ -21,6 +21,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.mumu.game.core.clock.GameClock;
+import com.mumu.game.core.clock.SystemGameClock;
+import com.mumu.game.core.clock.consts.ClockType;
+import com.mumu.game.core.clock.event.GameClockChangedEvent;
 import com.mumu.game.core.timer.bo.GameTimerContext;
 import com.mumu.game.core.timer.bo.GameTimerDefinition;
 import com.mumu.game.core.timer.bo.GameTimerTaskSnapshot;
@@ -65,6 +69,8 @@ public class GameTimerManager implements AutoInitEvent {
     private final Executor serverExecutor;
     /** 任务执行拦截器 */
     private final List<GameTimerInterceptor> interceptors;
+    /** 游戏时间服务 */
+    private final GameClock gameClock;
     /** 本进程已注册的任务 */
     private final Map<String, GameTimerTaskInfo> taskMap = new ConcurrentHashMap<>();
     /** 初始化状态，防止重复扫描注册 */
@@ -77,17 +83,36 @@ public class GameTimerManager implements AutoInitEvent {
      * @param applicationContext Spring容器
      * @param scheduledExecutor 调度线程池
      * @param serverExecutor 服务任务线程池
+     * @param interceptors 任务执行拦截器
+     * @param gameClock 游戏时间服务
      */
     @Autowired
     public GameTimerManager(ApplicationContext applicationContext,
         @Qualifier("scheduledExecutor") ScheduledExecutorService scheduledExecutor,
-        @Qualifier("serverExecutor") Executor serverExecutor, List<GameTimerInterceptor> interceptors) {
+        @Qualifier("serverExecutor") Executor serverExecutor,
+        List<GameTimerInterceptor> interceptors,
+        GameClock gameClock) {
         this.applicationContext = applicationContext;
         this.scheduledExecutor = scheduledExecutor;
         this.serverExecutor = serverExecutor;
         List<GameTimerInterceptor> sortedInterceptors = new ArrayList<>(interceptors);
         sortedInterceptors.sort(Comparator.comparingInt(GameTimerInterceptor::order));
         this.interceptors = List.copyOf(sortedInterceptors);
+        this.gameClock = gameClock;
+    }
+
+    /**
+     * 创建使用系统时间回退实现的游戏周期性任务管理器
+     * @param applicationContext Spring容器
+     * @param scheduledExecutor 调度线程池
+     * @param serverExecutor 服务任务线程池
+     * @param interceptors 任务执行拦截器
+     */
+    public GameTimerManager(ApplicationContext applicationContext,
+        ScheduledExecutorService scheduledExecutor,
+        Executor serverExecutor,
+        List<GameTimerInterceptor> interceptors) {
+        this(applicationContext, scheduledExecutor, serverExecutor, interceptors, SystemGameClock.INSTANCE);
     }
 
     /**
@@ -157,7 +182,7 @@ public class GameTimerManager implements AutoInitEvent {
             return false;
         }
         synchronized (taskInfo) {
-            long currentTime = System.currentTimeMillis();
+            long currentTime = calculationBaseTime(taskInfo);
             long nextTime = taskInfo.getTrigger().nextExecutionTime(taskInfo.context(currentTime));
             return scheduleAt(taskInfo, nextTime, true);
         }
@@ -170,7 +195,7 @@ public class GameTimerManager implements AutoInitEvent {
      */
     public boolean triggerNow(String key) {
         GameTimerTaskInfo taskInfo = taskMap.get(key);
-        if (taskInfo == null || closed.get() || !taskInfo.beginManualExecution()) {
+        if (taskInfo == null || closed.get() || !taskInfo.beginManualExecution(currentTimeMillis(taskInfo))) {
             return false;
         }
         submitExecution(taskInfo);
@@ -189,7 +214,7 @@ public class GameTimerManager implements AutoInitEvent {
 
         GameTimerTaskInfo taskInfo = new GameTimerTaskInfo(definition.key(), definition.task(), resolveRunMethod(),
             definition.description(), definition.trigger(), definition.initialDelayMillis(),
-            definition.maxConsecutiveFailures());
+            definition.maxConsecutiveFailures(), definition.clockType());
         if (taskMap.putIfAbsent(taskInfo.getKey(), taskInfo) != null) {
             return false;
         }
@@ -320,6 +345,31 @@ public class GameTimerManager implements AutoInitEvent {
     }
 
     /**
+     * 游戏时间变化后重新计算游戏时间任务。
+     * 向前跨过任务触发点时仅补执行一次，向后调整时跳过已经执行过的时间点。
+     * @param event 游戏时间变化事件
+     */
+    @EventListener
+    public void onGameClockChanged(GameClockChangedEvent event) {
+        if (closed.get() || event == null) {
+            return;
+        }
+        for (GameTimerTaskInfo taskInfo : taskMap.values()) {
+            if (!isGameClockAffected(taskInfo)) {
+                continue;
+            }
+            try {
+                rescheduleAfterClockChanged(taskInfo, event);
+            } catch (Throwable e) {
+                taskInfo.pause("游戏时间变化后重新调度失败");
+                taskInfo.recordPausedReason("游戏时间变化后重新调度失败");
+                LogTopic.ACTION.error(e, "GameTimerManager.clockRescheduleError", "key", taskInfo.getKey(),
+                    "oldTime", event.oldTime(), "newTime", event.newTime());
+            }
+        }
+    }
+
+    /**
      * 扫描当前 Spring 容器中的周期性任务
      * @return key与任务信息映射
      */
@@ -439,7 +489,7 @@ public class GameTimerManager implements AutoInitEvent {
         TimerTrigger trigger = createTrigger(key, scheduled);
         Method invocableMethod = AopUtils.selectInvocableMethod(method, bean.getClass());
         return new GameTimerTaskInfo(key, bean, invocableMethod, description, trigger, initialDelayMillis,
-            scheduled.maxConsecutiveFailures());
+            scheduled.maxConsecutiveFailures(), scheduled.clockType());
     }
 
     /**
@@ -492,7 +542,7 @@ public class GameTimerManager implements AutoInitEvent {
      * @param taskInfo 任务信息
      */
     private void registerInitialTask(GameTimerTaskInfo taskInfo) {
-        long currentTime = System.currentTimeMillis();
+        long currentTime = currentTimeMillis(taskInfo);
         long nextTime = taskInfo.getTrigger().firstExecutionTime(taskInfo.context(currentTime),
             taskInfo.getInitialDelayMillis());
         if (!scheduleAt(taskInfo, nextTime, true)) {
@@ -510,12 +560,28 @@ public class GameTimerManager implements AutoInitEvent {
      * @return true表示调度成功
      */
     private boolean scheduleAt(GameTimerTaskInfo taskInfo, long executionTime, boolean fromPaused) {
+        return scheduleAt(taskInfo, executionTime, fromPaused, true);
+    }
+
+    /**
+     * 在指定时间调度任务
+     * @param taskInfo 任务信息
+     * @param executionTime 执行时间戳
+     * @param fromPaused 是否从暂停状态发起调度
+     * @param resetFailureState 是否重置失败状态
+     * @return true表示调度成功
+     */
+    private boolean scheduleAt(
+        GameTimerTaskInfo taskInfo,
+        long executionTime,
+        boolean fromPaused,
+        boolean resetFailureState) {
         synchronized (taskInfo) {
-            if (closed.get() || !taskInfo.prepareSchedule(executionTime, fromPaused)) {
+            if (closed.get() || !taskInfo.prepareSchedule(executionTime, fromPaused, resetFailureState)) {
                 return false;
             }
             try {
-                long delay = Math.max(executionTime - System.currentTimeMillis(), 0L);
+                long delay = Math.max(executionTime - currentTimeMillis(taskInfo), 0L);
                 ScheduledFuture<?> future = scheduledExecutor.schedule(() -> fire(taskInfo), delay,
                     TimeUnit.MILLISECONDS);
                 taskInfo.bindFuture(future);
@@ -547,7 +613,7 @@ public class GameTimerManager implements AutoInitEvent {
             TimerTrigger oldTrigger = taskInfo.replaceTrigger(newTrigger);
             try {
                 if (wasScheduled) {
-                    long currentTime = System.currentTimeMillis();
+                    long currentTime = calculationBaseTime(taskInfo);
                     long nextTime = newTrigger.nextExecutionTime(taskInfo.context(currentTime));
                     if (nextTime <= 0L || !scheduleAt(taskInfo, nextTime, true)) {
                         throw new IllegalStateException("新触发规则没有可用的下次执行时间");
@@ -578,7 +644,7 @@ public class GameTimerManager implements AutoInitEvent {
             return;
         }
         try {
-            long currentTime = System.currentTimeMillis();
+            long currentTime = calculationBaseTime(taskInfo);
             long nextTime = oldTrigger.nextExecutionTime(taskInfo.context(currentTime));
             if (nextTime > 0L) {
                 scheduleAt(taskInfo, nextTime, true);
@@ -593,7 +659,7 @@ public class GameTimerManager implements AutoInitEvent {
      * @param taskInfo 任务信息
      */
     private void fire(GameTimerTaskInfo taskInfo) {
-        if (closed.get() || !taskInfo.beginScheduledExecution()) {
+        if (closed.get() || !taskInfo.beginScheduledExecution(currentTimeMillis(taskInfo))) {
             return;
         }
         submitExecution(taskInfo);
@@ -617,7 +683,7 @@ public class GameTimerManager implements AutoInitEvent {
      */
     private void executeTask(GameTimerTaskInfo taskInfo) {
         Throwable error = null;
-        invokeBeforeInterceptors(taskInfo.context(System.currentTimeMillis()));
+        invokeBeforeInterceptors(taskInfo.context(currentTimeMillis(taskInfo)));
         try {
             taskInfo.getMethod().invoke(taskInfo.getHolder());
         } catch (InvocationTargetException e) {
@@ -668,9 +734,10 @@ public class GameTimerManager implements AutoInitEvent {
      * @param invokeAfterInterceptor 是否执行后置拦截器
      */
     private void completeTask(GameTimerTaskInfo taskInfo, Throwable error, boolean invokeAfterInterceptor) {
-        boolean shouldReschedule = taskInfo.completeExecution(error);
+        long currentTime = currentTimeMillis(taskInfo);
+        boolean shouldReschedule = taskInfo.completeExecution(error, currentTime);
         if (invokeAfterInterceptor) {
-            invokeAfterInterceptors(taskInfo.context(System.currentTimeMillis()), error);
+            invokeAfterInterceptors(taskInfo.context(currentTime), error);
         }
         if (error != null) {
             LogTopic.ACTION.error(error, "GameTimerManager.executeError", "key", taskInfo.getKey());
@@ -684,8 +751,8 @@ public class GameTimerManager implements AutoInitEvent {
         }
 
         try {
-            long currentTime = System.currentTimeMillis();
-            long nextTime = taskInfo.getTrigger().nextExecutionTime(taskInfo.context(currentTime));
+            long calculationTime = calculationBaseTime(taskInfo);
+            long nextTime = taskInfo.getTrigger().nextExecutionTime(taskInfo.context(calculationTime));
             if (nextTime <= 0L) {
                 taskInfo.stop();
                 LogTopic.ACTION.warn("GameTimerManager.noNextTime", "key", taskInfo.getKey());
@@ -696,6 +763,69 @@ public class GameTimerManager implements AutoInitEvent {
             taskInfo.pause();
             LogTopic.ACTION.error(e, "GameTimerManager.rescheduleError", "key", taskInfo.getKey());
         }
+    }
+
+    /**
+     * 处理单个任务的游戏时间变化
+     * @param taskInfo 任务信息
+     * @param event 游戏时间变化事件
+     */
+    private void rescheduleAfterClockChanged(GameTimerTaskInfo taskInfo, GameClockChangedEvent event) {
+        boolean fireOnce = false;
+        synchronized (taskInfo) {
+            if (!taskInfo.isScheduled()) {
+                return;
+            }
+            long scheduledTime = taskInfo.getNextExecutionTime();
+            if (event.forward() && scheduledTime > event.oldTime() && scheduledTime <= event.newTime()) {
+                fireOnce = taskInfo.beginFireOnceExecution(currentTimeMillis(taskInfo));
+            } else if (taskInfo.prepareClockReschedule()) {
+                long currentTime = calculationBaseTime(taskInfo);
+                long nextTime = taskInfo.getTrigger().nextExecutionTime(taskInfo.context(currentTime));
+                if (nextTime > 0L) {
+                    scheduleAt(taskInfo, nextTime, true, false);
+                } else {
+                    taskInfo.recordPausedReason("游戏时间变化后没有可用的下次执行时间");
+                }
+            }
+        }
+        if (fireOnce) {
+            LogTopic.ACTION.info("GameTimerManager.clockFireOnce", "key", taskInfo.getKey(),
+                "oldTime", event.oldTime(), "newTime", event.newTime());
+            submitExecution(taskInfo);
+        }
+    }
+
+    /**
+     * 获取任务当前使用的时间
+     * @param taskInfo 任务信息
+     * @return 当前时间戳
+     */
+    private long currentTimeMillis(GameTimerTaskInfo taskInfo) {
+        if (taskInfo.getTrigger() instanceof FixedDelayTimerTrigger
+            || taskInfo.getClockType() == ClockType.SYSTEM) {
+            return gameClock.systemTimeMillis();
+        }
+        return gameClock.gameTimeMillis();
+    }
+
+    /**
+     * 获取计算下一触发点的基准时间，避免时间回拨后重复执行已完成的计划点
+     * @param taskInfo 任务信息
+     * @return 计算基准时间戳
+     */
+    private long calculationBaseTime(GameTimerTaskInfo taskInfo) {
+        return Math.max(currentTimeMillis(taskInfo), taskInfo.getLastExecutedScheduledTime());
+    }
+
+    /**
+     * 判断任务是否需要响应游戏时间变化
+     * @param taskInfo 任务信息
+     * @return true表示需要重新调度
+     */
+    private boolean isGameClockAffected(GameTimerTaskInfo taskInfo) {
+        return taskInfo.getClockType() == ClockType.GAME
+            && !(taskInfo.getTrigger() instanceof FixedDelayTimerTrigger);
     }
 
     /**

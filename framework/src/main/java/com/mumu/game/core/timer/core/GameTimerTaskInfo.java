@@ -8,6 +8,7 @@ package com.mumu.game.core.timer.core;
 import java.lang.reflect.Method;
 import java.util.concurrent.ScheduledFuture;
 
+import com.mumu.game.core.clock.consts.ClockType;
 import com.mumu.game.core.timer.bo.GameTimerContext;
 import com.mumu.game.core.timer.bo.GameTimerTaskSnapshot;
 import com.mumu.game.core.timer.core.trigger.TimerTrigger;
@@ -34,6 +35,8 @@ final class GameTimerTaskInfo {
     private final long initialDelayMillis;
     /** 最大连续失败次数，0表示不限制 */
     private final int maxConsecutiveFailures;
+    /** 任务使用的时间类型 */
+    private final ClockType clockType;
     /** 任务可变运行状态 */
     private final GameTimerRuntimeState runtimeState = new GameTimerRuntimeState();
 
@@ -46,9 +49,10 @@ final class GameTimerTaskInfo {
      * @param trigger 任务触发规则
      * @param initialDelayMillis 首次执行延迟毫秒数
      * @param maxConsecutiveFailures 最大连续失败次数
+     * @param clockType 任务使用的时间类型
      */
     GameTimerTaskInfo(String key, Object holder, Method method, String description, TimerTrigger trigger,
-        long initialDelayMillis, int maxConsecutiveFailures) {
+        long initialDelayMillis, int maxConsecutiveFailures, ClockType clockType) {
         this.key = key;
         this.holder = holder;
         this.method = method;
@@ -56,6 +60,7 @@ final class GameTimerTaskInfo {
         this.trigger = trigger;
         this.initialDelayMillis = initialDelayMillis;
         this.maxConsecutiveFailures = maxConsecutiveFailures;
+        this.clockType = clockType;
     }
 
     /**
@@ -66,6 +71,17 @@ final class GameTimerTaskInfo {
      */
     synchronized boolean prepareSchedule(long nextTime, boolean fromPaused) {
         return runtimeState.prepareSchedule(nextTime, fromPaused);
+    }
+
+    /**
+     * 准备进入等待调度状态
+     * @param nextTime 下次执行时间戳
+     * @param fromPaused 是否从暂停状态发起调度
+     * @param resetFailureState 是否重置失败状态
+     * @return true表示状态切换成功
+     */
+    synchronized boolean prepareSchedule(long nextTime, boolean fromPaused, boolean resetFailureState) {
+        return runtimeState.prepareSchedule(nextTime, fromPaused, resetFailureState);
     }
 
     /**
@@ -85,16 +101,25 @@ final class GameTimerTaskInfo {
      * 开始执行正常到期的任务
      * @return true表示允许执行
      */
-    synchronized boolean beginScheduledExecution() {
-        return runtimeState.beginScheduledExecution();
+    synchronized boolean beginScheduledExecution(long currentTime) {
+        return runtimeState.beginScheduledExecution(currentTime);
     }
 
     /**
      * 开始手动执行任务
      * @return true表示允许执行
      */
-    synchronized boolean beginManualExecution() {
-        return runtimeState.beginManualExecution();
+    synchronized boolean beginManualExecution(long currentTime) {
+        return runtimeState.beginManualExecution(currentTime);
+    }
+
+    /**
+     * 开始执行游戏时间跨越触发点后的单次补偿任务
+     * @param currentTime 当前时间戳
+     * @return true表示允许执行
+     */
+    synchronized boolean beginFireOnceExecution(long currentTime) {
+        return runtimeState.beginFireOnceExecution(currentTime);
     }
 
     /**
@@ -102,8 +127,8 @@ final class GameTimerTaskInfo {
      * @param error 执行异常，成功时为null
      * @return true表示执行结束后需要继续调度
      */
-    synchronized boolean completeExecution(Throwable error) {
-        return runtimeState.completeExecution(error, maxConsecutiveFailures);
+    synchronized boolean completeExecution(Throwable error, long currentTime) {
+        return runtimeState.completeExecution(error, maxConsecutiveFailures, currentTime);
     }
 
     /**
@@ -123,6 +148,14 @@ final class GameTimerTaskInfo {
         return runtimeState.pause(reason);
     }
 
+    /**
+     * 为已经暂停的任务记录暂停原因
+     * @param reason 暂停原因
+     */
+    synchronized void recordPausedReason(String reason) {
+        runtimeState.recordPausedReason(reason);
+    }
+
     /** 永久停止当前任务 */
     synchronized void stop() {
         runtimeState.stop();
@@ -133,7 +166,7 @@ final class GameTimerTaskInfo {
      * @return 任务运行快照
      */
     synchronized GameTimerTaskSnapshot snapshot() {
-        return runtimeState.snapshot(key, description, trigger.expression(), maxConsecutiveFailures);
+        return runtimeState.snapshot(key, description, trigger.expression(), clockType, maxConsecutiveFailures);
     }
 
     /**
@@ -159,6 +192,30 @@ final class GameTimerTaskInfo {
      */
     synchronized boolean isScheduled() {
         return runtimeState.isScheduled();
+    }
+
+    /**
+     * 准备因游戏时间变化而重新调度
+     * @return true表示原任务处于等待调度状态
+     */
+    synchronized boolean prepareClockReschedule() {
+        return runtimeState.prepareClockReschedule();
+    }
+
+    /**
+     * 获取下次计划执行时间
+     * @return 下次计划执行时间戳
+     */
+    synchronized long getNextExecutionTime() {
+        return runtimeState.getNextExecutionTime();
+    }
+
+    /**
+     * 获取上次已经执行的计划时间
+     * @return 上次已经执行的计划时间戳
+     */
+    synchronized long getLastExecutedScheduledTime() {
+        return runtimeState.getLastExecutedScheduledTime();
     }
 
     /**
@@ -204,5 +261,9 @@ final class GameTimerTaskInfo {
 
     long getInitialDelayMillis() {
         return initialDelayMillis;
+    }
+
+    ClockType getClockType() {
+        return clockType;
     }
 }

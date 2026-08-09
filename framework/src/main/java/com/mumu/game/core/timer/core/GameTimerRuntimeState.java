@@ -6,7 +6,9 @@
 package com.mumu.game.core.timer.core;
 
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
+import com.mumu.game.core.clock.consts.ClockType;
 import com.mumu.game.core.timer.bo.GameTimerContext;
 import com.mumu.game.core.timer.bo.GameTimerTaskSnapshot;
 import com.mumu.game.core.timer.consts.GameTimerState;
@@ -29,8 +31,12 @@ final class GameTimerRuntimeState {
     private long nextExecutionTime;
     /** 上次计划执行时间 */
     private long lastScheduledTime;
+    /** 上次已经执行的计划时间 */
+    private long lastExecutedScheduledTime;
     /** 上次实际开始时间 */
     private long lastStartTime;
+    /** 本次开始执行时的单调时间 */
+    private long executionStartNanoTime;
     /** 上次实际完成时间 */
     private long lastCompleteTime;
     /** 上次执行耗时 */
@@ -63,6 +69,17 @@ final class GameTimerRuntimeState {
      * @return true表示状态切换成功
      */
     boolean prepareSchedule(long nextTime, boolean fromPaused) {
+        return prepareSchedule(nextTime, fromPaused, true);
+    }
+
+    /**
+     * 准备进入等待调度状态
+     * @param nextTime 下次执行时间戳
+     * @param fromPaused 是否从暂停状态发起调度
+     * @param resetFailureState 是否重置失败状态
+     * @return true表示状态切换成功
+     */
+    boolean prepareSchedule(long nextTime, boolean fromPaused, boolean resetFailureState) {
         if (state == GameTimerState.STOPPED || nextTime <= 0L) {
             return false;
         }
@@ -76,7 +93,7 @@ final class GameTimerRuntimeState {
         nextExecutionTime = nextTime;
         lastScheduledTime = nextTime;
         future = null;
-        if (fromPaused) {
+        if (fromPaused && resetFailureState) {
             consecutiveFailureCount = 0;
             pauseReason = "";
         }
@@ -110,15 +127,16 @@ final class GameTimerRuntimeState {
      * 开始执行正常到期的任务
      * @return true表示允许执行
      */
-    boolean beginScheduledExecution() {
+    boolean beginScheduledExecution(long currentTime) {
         if (state != GameTimerState.SCHEDULED) {
             return false;
         }
+        lastExecutedScheduledTime = lastScheduledTime;
         future = null;
         nextExecutionTime = 0L;
         state = GameTimerState.RUNNING;
         rescheduleAfterExecution = true;
-        recordExecutionStart(false);
+        recordExecutionStart(false, currentTime);
         return true;
     }
 
@@ -126,7 +144,7 @@ final class GameTimerRuntimeState {
      * 开始手动执行任务
      * @return true表示允许执行
      */
-    boolean beginManualExecution() {
+    boolean beginManualExecution(long currentTime) {
         if (state == GameTimerState.RUNNING || state == GameTimerState.STOPPED) {
             return false;
         }
@@ -134,7 +152,24 @@ final class GameTimerRuntimeState {
         cancelFuture();
         state = GameTimerState.RUNNING;
         rescheduleAfterExecution = wasScheduled;
-        recordExecutionStart(true);
+        recordExecutionStart(true, currentTime);
+        return true;
+    }
+
+    /**
+     * 开始执行游戏时间跨越触发点后的单次补偿任务
+     * @param currentTime 当前时间戳
+     * @return true表示允许执行
+     */
+    boolean beginFireOnceExecution(long currentTime) {
+        if (state != GameTimerState.SCHEDULED) {
+            return false;
+        }
+        lastExecutedScheduledTime = nextExecutionTime;
+        cancelFuture();
+        state = GameTimerState.RUNNING;
+        rescheduleAfterExecution = true;
+        recordExecutionStart(false, currentTime);
         return true;
     }
 
@@ -144,9 +179,10 @@ final class GameTimerRuntimeState {
      * @param maxConsecutiveFailures 最大连续失败次数
      * @return true表示执行结束后需要继续调度
      */
-    boolean completeExecution(Throwable error, int maxConsecutiveFailures) {
-        lastCompleteTime = System.currentTimeMillis();
-        lastExecutionDuration = Math.max(lastCompleteTime - lastStartTime, 0L);
+    boolean completeExecution(Throwable error, int maxConsecutiveFailures, long currentTime) {
+        lastCompleteTime = currentTime;
+        lastExecutionDuration = Math.max(
+            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - executionStartNanoTime), 0L);
         maxExecutionDuration = Math.max(maxExecutionDuration, lastExecutionDuration);
         if (error == null) {
             successCount++;
@@ -188,6 +224,16 @@ final class GameTimerRuntimeState {
         return true;
     }
 
+    /**
+     * 为已经暂停的任务记录暂停原因
+     * @param reason 暂停原因
+     */
+    void recordPausedReason(String reason) {
+        if (state == GameTimerState.PAUSED) {
+            pauseReason = reason == null ? "" : reason;
+        }
+    }
+
     /** 永久停止当前任务 */
     void stop() {
         cancelFuture();
@@ -200,6 +246,19 @@ final class GameTimerRuntimeState {
     void prepareTriggerReplacement() {
         cancelFuture();
         state = GameTimerState.PAUSED;
+    }
+
+    /**
+     * 准备因游戏时间变化而重新调度
+     * @return true表示原任务处于等待调度状态
+     */
+    boolean prepareClockReschedule() {
+        if (state != GameTimerState.SCHEDULED) {
+            return false;
+        }
+        cancelFuture();
+        state = GameTimerState.PAUSED;
+        return true;
     }
 
     /** 触发规则更新成功 */
@@ -226,11 +285,16 @@ final class GameTimerRuntimeState {
      * @param maxConsecutiveFailures 最大连续失败次数
      * @return 任务运行快照
      */
-    GameTimerTaskSnapshot snapshot(String key, String description, String expression, int maxConsecutiveFailures) {
-        return new GameTimerTaskSnapshot(key, description, expression, state, nextExecutionTime, lastScheduledTime,
-            lastStartTime, lastCompleteTime, lastExecutionDuration, maxExecutionDuration, lastExecutionDelay,
-            executionCount, manualExecutionCount, successCount, failureCount, consecutiveFailureCount,
-            maxConsecutiveFailures, triggerVersion, pauseReason, lastError);
+    GameTimerTaskSnapshot snapshot(
+        String key,
+        String description,
+        String expression,
+        ClockType clockType,
+        int maxConsecutiveFailures) {
+        return new GameTimerTaskSnapshot(key, description, expression, clockType, state, nextExecutionTime,
+            lastScheduledTime, lastExecutedScheduledTime, lastStartTime, lastCompleteTime, lastExecutionDuration,
+            maxExecutionDuration, lastExecutionDelay, executionCount, manualExecutionCount, successCount,
+            failureCount, consecutiveFailureCount, maxConsecutiveFailures, triggerVersion, pauseReason, lastError);
     }
 
     /**
@@ -250,11 +314,28 @@ final class GameTimerRuntimeState {
     }
 
     /**
+     * 获取下次计划执行时间
+     * @return 下次计划执行时间戳
+     */
+    long getNextExecutionTime() {
+        return nextExecutionTime;
+    }
+
+    /**
+     * 获取上次已经执行的计划时间
+     * @return 上次已经执行的计划时间戳
+     */
+    long getLastExecutedScheduledTime() {
+        return lastExecutedScheduledTime;
+    }
+
+    /**
      * 记录任务开始执行
      * @param manual 是否为手动执行
      */
-    private void recordExecutionStart(boolean manual) {
-        lastStartTime = System.currentTimeMillis();
+    private void recordExecutionStart(boolean manual, long currentTime) {
+        lastStartTime = currentTime;
+        executionStartNanoTime = System.nanoTime();
         lastExecutionDelay = manual || lastScheduledTime <= 0L ? 0L
             : Math.max(lastStartTime - lastScheduledTime, 0L);
         executionCount++;
