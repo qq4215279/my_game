@@ -1,8 +1,8 @@
 package com.mumu.game.proto.shop.goods;
 
 import com.baidu.bjf.remoting.protobuf.annotation.ProtobufClass;
-import com.game.proto.shop.GoodsBean;
 
+import com.mumu.game.proto.shop.GoodsBean;
 import lombok.Data;
 
 
