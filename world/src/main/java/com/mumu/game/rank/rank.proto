@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+option java_package = "com.game.proto.rank";
+
+
+/** 榜单类型 */
+enum RankTypeEnum {
+  /** 日榜 */
+  DAILY = 0;
+  /** 周榜 */
+  WEEK = 1;
+  /** 月榜 */
+  MONTH = 2;
+  /** 总榜 */
+  TOTAL = 3;
+}
+
+// 玩家排行榜信息
+message PlayerRankBean {
+  /** 玩家id */
+  optional int64 id = 1;
+  /** 排名 */
+  optional int32 rank = 2;
+  /** 分值 */
+  int64 score = 3;
+  /** 玩家昵称 */
+  string nick = 4;
+  /** 玩家头像 */
+  string head = 5;
+  /** 玩家头像框 */
+  int32 headFrame = 6;
+  /** 当前等级 */
+  int32 level = 7;
+  /** vip等级 */
+  int32 vip = 8;
+  /** 是否有vip */
+  bool hasVip = 9;
+  /** vip过期时间 */
+  int64 vipExpireTime = 10;
+}
+
+// 玩家简易排行榜信息
+message PlayerSimpleRankBean {
+  /** 玩家id */
+  optional int64 id = 1;
+  /** 排名 */
+  optional int32 rank = 2;
+  /** 分值 */
+  int64 score = 3;
+  /** 玩家昵称 */
+  string nick = 4;
+}
+
+// 获取榜单信息
+message CWGetRankInfosMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 榜单类型 */
+  RankTypeEnum type = 2;
+  /** 第几期榜单（0：本期，-1：上一期） */
+  optional int32 period = 3;
+  /** 榜单翻页索引(即本页的最后一个排名值) */
+  optional int32 offset = 4;
+  /** 版本号 */
+  optional int32 version = 5;
+}
+
+// 返回榜单信息
+message WCGetRankInfosMessage {
+  /** 排行榜信息 */
+  repeated PlayerRankBean rankBeans = 1;
+  /** 自己的信息 */
+  PlayerRankBean own = 2;
+  /** 版本号 */
+  int32 version = 3;
+}
+
+// 玩家榜单变更推送（针对baloot金币榜）
+message OnZCPushNearRankMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 榜单类型 */
+  RankTypeEnum type = 2;
+  /** 玩家周边排名 */
+  repeated PlayerSimpleRankBean nearRankList = 3;
+}
+
+// 玩家排行榜积分信息
+message RankScoreBean {
+  /** id */
+  optional int64 id = 1;
+  /** 排名 */
+  optional int32 rank = 2;
+  /** 分值 */
+  optional int64 score = 3;
+}
+
+// 获取榜单积分排名信息
+message CWGetRankScoreMessage {
+  /** 功能id */
+  int32 functionId = 1;
+  /** 榜单类型 */
+  RankTypeEnum type = 2;
+  /** 第几期榜单（0：本期，-1：上一期） */
+  optional int32 period = 3;
+  /** 额外参数 */
+  repeated string params = 4;
+}
+
+// 返回榜单积分排名信息
+message WCGetRankScoreMessage {
+  /** 排行榜信息 */
+  repeated RankScoreBean rankBeans = 1;
+  /** 自己的信息 */
+  RankScoreBean own = 2;
+}
