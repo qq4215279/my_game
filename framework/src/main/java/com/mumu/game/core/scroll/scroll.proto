@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option java_package = "com.game.proto.msg.scroll";
+
+// 推送跑马灯消息
+message OnACScrollMessage {
+  /** 跑马灯列表 */
+  repeated ScrollBean scrolls = 1;
+}
+
+/** 跑马灯类型 */
+enum ScrollType {
+  /** 周期循环 */
+  SCROLL_SYSTEM = 0;
+  /** 一次性 */
+  SCROLL_COMMON = 1;
+}
+
+// 跑马灯信息
+message ScrollBean {
+  /** 消息ID */
+  int64 id = 1;
+  /** 类型 */
+  ScrollType type = 2;
+  /** 文本模板Key */
+  string tmpKey = 3;
+  /** 参数（可选） */
+  repeated string args = 4;
+  /** 优先级 */
+  optional int32 order = 5;
+  /** 播放开始时间ms（周期循环类型才有） */
+  int64 beginTime = 6;
+  /** 播放结束时间ms（周期循环类型才有） */
+  int64 endTime = 7;
+  /** 轮播间隔s（周期循环类型才有） */
+  int32 interval = 8;
+}
